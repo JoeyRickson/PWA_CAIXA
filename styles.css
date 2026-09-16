@@ -90,3 +90,37 @@ dialog{border:0;padding:0;border-radius:22px;background:var(--surface);color:var
   .list .item:nth-child(2){animation-delay:.03s}.list .item:nth-child(3){animation-delay:.06s}.list .item:nth-child(4){animation-delay:.09s}.list .item:nth-child(5){animation-delay:.12s}
   @keyframes rise-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 }
+.android-download-card{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  margin:8px 0 14px;
+}
+
+.android-download-card h3{
+  margin:3px 0 0;
+}
+
+.android-download-card .helper{
+  margin:5px 0 0;
+}
+
+.android-download-btn{
+  text-decoration:none;
+  white-space:nowrap;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+@media(max-width:560px){
+  .android-download-card{
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  .android-download-btn{
+    width:100%;
+  }
+}
