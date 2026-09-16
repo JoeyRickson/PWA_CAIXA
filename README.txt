@@ -1,5 +1,6 @@
 MEU CAIXA — CONTROLE FINANCEIRO PESSOAL
 Versão 2.4
+Desenvolvido por Joey Rickson.
 
 O Meu Caixa é um PWA simples para acompanhar a vida financeira pessoal em um só lugar. Ele foi criado para registrar entradas e gastos, visualizar o saldo do mês, controlar valores guardados e estimar o recebimento da folha com horas extras. Cada pessoa usa seus próprios dados e sua própria conta Google.
 

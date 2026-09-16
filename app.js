@@ -40,7 +40,7 @@ const seed={
   version:2,
   savingGoal:500,
   importNote:true,
-  settings:{theme:'light'},
+  settings:{theme:'light',bonusEnabled:true,bonusName:'Bônus'},
   cloud:{provider:'google',emailHint:'',clientId:'',account:'',providerClientId:'',folderName:'Meu Caixa - Backups',autoBackup:false,retentionDays:30,lastBackupAt:null,lastFileId:null},
   payrollConfig:{baseSalary:5000,monthlyHours:220,advance:2000,nightPct:20,extraGoal:40},
   payrollMonths:{},
@@ -76,6 +76,7 @@ function migrateState(raw){
   migrated.payrollConfig={...base.payrollConfig,...(raw.payrollConfig||{})};
   migrated.payrollMonths=(raw.payrollMonths&&typeof raw.payrollMonths==='object')?raw.payrollMonths:{};
   migrated.transactions=Array.isArray(raw.transactions)?raw.transactions:base.transactions;
+  migrated.transactions=migrated.transactions.map(x=>x.description==='Crédito Flash'?{...x,description:migrated.settings.bonusName||'Bônus'}:x);
   migrated.fixedTemplates=Array.isArray(raw.fixedTemplates)?raw.fixedTemplates:[];
   migrated.savings=Array.isArray(raw.savings)?raw.savings:[];
   migrated.overtimeLogs=Array.isArray(raw.overtimeLogs)?raw.overtimeLogs:[];
@@ -188,7 +189,7 @@ function renderDashboard(){
   const m=metrics(),s=savingsMetrics();
   document.querySelector('#monthLabel').textContent=`${MONTHS[cursor.getMonth()]} ${cursor.getFullYear()}`;
   setMoney('cashNow',m.cashNow);setMoney('cashProjected',m.cashProjected);setMoney('flashNow',m.flashNow);
-  document.querySelector('#flashProjected').textContent=`Projetado: ${fmt.format(m.flashProjected)}`;
+  document.querySelector('#flashProjected').textContent=`Projetado: ${fmt.format(m.flashProjected)}`;document.querySelectorAll('[data-bonus-label]').forEach(el=>el.textContent=bonusLabel());document.querySelectorAll('[data-bonus-visibility]').forEach(el=>el.classList.toggle('hidden',state.settings.bonusEnabled===false));
   setMoney('savedTotal',s.balance);document.querySelector('#savedMonthText').textContent=`No mês: ${fmt.format(s.monthNet)}`;
   const potential=Math.max(0,m.cashProjected);setMoney('savePotential',potential);document.querySelector('#goalText').textContent=`Meta mensal: ${fmt.format(state.savingGoal||0)}`;
   document.querySelector('#goalProgress').style.width=`${state.savingGoal?Math.min(100,potential/state.savingGoal*100):0}%`;
@@ -202,16 +203,17 @@ function renderBars(exp){
   document.querySelector('#categoryBars').innerHTML=rows.length?rows.map(([name,val])=>`<div class="bar-row"><span>${escapeHtml(name)}</span><div class="bar-track"><i style="width:${val/max*100}%"></i></div><strong>${fmt.format(val)}</strong></div>`).join(''):'<div class="empty">Nenhum gasto no mês.</div>';
 }
 function renderPending(exp){const p=exp.filter(x=>x.status==='planned').sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5);document.querySelector('#pendingList').innerHTML=p.length?p.map(itemHtml).join(''):'<div class="empty">Nenhuma conta pendente.</div>'}
-function incomeLabel(t){return ({first:'Quinzena',second:'Final do mês',extra:'Extra',flash:'Flash'})[t]||'Entrada'}
+function bonusLabel(){return String(state.settings?.bonusName||'Bônus').trim()||'Bônus'}
+function incomeLabel(t){return ({first:'Quinzena',second:'Final do mês',extra:'Extra',flash:bonusLabel()})[t]||'Entrada'}
 function expenseLabel(t){return ({fixed:'Fixo',variable:'Variável',unplanned:'Imprevisto'})[t]||'Gasto'}
-function defaultIncomeDescription(t){return ({first:'Salário - quinzena',second:'Salário - final do mês',extra:'Entrada extra',flash:'Crédito Flash'})[t]||'Entrada'}
+function defaultIncomeDescription(t){return ({first:'Salário - quinzena',second:'Salário - final do mês',extra:'Entrada extra',flash:bonusLabel()})[t]||'Entrada'}
 function defaultExpenseDescription(t,category){const c=String(category||'').trim();return c||({fixed:'Gasto fixo',variable:'Gasto variável',unplanned:'Gasto imprevisto'})[t]||'Gasto'}
 function itemHtml(x){
   const isInc=x.kind==='income',flash=isInc?x.incomeType==='flash':x.paySource==='flash',label=isInc?incomeLabel(x.incomeType):`${expenseLabel(x.expenseType)} · ${x.category||'Sem categoria'}`;
   return `<button class="item" data-edit="${x.id}" style="width:100%;text-align:left;cursor:pointer"><span class="item-icon ${flash?'flash':''}">${isInc?'+':'−'}</span><span class="item-main"><strong>${escapeHtml(x.description)}</strong><span>${formatDate(x.date)} · ${escapeHtml(label)}</span></span><span class="item-side"><strong class="${isInc?'positive':'negative'}">${isInc?'+ ':'− '}${fmt.format(x.amount)}</strong><span class="${x.status==='planned'?'pending':''}">${x.status==='planned'?'Previsto':'Realizado'}</span></span></button>`;
 }
 function renderTransactions(){let tx=transactions();if(filter==='income')tx=tx.filter(x=>x.kind==='income');if(filter==='expense')tx=tx.filter(x=>x.kind==='expense');if(filter==='pending')tx=tx.filter(x=>x.status==='planned');document.querySelector('#transactionList').innerHTML=tx.length?tx.map(itemHtml).join(''):'<div class="empty">Nada por aqui.</div>'}
-function renderFixed(){const fixeds=state.fixedTemplates.filter(t=>(t.kind||'expense')==='expense');document.querySelector('#fixedList').innerHTML=fixeds.length?fixeds.map(t=>`<button class="item" data-template="${t.id}" style="width:100%;text-align:left;cursor:pointer"><span class="item-icon">↻</span><span class="item-main"><strong>${escapeHtml(t.description)}</strong><span>Dia ${t.dueDay} · ${escapeHtml(t.category||'Sem categoria')} · ${t.paySource==='flash'?'Flash':'Salário / conta'}</span></span><span class="item-side"><strong>${fmt.format(t.amount)}</strong><span>Todo mês</span></span></button>`).join(''):'<div class="empty">Nenhum gasto fixo automático.</div>'}
+function renderFixed(){const fixeds=state.fixedTemplates.filter(t=>(t.kind||'expense')==='expense');document.querySelector('#fixedList').innerHTML=fixeds.length?fixeds.map(t=>`<button class="item" data-template="${t.id}" style="width:100%;text-align:left;cursor:pointer"><span class="item-icon">↻</span><span class="item-main"><strong>${escapeHtml(t.description)}</strong><span>Dia ${t.dueDay} · ${escapeHtml(t.category||'Sem categoria')} · ${t.paySource==='flash'?bonusLabel():'Salário / conta'}</span></span><span class="item-side"><strong>${fmt.format(t.amount)}</strong><span>Todo mês</span></span></button>`).join(''):'<div class="empty">Nenhum gasto fixo automático.</div>'}
 
 function renderSavings(){
   const s=savingsMetrics();setMoney('savingBalance',s.balance);setMoney('savingDepositsMonth',s.monthDeposits);setMoney('savingWithdrawalsMonth',s.monthWithdrawals);setMoney('savingNetMonth',s.monthNet);
@@ -299,6 +301,7 @@ function renderSimulator(){
 
 function renderData(){
   document.querySelector('#savingGoal').value=(state.savingGoal||0).toFixed(2).replace('.',',');
+  document.querySelector('#bonusEnabled').checked=state.settings.bonusEnabled!==false;document.querySelector('#bonusName').value=state.settings.bonusName||'Bônus';document.querySelector('#incomeType option[value="flash"]').textContent=bonusLabel();document.querySelector('#paySource option[value="flash"]').textContent=bonusLabel();
   document.querySelector('#cloudProvider').value=state.cloud.provider||'google';document.querySelector('#googleEmailHint').value=state.cloud.emailHint||'';document.querySelector('#googleClientId').value=state.cloud.clientId||'';document.querySelector('#cloudAccount').value=state.cloud.account||'';document.querySelector('#cloudClientId').value=state.cloud.providerClientId||'';document.querySelector('#driveFolderName').value=state.cloud.folderName||'Meu Caixa - Backups';document.querySelector('#driveAutoBackup').checked=!!state.cloud.autoBackup;document.querySelector('#driveRetentionDays').value=String(state.cloud.retentionDays||30);updateCloudProviderFields();
   document.querySelectorAll('[data-theme-option]').forEach(b=>b.classList.toggle('active',b.dataset.themeOption===state.settings.theme));updateDriveStatus();updateLocalSaveStatus();
 }
@@ -440,6 +443,7 @@ document.querySelector('#useSimulationIncome').onclick=()=>{const p=payrollSimul
 // Preferências e backup local
 function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 document.querySelector('#saveGoalBtn').onclick=()=>{state.savingGoal=money(document.querySelector('#savingGoal').value);save();renderAll();alert('Meta salva.')};
+document.querySelector('#saveBonusConfig').onclick=()=>{state.settings.bonusEnabled=document.querySelector('#bonusEnabled').checked;state.settings.bonusName=document.querySelector('#bonusName').value.trim()||'Bônus';save();renderAll();alert('Configuração do bônus salva.')};
 document.querySelector('#saveLocalData').onclick=()=>{save({backupOld:false,cloud:false});updateLocalSaveStatus();alert('Informações salvas neste aparelho.')};
 document.querySelector('#exportJson').onclick=()=>download(`meu-caixa-backup-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({...state,exportedAt:new Date().toISOString()},null,2),'application/json');
 function exportRows(){

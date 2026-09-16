@@ -55,7 +55,7 @@
             <small>Inclui entradas e contas previstas</small>
           </article>
           <article class="card">
-            <span>Flash disponível</span>
+            <span data-bonus-label>Bônus disponível</span>
             <strong id="flashNow">R$ 0,00</strong>
             <small id="flashProjected">Projetado: R$ 0,00</small>
           </article>
@@ -81,7 +81,7 @@
             <div class="mini-stat"><span>Até dia 15</span><strong id="incomeFirst">R$ 0,00</strong></div>
             <div class="mini-stat"><span>Final do mês</span><strong id="incomeSecond">R$ 0,00</strong></div>
             <div class="mini-stat"><span>Extras</span><strong id="incomeExtra">R$ 0,00</strong></div>
-            <div class="mini-stat"><span>Crédito Flash</span><strong id="incomeFlash">R$ 0,00</strong></div>
+            <div class="mini-stat" data-bonus-visibility><span data-bonus-label>Bônus</span><strong id="incomeFlash">R$ 0,00</strong></div>
           </div>
         </section>
 
@@ -229,6 +229,14 @@
           <button id="saveGoalBtn" class="btn full">Salvar meta</button>
         </section>
 
+        <section class="panel form-panel">
+          <h3>Bônus opcional</h3>
+          <p class="helper">Use este recurso para vale, cartão benefício ou qualquer bônus recebido. Você escolhe o nome ou pode desativá-lo.</p>
+          <label class="check-row"><input id="bonusEnabled" type="checkbox"> Usar bônus no app</label>
+          <label>Nome do bônus<input id="bonusName" placeholder="Ex.: Vale alimentação, cartão benefício"></label>
+          <button id="saveBonusConfig" class="btn full">Salvar configuração do bônus</button>
+        </section>
+
         <section class="panel cloud-panel">
           <div class="section-head"><div><span class="muted">Provedor de backup</span><h3>Backup em nuvem</h3></div><span id="driveStatus" class="status-pill">Desconectado</span></div>
           <p id="cloudProviderHelp" class="helper">Cada pessoa conecta a própria conta. O app não compartilha nem acessa o armazenamento de outras pessoas.</p>
@@ -290,6 +298,7 @@
       <button class="nav-item" data-nav="fixed"><span>↻</span>Fixos</button>
       <button class="nav-item" data-nav="data"><span>⚙</span>Dados</button>
     </nav>
+    <footer style="text-align:center;padding:10px 16px 84px;color:var(--muted);font-size:.72rem">Meu Caixa · Joey Rickson</footer>
   </div>
 
   <dialog id="entryDialog">
