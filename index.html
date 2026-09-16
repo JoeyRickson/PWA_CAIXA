@@ -232,7 +232,7 @@
         <section class="panel cloud-panel">
           <div class="section-head"><div><span class="muted">Provedor de backup</span><h3>Backup em nuvem</h3></div><span id="driveStatus" class="status-pill">Desconectado</span></div>
           <p id="cloudProviderHelp" class="helper">Cada pessoa conecta a própria conta. O app não compartilha nem acessa o armazenamento de outras pessoas.</p>
-          <label>Onde guardar o backup<select id="cloudProvider"><option value="google">Google Drive</option><option value="onedrive">OneDrive</option><option value="dropbox">Dropbox</option><option value="icloud">iCloud Drive</option></select></label>
+          <label>Onde guardar o backup<select id="cloudProvider"><option value="google">Google Drive</option><option value="onedrive">OneDrive</option><option value="dropbox">Dropbox</option></select></label>
           <div id="googleCloudFields">
             <label>Sua conta Google <span class="field-note">(opcional)</span><input id="googleEmailHint" type="email" placeholder="voce@gmail.com"></label>
             <label>Google OAuth Client ID<input id="googleClientId" placeholder="xxxxxxxx.apps.googleusercontent.com"></label>
@@ -252,7 +252,7 @@
             <button id="restoreDrive" class="btn ghost full">Restaurar do Drive</button>
           </div>
           <p id="driveDetail" class="helper small-text">O backup será salvo na pasta configurada.</p>
-          <p class="helper small-text">Google Drive, OneDrive e Dropbox têm conexão automática quando suas credenciais OAuth são informadas. O iCloud Drive fica disponível para backup JSON manual, pois não oferece uma API pública de arquivos para este PWA.</p>
+          <p class="helper small-text">Google Drive, OneDrive e Dropbox têm conexão automática quando suas credenciais OAuth são informadas. Outros serviços podem receber o arquivo exportado manualmente.</p>
         </section>
 
         <section class="panel">
@@ -261,6 +261,7 @@
           <div class="button-stack">
             <button id="exportJson" class="btn full">Exportar backup (.json)</button>
             <button id="exportCsv" class="btn secondary full">Exportar lançamentos (.csv)</button>
+            <button id="exportPdf" class="btn secondary full">Exportar relatório (.pdf)</button>
             <label class="btn ghost full file-label">Importar backup<input id="importJson" type="file" accept="application/json,.json"></label>
             <button id="restorePreviousLocal" class="btn ghost full">Restaurar cópia local anterior</button>
           </div>

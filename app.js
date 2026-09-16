@@ -302,14 +302,14 @@ function renderData(){
 }
 function renderAll(){applyTheme();renderDashboard();renderTransactions();renderSavings();renderSimulator();renderFixed();renderData()}
 
-const cloudProviderNames={google:'Google Drive',onedrive:'OneDrive',dropbox:'Dropbox',icloud:'iCloud Drive'};
+const cloudProviderNames={google:'Google Drive',onedrive:'OneDrive',dropbox:'Dropbox'};
 function updateCloudProviderFields(){
   const provider=document.querySelector('#cloudProvider')?.value||'google',isGoogle=provider==='google',name=cloudProviderNames[provider]||provider;
   document.querySelector('#googleCloudFields').classList.toggle('hidden',!isGoogle);document.querySelector('#otherCloudFields').classList.toggle('hidden',isGoogle);
   document.querySelector('#driveFolderName').closest('label').querySelector('span')?.remove();document.querySelector('#driveFolderName').closest('label').firstChild.textContent=isGoogle?'Pasta no Drive':'Pasta de backup';
   document.querySelector('#cloudAccountLabel').firstChild.textContent=`Conta ${name}`;document.querySelector('#cloudAccount').placeholder=provider==='icloud'?'seu Apple ID':'voce@exemplo.com';document.querySelector('#cloudClientLabel').firstChild.textContent=`Client ID OAuth do ${name}`;
-  document.querySelector('#cloudProviderStatus').textContent=provider==='icloud'?'O iCloud Drive não oferece uma API pública de arquivos para conexão direta neste PWA. Use Exportar backup (.json).':`Informe o Client ID do ${name}, salve a configuração e clique em Conectar para autorizar o backup.`;
-  const button=document.querySelector('#connectDrive');button.textContent=`Conectar ao ${name}`;button.disabled=provider==='icloud';
+  document.querySelector('#cloudProviderStatus').textContent=`Informe o Client ID do ${name}, salve a configuração e clique em Conectar para autorizar o backup.`;
+  const button=document.querySelector('#connectDrive');button.textContent=`Conectar ao ${name}`;button.disabled=false;
 }
 
 function applyTheme(){
@@ -439,7 +439,19 @@ document.querySelector('#useSimulationIncome').onclick=()=>{const p=payrollSimul
 function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 document.querySelector('#saveGoalBtn').onclick=()=>{state.savingGoal=money(document.querySelector('#savingGoal').value);save();renderAll();alert('Meta salva.')};
 document.querySelector('#exportJson').onclick=()=>download(`meu-caixa-backup-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({...state,exportedAt:new Date().toISOString()},null,2),'application/json');
-document.querySelector('#exportCsv').onclick=()=>{const rows=[['Data','Tipo','Subtipo','Descrição','Categoria','Pago com','Status','Valor']].concat(state.transactions.map(x=>[x.date,x.kind==='income'?'Entrada':'Gasto',x.kind==='income'?incomeLabel(x.incomeType):expenseLabel(x.expenseType),x.description,x.category||'',x.paySource==='flash'?'Flash':x.paySource?'Salário / conta':'',x.status==='realized'?'Realizado':'Previsto',Number(x.amount).toFixed(2).replace('.',',')]));const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('\n');download(`meu-caixa-${new Date().toISOString().slice(0,10)}.csv`,'\uFEFF'+csv,'text/csv;charset=utf-8')};
+function exportRows(){
+  const rows=[['Tipo de registro','Data','Natureza','Categoria','Descrição','Conta / origem','Status','Valor (R$)','Início','Fim','Feriado','ID']];
+  state.transactions.forEach(x=>rows.push(['Lançamento',x.date,x.kind==='income'?'Entrada':'Gasto',x.kind==='income'?incomeLabel(x.incomeType):expenseLabel(x.expenseType),x.description,x.kind==='income'?'':x.paySource==='flash'?'Flash':'Salário / conta',x.status==='realized'?'Realizado':'Previsto',Number(x.amount||0).toFixed(2).replace('.',','),'','', '',x.id]));
+  state.savings.forEach(x=>rows.push(['Guardado',x.date,x.type==='deposit'?'Aporte':'Retirada','',x.description,x.account||'',x.type==='deposit'?'Entrada':'Saída',Number(x.amount||0).toFixed(2).replace('.',','),'','','',x.id]));
+  state.overtimeLogs.forEach(x=>rows.push(['Hora extra',x.date,x.holiday?'HE 100%':'HE 50%','',x.description,'',x.holiday?'Feriado':'Dia normal','',x.start,x.end,x.holiday?'Sim':'Não',x.id]));
+  return rows;
+}
+document.querySelector('#exportCsv').onclick=()=>{const csv=exportRows().map(row=>row.map(value=>`"${String(value??'').replace(/"/g,'""')}"`).join(';')).join('\n');download(`meu-caixa-dados-${new Date().toISOString().slice(0,10)}.csv`,'\uFEFF'+csv,'text/csv;charset=utf-8')};
+function exportPdf(){
+  const rows=exportRows(),moneyValue=value=>value?`R$ ${value}`:'',tableRows=rows.slice(1).map(row=>`<tr>${row.slice(0,10).map((value,index)=>`<td class="${index===7?'money':''}">${escapeHtml(index===7?moneyValue(value):value)}</td>`).join('')}</tr>`).join('');
+  const totals=metrics(),saved=savingsMetrics(),popup=window.open('','_blank','width=1000,height=800');if(!popup){alert('Permita pop-ups para gerar o PDF.');return}
+  popup.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Relatório Meu Caixa</title><style>body{font-family:Arial,sans-serif;color:#18212f;margin:32px}h1{margin:0 0 4px;color:#0f172a}p{color:#64748b;margin:4px 0 20px}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px}.summary div{background:#eef4ff;border:1px solid #cbd8ef;padding:12px;border-radius:8px}.summary b{display:block;font-size:17px;margin-top:5px}.summary span{font-size:11px;color:#52647c}table{border-collapse:collapse;width:100%;font-size:10px}th{background:#172554;color:#fff;text-align:left;padding:8px}td{border-bottom:1px solid #dbe3ef;padding:7px}tr:nth-child(even){background:#f8fafc}.money{text-align:right;white-space:nowrap}@media print{body{margin:15mm}.no-print{display:none}.summary{grid-template-columns:repeat(4,1fr)}} </style></head><body><h1>Meu Caixa</h1><p>Relatório financeiro gerado em ${escapeHtml(new Date().toLocaleString('pt-BR'))}</p><div class="summary"><div><span>Saldo atual</span><b>${fmt.format(totals.cashNow)}</b></div><div><span>Saldo projetado</span><b>${fmt.format(totals.cashProjected)}</b></div><div><span>Guardado</span><b>${fmt.format(saved.balance)}</b></div><div><span>Registros</span><b>${rows.length-1}</b></div></div><table><thead><tr>${rows[0].slice(0,10).map(value=>`<th>${escapeHtml(value)}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);popup.document.close()}
+document.querySelector('#exportPdf').onclick=exportPdf;
 document.querySelector('#importJson').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const data=migrateState(JSON.parse(await f.text()));if(!Array.isArray(data.transactions))throw new Error();localStorage.setItem(PREVIOUS_KEY,JSON.stringify(state));state=data;save({backupOld:false});renderAll();alert('Backup importado sem perder a cópia local anterior.')}catch{alert('Arquivo de backup inválido.')}e.target.value=''};
 document.querySelector('#restorePreviousLocal').onclick=()=>{const old=localStorage.getItem(PREVIOUS_KEY);if(!old){alert('Ainda não existe uma cópia local anterior.');return}if(!confirm('Restaurar a cópia local anterior? O estado atual ficará como a próxima cópia de segurança.'))return;try{const current=JSON.stringify(state);state=migrateState(JSON.parse(old));localStorage.setItem(PREVIOUS_KEY,current);save({backupOld:false});renderAll();alert('Cópia local restaurada.')}catch{alert('Não foi possível restaurar a cópia local.')}};
 document.querySelector('#resetData').onclick=()=>{if(!confirm('Apagar os dados deste aparelho? Uma cópia local anterior será mantida.'))return;localStorage.setItem(PREVIOUS_KEY,JSON.stringify(state));const keepCloud={...seed.cloud,...state.cloud};const keepSettings={...seed.settings,...state.settings};state=deepClone(seed);state.cloud=keepCloud;state.settings=keepSettings;state.importNote=false;save({backupOld:false});renderAll()};
@@ -457,7 +469,6 @@ function base64Url(bytes){return btoa(String.fromCharCode(...new Uint8Array(byte
 async function connectCloudProvider(){
   const provider=state.cloud.provider;
   if(provider==='google'){await requestDriveToken();await findOrCreateDriveFolder();driveToken=driveToken;updateDriveStatus('Google Drive conectado. A pasta de backup foi criada ou localizada.');return}
-  if(provider==='icloud')throw new Error('O iCloud Drive não oferece uma API pública de arquivos para conexão direta em um PWA. Use Exportar backup (.json).');
   const config=oauthConfig[provider],clientId=state.cloud.providerClientId;if(!clientId)throw new Error(`Informe o Client ID do ${cloudProviderNames[provider]} antes de conectar.`);
   const verifier=base64Url(crypto.getRandomValues(new Uint8Array(32))),challenge=base64Url(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier))),oauthState=uid(),redirectUri=`${location.origin}${location.pathname}`;
   sessionStorage.setItem('meuCaixa.oauth',JSON.stringify({provider,verifier,state:oauthState,redirectUri}));

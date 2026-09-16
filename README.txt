@@ -14,7 +14,9 @@ PRINCIPAIS RECURSOS
 - Simulação de folha com horas extras de 50% e 100%, adicional noturno, DSR, INSS e IRRF.
 - Calendário de feriados nacionais, do Amazonas e de Manaus no cálculo do DSR.
 - Tema claro e escuro.
-- Exportação e importação de backup JSON e exportação de lançamentos CSV.
+- Exportação e importação de backup JSON.
+- Exportação completa dos dados em CSV com colunas padronizadas.
+- Relatório financeiro em PDF com totais, cores e tabelas para impressão.
 
 BACKUP NO GOOGLE DRIVE
 O Google Drive é opcional. Cada usuário escolhe a própria conta Google e autoriza somente o seu próprio Drive. O app cria ou localiza automaticamente a pasta configurada nessa conta e salva os backups nela. Usuários não compartilham o Drive, e o autor do app não consegue acessar os dados de outras pessoas.
@@ -38,9 +40,9 @@ OUTRAS FORMAS DE BACKUP
 - CSV: útil para abrir lançamentos em planilhas, mas não substitui o backup JSON completo.
 - Armazenamento local: o app continua funcionando sem nuvem, mas os dados ficam apenas no navegador daquele aparelho.
 
-Na tela de Dados, o usuário pode escolher o provedor que pretende usar: Google Drive, OneDrive, Dropbox ou iCloud Drive. A tela muda os campos necessários conforme a escolha.
+Na tela de Dados, o usuário pode escolher o provedor que pretende usar: Google Drive, OneDrive ou Dropbox. A tela muda os campos necessários conforme a escolha.
 
-Nesta versão, a conexão automática está funcional para Google Drive, OneDrive e Dropbox, desde que o usuário informe o Client ID OAuth do provedor. O iCloud Drive aparece como opção, mas permanece disponível apenas para backup JSON manual porque não oferece uma API pública de arquivos para este PWA.
+Nesta versão, a conexão automática está funcional para Google Drive, OneDrive e Dropbox, desde que o usuário informe o Client ID OAuth do provedor.
 
 Cada provedor exige credenciais próprias e configurações diferentes; não existe uma chave única que conecte todos os drives.
 
