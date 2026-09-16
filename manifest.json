@@ -3,6 +3,8 @@
   "short_name":"Meu Caixa",
   "start_url":"./",
   "display":"standalone",
+  "display_override":["window-controls-overlay","standalone"],
+  "orientation":"portrait",
   "background_color":"#070a0f",
   "theme_color":"#111827",
   "description":"Controle pessoal de salário, Flash, gastos, reservas, horas extras e simulação de folha.",
