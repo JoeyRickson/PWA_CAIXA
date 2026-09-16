@@ -33,6 +33,7 @@ let simCursor=new Date(today.getFullYear(),today.getMonth(),1);
 let filter='all';
 let deferredPrompt=null;
 let driveToken=null;
+let cloudToken=null;
 let cloudTimer=null;
 
 const seed={
@@ -101,7 +102,7 @@ function save({backupOld=true,cloud=true}={}){
   try{
     if(backupOld){const old=localStorage.getItem(STORAGE_KEY);if(old)localStorage.setItem(PREVIOUS_KEY,old)}
     localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
-    if(cloud&&state.cloud?.autoBackup&&driveToken)scheduleCloudBackup();
+    if(cloud&&state.cloud?.autoBackup&&(driveToken||cloudToken))scheduleCloudBackup();
   }catch(e){console.error(e)}
 }
 function scheduleCloudBackup(){clearTimeout(cloudTimer);cloudTimer=setTimeout(()=>backupToDrive(true).catch(()=>{}),1800)}
@@ -307,8 +308,8 @@ function updateCloudProviderFields(){
   document.querySelector('#googleCloudFields').classList.toggle('hidden',!isGoogle);document.querySelector('#otherCloudFields').classList.toggle('hidden',isGoogle);
   document.querySelector('#driveFolderName').closest('label').querySelector('span')?.remove();document.querySelector('#driveFolderName').closest('label').firstChild.textContent=isGoogle?'Pasta no Drive':'Pasta de backup';
   document.querySelector('#cloudAccountLabel').firstChild.textContent=`Conta ${name}`;document.querySelector('#cloudAccount').placeholder=provider==='icloud'?'seu Apple ID':'voce@exemplo.com';document.querySelector('#cloudClientLabel').firstChild.textContent=`Client ID OAuth do ${name}`;
-  document.querySelector('#cloudProviderStatus').textContent=`Integração automática com ${name} ainda precisa ser configurada no app. Por enquanto, use Exportar backup (.json) para guardar o arquivo nesse serviço.`;
-  const button=document.querySelector('#connectDrive');button.textContent=isGoogle?'Conectar ao Google Drive':`Conectar ao ${name} (em breve)`;button.disabled=!isGoogle;
+  document.querySelector('#cloudProviderStatus').textContent=provider==='icloud'?'O iCloud Drive não oferece uma API pública de arquivos para conexão direta neste PWA. Use Exportar backup (.json).':`Informe o Client ID do ${name}, salve a configuração e clique em Conectar para autorizar o backup.`;
+  const button=document.querySelector('#connectDrive');button.textContent=`Conectar ao ${name}`;button.disabled=provider==='icloud';
 }
 
 function applyTheme(){
@@ -448,24 +449,57 @@ function updateDriveStatus(message){const el=document.querySelector('#driveStatu
 function setDriveBusy(busy,label='Enviando backup…'){const button=document.querySelector('#backupDrive');if(!button)return;button.disabled=busy;button.classList.toggle('busy',busy);button.textContent=busy?label:'Enviar backup agora'}
 document.querySelector('#cloudProvider').addEventListener('change',e=>{state.cloud.provider=e.target.value;updateCloudProviderFields()});
 document.querySelector('#saveCloudConfig').onclick=()=>{state.cloud.provider=document.querySelector('#cloudProvider').value;state.cloud.emailHint=document.querySelector('#googleEmailHint').value.trim();state.cloud.clientId=document.querySelector('#googleClientId').value.trim();state.cloud.account=document.querySelector('#cloudAccount').value.trim();state.cloud.providerClientId=document.querySelector('#cloudClientId').value.trim();state.cloud.folderName=document.querySelector('#driveFolderName').value.trim()||'Meu Caixa - Backups';state.cloud.autoBackup=document.querySelector('#driveAutoBackup').checked;state.cloud.retentionDays=Math.max(1,Number(document.querySelector('#driveRetentionDays').value||30));save();renderData();alert(`Configuração de ${cloudProviderNames[state.cloud.provider]} salva.`)};
+const oauthConfig={
+  onedrive:{authorize:'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',token:'https://login.microsoftonline.com/common/oauth2/v2.0/token',scope:'Files.ReadWrite User.Read offline_access'},
+  dropbox:{authorize:'https://www.dropbox.com/oauth2/authorize',token:'https://api.dropboxapi.com/oauth2/token',scope:''}
+};
+function base64Url(bytes){return btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+async function connectCloudProvider(){
+  const provider=state.cloud.provider;
+  if(provider==='google'){await requestDriveToken();await findOrCreateDriveFolder();driveToken=driveToken;updateDriveStatus('Google Drive conectado. A pasta de backup foi criada ou localizada.');return}
+  if(provider==='icloud')throw new Error('O iCloud Drive não oferece uma API pública de arquivos para conexão direta em um PWA. Use Exportar backup (.json).');
+  const config=oauthConfig[provider],clientId=state.cloud.providerClientId;if(!clientId)throw new Error(`Informe o Client ID do ${cloudProviderNames[provider]} antes de conectar.`);
+  const verifier=base64Url(crypto.getRandomValues(new Uint8Array(32))),challenge=base64Url(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier))),oauthState=uid(),redirectUri=`${location.origin}${location.pathname}`;
+  sessionStorage.setItem('meuCaixa.oauth',JSON.stringify({provider,verifier,state:oauthState,redirectUri}));
+  const params=new URLSearchParams({client_id:clientId,response_type:'code',redirect_uri:redirectUri,state:oauthState,code_challenge:challenge,code_challenge_method:'S256'});if(config.scope)params.set('scope',config.scope);if(provider==='dropbox')params.set('token_access_type','offline');
+  const popup=window.open(`${config.authorize}?${params}`,'meuCaixaOAuth','width=520,height=700');if(!popup)throw new Error('Permita pop-ups para concluir a conexão.');
+  await new Promise((resolve,reject)=>{const timer=setTimeout(()=>{window.removeEventListener('message',receive);reject(new Error('A autorização expirou ou foi cancelada.'))},180000);function receive(event){if(event.origin!==location.origin||event.data?.type!=='meuCaixaOAuth')return;clearTimeout(timer);window.removeEventListener('message',receive);if(event.data.error){reject(new Error(event.data.error));return}fetch(config.token,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({client_id:clientId,grant_type:'authorization_code',code:event.data.code,redirect_uri:redirectUri,code_verifier:verifier}).toString()}).then(r=>r.json()).then(data=>{if(!data.access_token)throw new Error(data.error_description||'Não foi possível obter o token.');cloudToken=data.access_token;resolve()}).catch(reject)}window.addEventListener('message',receive)});
+  updateDriveStatus(`${cloudProviderNames[provider]} conectado. Backup pronto para uso.`);
+}
+function handleCloudOAuthCallback(){const params=new URLSearchParams(location.search),oauth=sessionStorage.getItem('meuCaixa.oauth');if(!oauth||(!params.get('code')&&!params.get('error'))||!window.opener)return false;window.opener.postMessage({type:'meuCaixaOAuth',code:params.get('code'),error:params.get('error_description')||params.get('error')},location.origin);window.close();return true}
 function requestDriveToken(){return new Promise((resolve,reject)=>{const clientId=(document.querySelector('#googleClientId').value.trim()||state.cloud.clientId||'');if(!clientId){reject(new Error('Informe o Google OAuth Client ID em Dados e backup.'));return}if(!window.google?.accounts?.oauth2){reject(new Error('O login do Google ainda não carregou. Tente novamente em alguns segundos.'));return}state.cloud.clientId=clientId;state.cloud.emailHint=document.querySelector('#googleEmailHint').value.trim()||state.cloud.emailHint;state.cloud.folderName=document.querySelector('#driveFolderName').value.trim()||state.cloud.folderName;state.cloud.autoBackup=document.querySelector('#driveAutoBackup').checked;save({cloud:false});const tokenClient=google.accounts.oauth2.initTokenClient({client_id:clientId,scope:'https://www.googleapis.com/auth/drive.file',hint:state.cloud.emailHint||undefined,callback:resp=>{if(resp.error){reject(new Error(resp.error));return}driveToken=resp.access_token;updateDriveStatus('Google Drive conectado nesta sessão.');resolve(driveToken)}});tokenClient.requestAccessToken({prompt:'consent'})})}
-document.querySelector('#connectDrive').onclick=async()=>{try{await requestDriveToken();await findOrCreateDriveFolder();updateDriveStatus('Google Drive conectado. A pasta de backup foi criada ou localizada.');renderData()}catch(e){alert(e.message)}};
+document.querySelector('#connectDrive').onclick=async()=>{try{await connectCloudProvider();renderData()}catch(e){alert(e.message)}};
 async function driveFetch(url,options={}){if(!driveToken)throw new Error('Conecte o Google Drive primeiro.');const headers=new Headers(options.headers||{});headers.set('Authorization',`Bearer ${driveToken}`);const r=await fetch(url,{...options,headers});if(r.status===401){driveToken=null;updateDriveStatus('A autorização expirou. Conecte novamente.');throw new Error('Autorização do Google expirada.')}if(!r.ok){let msg='Erro no Google Drive.';try{const j=await r.json();msg=j.error?.message||msg}catch{}throw new Error(msg)}return r}
 async function findOrCreateDriveFolder(){const name=state.cloud.folderName||'Meu Caixa - Backups';const q=`mimeType='application/vnd.google-apps.folder' and name='${name.replace(/'/g,"\\'")}' and trashed=false`;let r=await driveFetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name)&spaces=drive`);let j=await r.json();if(j.files?.[0])return j.files[0].id;r=await driveFetch('https://www.googleapis.com/drive/v3/files?fields=id,name',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,mimeType:'application/vnd.google-apps.folder'})});j=await r.json();return j.id}
 async function findBackupFile(folderId){const q=`'${folderId}' in parents and name='meu-caixa-backup.json' and trashed=false`;const r=await driveFetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name,modifiedTime)&spaces=drive`);const j=await r.json();return j.files?.[0]||null}
 async function listBackupFiles(folderId){const q=`'${folderId}' in parents and name contains 'meu-caixa-backup' and trashed=false`;const r=await driveFetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name,modifiedTime)&orderBy=modifiedTime desc&spaces=drive`);const j=await r.json();return j.files||[]}
 async function cleanOldBackups(folderId){const retention=Math.max(1,Number(state.cloud.retentionDays||30)),cutoff=Date.now()-retention*86400000,files=await listBackupFiles(folderId);await Promise.all(files.filter(file=>file.name!=='meu-caixa-backup.json'&&file.modifiedTime&&new Date(file.modifiedTime).getTime()<cutoff).map(file=>driveFetch(`https://www.googleapis.com/drive/v3/files/${file.id}`,{method:'DELETE'})))}
+async function backupToOtherCloud(){
+  if(!cloudToken)throw new Error(`Conecte ao ${cloudProviderNames[state.cloud.provider]} primeiro.`);
+  const body=JSON.stringify({...state,exportedAt:new Date().toISOString()},null,2),folder=state.cloud.folderName||'Meu Caixa - Backups',name=`meu-caixa-backup-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
+  if(state.cloud.provider==='onedrive'){
+    const root=`https://graph.microsoft.com/v1.0/me/drive/root:/`;
+    await fetch('https://graph.microsoft.com/v1.0/me/drive/root/children',{method:'POST',headers:{Authorization:`Bearer ${cloudToken}`,'Content-Type':'application/json'},body:JSON.stringify({name:folder,folder:{},'@microsoft.graph.conflictBehavior':'fail'})}).catch(()=>{});
+    const r=await fetch(`${root}${encodeURIComponent(folder)}/${encodeURIComponent(name)}:/content`,{method:'PUT',headers:{Authorization:`Bearer ${cloudToken}`,'Content-Type':'application/json'},body});if(!r.ok)throw new Error('Não foi possível enviar o backup ao OneDrive.');
+  }else if(state.cloud.provider==='dropbox'){
+    const headers={Authorization:`Bearer ${cloudToken}`,'Content-Type':'application/json'};
+    await fetch('https://api.dropboxapi.com/2/files/create_folder_v2',{method:'POST',headers,body:JSON.stringify({path:`/${folder}`,autorename:false})}).catch(()=>{});
+    const r=await fetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{Authorization:`Bearer ${cloudToken}`,'Content-Type':'application/octet-stream','Dropbox-API-Arg':JSON.stringify({path:`/${folder}/${name}`,mode:'add',autorename:true,mute:false})},body});if(!r.ok)throw new Error('Não foi possível enviar o backup ao Dropbox.');
+  }
+  state.cloud.lastBackupAt=new Date().toISOString();save({backupOld:false,cloud:false});updateDriveStatus(`Backup enviado ao ${cloudProviderNames[state.cloud.provider]}.`);alert('Backup enviado com sucesso.');
+}
 async function backupToDrive(silent=false){
+  if(state.cloud.provider!=='google'){if(silent)return;setDriveBusy(true,'Enviando backup…');try{await backupToOtherCloud()}catch(e){alert(e.message);throw e}finally{setDriveBusy(false)}return}
   if(!driveToken){if(silent)return;await requestDriveToken()}
   if(!silent)setDriveBusy(true);
   try{const folderId=await findOrCreateDriveFolder(),now=new Date(),stamp=now.toISOString().replace(/[:.]/g,'-'),body=JSON.stringify({...state,exportedAt:now.toISOString()},null,2);let file=await findBackupFile(folderId),name='meu-caixa-backup.json';if(silent){name=`meu-caixa-backup-${stamp}.json`;file=null}if(!file){let r=await driveFetch('https://www.googleapis.com/drive/v3/files?fields=id,name,modifiedTime',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,mimeType:'application/json',parents:[folderId]})});file=await r.json()}await driveFetch(`https://www.googleapis.com/upload/drive/v3/files/${file.id}?uploadType=media`,{method:'PATCH',headers:{'Content-Type':'application/json'},body});if(silent)await cleanOldBackups(folderId);state.cloud.lastBackupAt=now.toISOString();state.cloud.lastFileId=file.id;save({backupOld:false,cloud:false});updateDriveStatus(`Backup enviado ao Drive em ${now.toLocaleString('pt-BR')}.`);if(!silent)alert('Backup enviado ao Google Drive.')}catch(e){if(!silent)alert(e.message);throw e}finally{if(!silent)setDriveBusy(false)}
 }
 document.querySelector('#backupDrive').onclick=()=>backupToDrive(false).catch(()=>{});
-document.querySelector('#restoreDrive').onclick=async()=>{try{if(!driveToken)await requestDriveToken();const folderId=await findOrCreateDriveFolder(),files=await listBackupFiles(folderId),file=files[0]||null;if(!file){alert('Nenhum backup do Meu Caixa foi encontrado nessa pasta.');return}if(!confirm(`Restaurar o backup do Drive${file.modifiedTime?` de ${new Date(file.modifiedTime).toLocaleString('pt-BR')}`:''}? O estado atual será mantido como cópia local anterior.`))return;const r=await driveFetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`),data=migrateState(await r.json());localStorage.setItem(PREVIOUS_KEY,JSON.stringify(state));state=data;state.cloud={...seed.cloud,...state.cloud,clientId:document.querySelector('#googleClientId').value.trim()||state.cloud.clientId,emailHint:document.querySelector('#googleEmailHint').value.trim()||state.cloud.emailHint};save({backupOld:false,cloud:false});renderAll();alert('Backup do Drive restaurado.')}catch(e){alert(e.message)}};
+document.querySelector('#restoreDrive').onclick=async()=>{if(state.cloud.provider!=='google'){alert(`A restauração automática do ${cloudProviderNames[state.cloud.provider]} ainda será adicionada. Use Importar backup JSON por enquanto.`);return}try{if(!driveToken)await requestDriveToken();const folderId=await findOrCreateDriveFolder(),files=await listBackupFiles(folderId),file=files[0]||null;if(!file){alert('Nenhum backup do Meu Caixa foi encontrado nessa pasta.');return}if(!confirm(`Restaurar o backup do Drive${file.modifiedTime?` de ${new Date(file.modifiedTime).toLocaleString('pt-BR')}`:''}? O estado atual será mantido como cópia local anterior.`))return;const r=await driveFetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`),data=migrateState(await r.json());localStorage.setItem(PREVIOUS_KEY,JSON.stringify(state));state=data;state.cloud={...seed.cloud,...state.cloud,clientId:document.querySelector('#googleClientId').value.trim()||state.cloud.clientId,emailHint:document.querySelector('#googleEmailHint').value.trim()||state.cloud.emailHint};save({backupOld:false,cloud:false});renderAll();alert('Backup do Drive restaurado.')}catch(e){alert(e.message)}};
 
 // PWA
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.querySelector('#installBtn').classList.remove('hidden')});
 document.querySelector('#installBtn').onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.querySelector('#installBtn').classList.add('hidden')};
 if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 
-applyTheme();renderAll();
+if(handleCloudOAuthCallback()){}else{applyTheme();renderAll()}
