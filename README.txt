@@ -17,11 +17,28 @@ PRINCIPAIS RECURSOS
 - Exportação e importação de backup JSON e exportação de lançamentos CSV.
 
 BACKUP NO GOOGLE DRIVE
-Na aba Dados, informe o Client ID OAuth, salve a configuração e conecte a sua própria conta Google. O app cria ou localiza automaticamente a pasta configurada dentro do Drive dessa conta e salva o arquivo de backup nela. Usuários não compartilham o Drive entre si, e o autor do app não consegue acessar os dados de outras pessoas.
+O Google Drive é opcional. Cada usuário escolhe a própria conta Google e autoriza somente o seu próprio Drive. O app cria ou localiza automaticamente a pasta configurada nessa conta e salva os backups nela. Usuários não compartilham o Drive, e o autor do app não consegue acessar os dados de outras pessoas.
 
-Também é possível ativar o backup automático e escolher uma retenção de 10, 15 ou 30 dias. Backups automáticos antigos são removidos conforme o prazo escolhido.
+Para configurar o recurso:
+1. No Google Cloud Console, crie ou selecione um projeto.
+2. Em Biblioteca, ative a Google Drive API.
+3. Em Google Auth Platform, configure a tela de consentimento e adicione os usuários de teste, se o app estiver em modo de testes.
+4. Em Clientes, crie um cliente OAuth do tipo Aplicativo da Web.
+5. Em Origens JavaScript autorizadas, adicione a origem publicada, por exemplo: https://joeyrickson.github.io
+6. Copie o Client ID gerado e informe-o em Dados > Google Drive no app.
+7. Salve a configuração e clique em Conectar ao Google Drive.
 
-O app usa o escopo limitado drive.file. O Client ID pode aparecer no código público, mas senhas e tokens não são armazenados no projeto nem no backup.
+O Client ID identifica o aplicativo. Ele não é a conta do usuário, não é uma senha e pode aparecer no código público. Cada usuário autoriza a própria conta Google durante a conexão. O app usa o escopo limitado drive.file, não armazena senhas e mantém o token somente na sessão atual.
+
+O backup automático cria snapshots datados e permite manter arquivos por 10, 15 ou 30 dias. O arquivo mais recente pode ser restaurado pelo próprio app.
+
+OUTRAS FORMAS DE BACKUP
+- Backup JSON manual: exporta todos os dados para guardar no computador, pendrive, OneDrive, Dropbox ou outro serviço.
+- Importação JSON: restaura os dados em outro navegador ou aparelho.
+- CSV: útil para abrir lançamentos em planilhas, mas não substitui o backup JSON completo.
+- Armazenamento local: o app continua funcionando sem nuvem, mas os dados ficam apenas no navegador daquele aparelho.
+
+Atualmente o app possui integração direta com Google Drive. Para adicionar OneDrive, Dropbox, Firebase ou outro provedor, é necessário criar uma nova integração de login e armazenamento; isso pode ser incluído futuramente conforme a preferência dos usuários.
 
 USAR A VERSÃO PUBLICADA
 https://joeyrickson.github.io/PWA_CAIXA/
