@@ -1,42 +1,93 @@
 {
-  "id":"/PWA_CAIXA/",
-  "name":"Meu Caixa - Controle Financeiro",
-  "short_name":"Meu Caixa",
-  "lang":"pt-BR",
-  "dir":"ltr",
-  "start_url":"./",
-  "scope":"./",
-  "display":"standalone",
-  "display_override":["window-controls-overlay","standalone"],
-  "orientation":"portrait",
-  "background_color":"#070a0f",
-  "theme_color":"#111827",
-  "categories":["finance","productivity"],
-  "description":"Controle pessoal de salário, bônus, gastos, reservas, horas extras e simulação de folha.",
+  "id": "/PWA_CAIXA/",
+  "name": "Meu Caixa - Controle Financeiro",
+  "short_name": "Meu Caixa",
+  "lang": "pt-BR",
+  "dir": "ltr",
+
+  "start_url": "./",
+  "scope": "./",
+
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone"
+  ],
+
+  "orientation": "portrait",
+
+  "background_color": "#070a0f",
+  "theme_color": "#111827",
+
+  "categories": [
+    "finance",
+    "productivity"
+  ],
+
+  "description": "Controle pessoal de salário, bônus, gastos, reservas, horas extras e simulação de folha.",
+
   "icons": [
-  {
-    "src": "icons/icon-192.png",
-    "sizes": "192x192",
-    "type": "image/png",
-    "purpose": "any"
-  },
-  {
-    "src": "icons/icon-512.png",
-    "sizes": "512x512",
-    "type": "image/png",
-    "purpose": "any"
-  },
-  {
-    "src": "icons/maskable-192.png",
-    "sizes": "192x192",
-    "type": "image/png",
-    "purpose": "maskable"
-  },
-  {
-    "src": "icons/maskable-512.png",
-    "sizes": "512x512",
-    "type": "image/png",
-    "purpose": "maskable"
-  }
-]
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+
+  "screenshots": [
+    {
+      "src": "screenshots/resumo.png",
+      "sizes": "1448x1086",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Resumo financeiro mensal"
+    },
+    {
+      "src": "screenshots/lancamento.png",
+      "sizes": "1448x1086",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Controle de entradas e gastos"
+    },
+    {
+      "src": "screenshots/guardado.png",
+      "sizes": "1448x1086",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Controle de valores guardados"
+    },
+    {
+      "src": "screenshots/parametros.png",
+      "sizes": "1448x1086",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Simulação de salário e folha"
+    },
+    {
+      "src": "screenshots/dados.png",
+      "sizes": "1448x1086",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Backup e segurança dos dados"
+    }
+  ]
 }
