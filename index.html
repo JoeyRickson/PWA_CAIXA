@@ -236,13 +236,14 @@
           <label>Google OAuth Client ID<input id="googleClientId" placeholder="xxxxxxxx.apps.googleusercontent.com"></label>
           <label>Pasta no Drive<input id="driveFolderName" value="Meu Caixa - Backups"></label>
           <label class="check-row"><input id="driveAutoBackup" type="checkbox"> Fazer backup automático enquanto o Drive estiver conectado</label>
+          <label>Manter backups automáticos por<select id="driveRetentionDays"><option value="10">10 dias</option><option value="15">15 dias</option><option value="30">30 dias</option></select></label>
           <div class="button-stack">
             <button id="saveCloudConfig" class="btn secondary full">Salvar configuração</button>
             <button id="connectDrive" class="btn full">Conectar ao Google Drive</button>
             <button id="backupDrive" class="btn secondary full">Enviar backup agora</button>
             <button id="restoreDrive" class="btn ghost full">Restaurar do Drive</button>
           </div>
-          <p id="driveDetail" class="helper small-text">O backup será salvo como <strong>meu-caixa-backup.json</strong> na pasta configurada.</p>
+          <p id="driveDetail" class="helper small-text">O backup será salvo na pasta configurada.</p>
         </section>
 
         <section class="panel">
