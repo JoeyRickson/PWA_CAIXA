@@ -38,7 +38,9 @@ OUTRAS FORMAS DE BACKUP
 - CSV: útil para abrir lançamentos em planilhas, mas não substitui o backup JSON completo.
 - Armazenamento local: o app continua funcionando sem nuvem, mas os dados ficam apenas no navegador daquele aparelho.
 
-Atualmente o app possui integração direta somente com Google Drive. OneDrive, Dropbox, iCloud Drive e outros serviços também podem guardar o arquivo JSON exportado manualmente, mas não têm conexão automática nesta versão.
+Na tela de Dados, o usuário pode escolher o provedor que pretende usar: Google Drive, OneDrive, Dropbox ou iCloud Drive. A tela muda os campos necessários conforme a escolha.
+
+Nesta versão, a conexão automática está funcional para Google Drive. OneDrive, Dropbox e iCloud Drive já aparecem como opções e podem ser configurados para uso manual por JSON, mas o botão de conexão automática ficará disponível quando suas integrações OAuth forem implementadas.
 
 Para conectar outro provedor automaticamente, seria necessário adicionar uma integração específica de OAuth e armazenamento para ele. Isso envolve criar credenciais próprias no serviço escolhido e implementar essa opção no app; não existe uma chave única que conecte todos os drives.
 

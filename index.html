@@ -230,10 +230,18 @@
         </section>
 
         <section class="panel cloud-panel">
-          <div class="section-head"><div><span class="muted">Integração disponível: Google Drive</span><h3>Backup em nuvem</h3></div><span id="driveStatus" class="status-pill">Desconectado</span></div>
-          <p class="helper">Cada pessoa conecta a própria conta Google. O app não compartilha nem acessa o Drive de outras pessoas. O GitHub hospeda o app; os dados e backups ficam somente no Drive autorizado pelo usuário.</p>
-          <label>Sua conta Google <span class="field-note">(opcional)</span><input id="googleEmailHint" type="email" placeholder="voce@gmail.com"></label>
-          <label>Google OAuth Client ID<input id="googleClientId" placeholder="xxxxxxxx.apps.googleusercontent.com"></label>
+          <div class="section-head"><div><span class="muted">Provedor de backup</span><h3>Backup em nuvem</h3></div><span id="driveStatus" class="status-pill">Desconectado</span></div>
+          <p id="cloudProviderHelp" class="helper">Cada pessoa conecta a própria conta. O app não compartilha nem acessa o armazenamento de outras pessoas.</p>
+          <label>Onde guardar o backup<select id="cloudProvider"><option value="google">Google Drive</option><option value="onedrive">OneDrive</option><option value="dropbox">Dropbox</option><option value="icloud">iCloud Drive</option></select></label>
+          <div id="googleCloudFields">
+            <label>Sua conta Google <span class="field-note">(opcional)</span><input id="googleEmailHint" type="email" placeholder="voce@gmail.com"></label>
+            <label>Google OAuth Client ID<input id="googleClientId" placeholder="xxxxxxxx.apps.googleusercontent.com"></label>
+          </div>
+          <div id="otherCloudFields" class="hidden">
+            <label id="cloudAccountLabel">Conta do provedor<input id="cloudAccount" type="email" placeholder="voce@exemplo.com"></label>
+            <label id="cloudClientLabel">Client ID OAuth do provedor<input id="cloudClientId" placeholder="Informe o Client ID do provedor"></label>
+            <p id="cloudProviderStatus" class="helper small-text"></p>
+          </div>
           <label>Pasta no Drive<input id="driveFolderName" value="Meu Caixa - Backups"></label>
           <label class="check-row"><input id="driveAutoBackup" type="checkbox"> Fazer backup automático enquanto o Drive estiver conectado</label>
           <label>Manter backups automáticos por<select id="driveRetentionDays"><option value="10">10 dias</option><option value="15">15 dias</option><option value="30">30 dias</option></select></label>
