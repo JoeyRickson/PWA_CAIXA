@@ -80,6 +80,13 @@
       "type": "image/png",
       "form_factor": "wide",
       "label": "Backup e segurança dos dados"
+    },
+    {
+      "src": "screenshots/sobre.png",
+      "sizes": "1448x1086",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Sobre o SaldoPlan"
     }
   ]
 }
