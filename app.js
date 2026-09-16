@@ -102,9 +102,11 @@ function save({backupOld=true,cloud=true}={}){
   try{
     if(backupOld){const old=localStorage.getItem(STORAGE_KEY);if(old)localStorage.setItem(PREVIOUS_KEY,old)}
     localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+    localStorage.setItem(`${STORAGE_KEY}.savedAt`,new Date().toISOString());
     if(cloud&&state.cloud?.autoBackup&&(driveToken||cloudToken))scheduleCloudBackup();
   }catch(e){console.error(e)}
 }
+function updateLocalSaveStatus(){const el=document.querySelector('#localSaveStatus');if(!el)return;const savedAt=localStorage.getItem(`${STORAGE_KEY}.savedAt`);el.textContent=savedAt?`Última gravação neste aparelho: ${new Date(savedAt).toLocaleString('pt-BR')}.`:'As alterações também são salvas automaticamente ao usar o app.'}
 function scheduleCloudBackup(){clearTimeout(cloudTimer);cloudTimer=setTimeout(()=>backupToDrive(true).catch(()=>{}),1800)}
 function key(){return monthKey(cursor)}
 function simKey(){return monthKey(simCursor)}
@@ -298,7 +300,7 @@ function renderSimulator(){
 function renderData(){
   document.querySelector('#savingGoal').value=(state.savingGoal||0).toFixed(2).replace('.',',');
   document.querySelector('#cloudProvider').value=state.cloud.provider||'google';document.querySelector('#googleEmailHint').value=state.cloud.emailHint||'';document.querySelector('#googleClientId').value=state.cloud.clientId||'';document.querySelector('#cloudAccount').value=state.cloud.account||'';document.querySelector('#cloudClientId').value=state.cloud.providerClientId||'';document.querySelector('#driveFolderName').value=state.cloud.folderName||'Meu Caixa - Backups';document.querySelector('#driveAutoBackup').checked=!!state.cloud.autoBackup;document.querySelector('#driveRetentionDays').value=String(state.cloud.retentionDays||30);updateCloudProviderFields();
-  document.querySelectorAll('[data-theme-option]').forEach(b=>b.classList.toggle('active',b.dataset.themeOption===state.settings.theme));updateDriveStatus();
+  document.querySelectorAll('[data-theme-option]').forEach(b=>b.classList.toggle('active',b.dataset.themeOption===state.settings.theme));updateDriveStatus();updateLocalSaveStatus();
 }
 function renderAll(){applyTheme();renderDashboard();renderTransactions();renderSavings();renderSimulator();renderFixed();renderData()}
 
@@ -438,6 +440,7 @@ document.querySelector('#useSimulationIncome').onclick=()=>{const p=payrollSimul
 // Preferências e backup local
 function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 document.querySelector('#saveGoalBtn').onclick=()=>{state.savingGoal=money(document.querySelector('#savingGoal').value);save();renderAll();alert('Meta salva.')};
+document.querySelector('#saveLocalData').onclick=()=>{save({backupOld:false,cloud:false});updateLocalSaveStatus();alert('Informações salvas neste aparelho.')};
 document.querySelector('#exportJson').onclick=()=>download(`meu-caixa-backup-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({...state,exportedAt:new Date().toISOString()},null,2),'application/json');
 function exportRows(){
   const rows=[['Tipo de registro','Data','Natureza','Categoria','Descrição','Conta / origem','Status','Valor (R$)','Início','Fim','Feriado','ID']];
