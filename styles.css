@@ -29,3 +29,52 @@ dialog{border:0;padding:0;border-radius:22px;background:var(--surface);color:var
 @media(max-width:420px){.kpis{grid-template-columns:1fr 1fr}.card{padding:14px;min-height:104px}.card strong{font-size:1.18rem}.two-col{grid-template-columns:1fr}.bar-row{grid-template-columns:78px 1fr auto}.item{grid-template-columns:36px 1fr}.item-side{grid-column:2;text-align:left;display:flex;gap:8px}.topbar{padding-top:15px}}
 
 .field-note{font-weight:500;opacity:.65}.input-help{display:block;margin-top:6px;font-size:.78rem;opacity:.7;line-height:1.35}
+@media(min-width:680px){
+  .app-shell{max-width:960px;padding-bottom:82px}
+  .topbar{padding-left:26px;padding-right:26px}
+  main{padding-left:26px;padding-right:26px}
+  .view.active{animation-duration:.22s}
+  .panel{padding:20px}
+  .bottom-nav{width:min(960px,100%);grid-auto-columns:1fr}
+  .bottom-nav .nav-item{font-size:.74rem}
+}
+@media(min-width:1024px){
+  .app-shell{max-width:1180px}
+  main{padding-left:34px;padding-right:34px}
+  .topbar{padding:26px 34px 16px}
+  .topbar h1{font-size:1.7rem}
+  .kpis{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .card.accent{grid-column:auto}
+  .split-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .bottom-nav{width:min(1180px,100%)}
+}
+@media(max-width:679px){
+  .app-shell{width:100%;padding-bottom:92px}
+  .topbar{padding-left:14px;padding-right:14px}
+  .topbar h1{font-size:1.28rem}
+  .top-actions{gap:5px}
+  .top-actions .btn{padding:9px 10px}
+  .panel{padding:14px;margin-top:11px}
+  .card{min-width:0}
+  .card strong{overflow-wrap:anywhere}
+  .bottom-nav{grid-auto-columns:minmax(72px,1fr)}
+}
+@media(max-width:420px){
+  main{padding-left:11px;padding-right:11px}
+  .kpis{gap:8px}
+  .card{padding:12px;border-radius:15px;min-height:100px}
+  .card span{font-size:.75rem}
+  .card strong{font-size:1.05rem}
+  .card small{font-size:.7rem}
+  .section-head{align-items:flex-start}
+  .section-head .btn{white-space:nowrap;padding:8px 9px}
+  .item{padding:10px;gap:8px;border-radius:12px}
+  .bottom-nav{padding-left:3px;padding-right:3px}
+  .nav-item{padding-left:4px;padding-right:4px;font-size:.61rem}
+}
+@media(orientation:landscape) and (max-height:520px){
+  .topbar{position:relative;padding-top:10px;padding-bottom:8px}
+  .app-shell{padding-bottom:72px}
+  .bottom-nav{padding-top:3px;padding-bottom:3px}
+  .nav-item{padding-top:4px;padding-bottom:4px}
+}
