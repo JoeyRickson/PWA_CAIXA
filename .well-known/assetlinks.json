@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.joeyrickson.saldoplan",
+        "sha256_cert_fingerprints": ["D4:4E:92:73:27:77:6F:CF:2D:17:40:47:A6:CC:81:31:74:57:6C:EA:40:65:29:31:75:5B:D7:51:F9:95:00:B0"]
+      }
+    }]
