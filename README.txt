@@ -1,7 +1,7 @@
 MEU CAIXA — CONTROLE FINANCEIRO PESSOAL
 Versão 2.4
 
-O Meu Caixa é um PWA simples para acompanhar a vida financeira pessoal em um só lugar. Ele foi criado para registrar entradas e gastos, visualizar o saldo do mês, controlar valores guardados e estimar o recebimento da folha com horas extras.
+O Meu Caixa é um PWA simples para acompanhar a vida financeira pessoal em um só lugar. Ele foi criado para registrar entradas e gastos, visualizar o saldo do mês, controlar valores guardados e estimar o recebimento da folha com horas extras. Cada pessoa usa seus próprios dados e sua própria conta Google.
 
 O app funciona no navegador e pode ser instalado no celular como aplicativo. Os dados do uso normal ficam no navegador. O código é hospedado no GitHub Pages e os backups podem ser enviados para o Google Drive.
 
@@ -17,7 +17,7 @@ PRINCIPAIS RECURSOS
 - Exportação e importação de backup JSON e exportação de lançamentos CSV.
 
 BACKUP NO GOOGLE DRIVE
-Na aba Dados, informe o Client ID OAuth, salve a configuração e conecte sua conta Google. O app cria ou localiza automaticamente a pasta configurada e salva o arquivo de backup nela.
+Na aba Dados, informe o Client ID OAuth, salve a configuração e conecte a sua própria conta Google. O app cria ou localiza automaticamente a pasta configurada dentro do Drive dessa conta e salva o arquivo de backup nela. Usuários não compartilham o Drive entre si, e o autor do app não consegue acessar os dados de outras pessoas.
 
 Também é possível ativar o backup automático e escolher uma retenção de 10, 15 ou 30 dias. Backups automáticos antigos são removidos conforme o prazo escolhido.
 
@@ -26,7 +26,7 @@ O app usa o escopo limitado drive.file. O Client ID pode aparecer no código pú
 USAR A VERSÃO PUBLICADA
 https://joeyrickson.github.io/PWA_CAIXA/
 
-Para instalar no celular, abra o endereço em HTTPS e escolha "Adicionar à tela inicial" ou "Instalar aplicativo".
+Para usar no celular, abra o endereço em HTTPS. Como o projeto é um PWA, escolha "Adicionar à tela inicial" ou "Instalar aplicativo" para criar um ícone e abrir o Meu Caixa como app. Não é necessário baixar um APK nem publicar na loja.
 
 DESENVOLVIMENTO LOCAL
 PWA, service worker e Google OAuth funcionam corretamente quando o app é servido por HTTP/HTTPS. Na pasta do projeto:

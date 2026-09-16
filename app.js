@@ -40,7 +40,7 @@ const seed={
   savingGoal:500,
   importNote:true,
   settings:{theme:'light'},
-  cloud:{emailHint:'joeyoliveira8@gmail.com',clientId:'',folderName:'Meu Caixa - Backups',autoBackup:false,retentionDays:30,lastBackupAt:null,lastFileId:null},
+  cloud:{emailHint:'',clientId:'',folderName:'Meu Caixa - Backups',autoBackup:false,retentionDays:30,lastBackupAt:null,lastFileId:null},
   payrollConfig:{baseSalary:5000,monthlyHours:220,advance:2000,nightPct:20,extraGoal:40},
   payrollMonths:{},
   fixedTemplates:[],
@@ -296,7 +296,7 @@ function renderSimulator(){
 
 function renderData(){
   document.querySelector('#savingGoal').value=(state.savingGoal||0).toFixed(2).replace('.',',');
-  document.querySelector('#googleEmailHint').value=state.cloud.emailHint||'joeyoliveira8@gmail.com';document.querySelector('#googleClientId').value=state.cloud.clientId||'';document.querySelector('#driveFolderName').value=state.cloud.folderName||'Meu Caixa - Backups';document.querySelector('#driveAutoBackup').checked=!!state.cloud.autoBackup;document.querySelector('#driveRetentionDays').value=String(state.cloud.retentionDays||30);
+  document.querySelector('#googleEmailHint').value=state.cloud.emailHint||'';document.querySelector('#googleClientId').value=state.cloud.clientId||'';document.querySelector('#driveFolderName').value=state.cloud.folderName||'Meu Caixa - Backups';document.querySelector('#driveAutoBackup').checked=!!state.cloud.autoBackup;document.querySelector('#driveRetentionDays').value=String(state.cloud.retentionDays||30);
   document.querySelectorAll('[data-theme-option]').forEach(b=>b.classList.toggle('active',b.dataset.themeOption===state.settings.theme));updateDriveStatus();
 }
 function renderAll(){applyTheme();renderDashboard();renderTransactions();renderSavings();renderSimulator();renderFixed();renderData()}
