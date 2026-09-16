@@ -259,6 +259,11 @@
             <button id="backupDrive" class="btn secondary full">Enviar backup agora</button>
             <button id="restoreDrive" class="btn ghost full">Restaurar do Drive</button>
           </div>
+          <div id="backupProgress" class="backup-progress hidden" role="status" aria-live="polite">
+            <div class="backup-progress-head"><span id="backupProgressIcon">↗</span><strong id="backupProgressTitle">Preparando backup</strong><span id="backupProgressPercent">0%</span></div>
+            <div class="backup-progress-track"><i id="backupProgressBar"></i></div>
+            <small id="backupProgressDetail">Aguarde enquanto os dados são enviados.</small>
+          </div>
           <p id="driveDetail" class="helper small-text">O backup será salvo na pasta configurada.</p>
           <p class="helper small-text">Google Drive, OneDrive e Dropbox têm conexão automática quando suas credenciais OAuth são informadas. Outros serviços podem receber o arquivo exportado manualmente.</p>
         </section>
