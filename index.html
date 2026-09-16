@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#111827" />
   <meta name="description" content="Controle financeiro pessoal com salário, bônus, reserva, horas extras e simulação de folha." />
-  <title>Meu Caixa</title>
+  <title>SaldoPlan</title>
 <link rel="manifest" href="manifest.json" />
 
 <link
@@ -20,7 +20,7 @@
   sizes="180x180"
   href="icons/apple-touch-icon.png"
 />
-  <link rel="stylesheet" href="styles.css?v=2.4" />
+  <link rel="stylesheet" href="styles.css?v=2.5" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -28,7 +28,7 @@
     <header class="topbar">
       <div>
         <p class="eyebrow">CONTROLE FINANCEIRO</p>
-        <h1>Meu Caixa <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.4</small></h1>
+        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.5</small></h1>
       </div>
       <div class="top-actions">
         <button id="themeQuickBtn" class="icon-btn" aria-label="Alternar tema" title="Alternar tema">☾</button>
@@ -262,7 +262,7 @@
             <label id="cloudClientLabel">Client ID OAuth do provedor<input id="cloudClientId" placeholder="Informe o Client ID do provedor"></label>
             <p id="cloudProviderStatus" class="helper small-text"></p>
           </div>
-          <label>Pasta no Drive<input id="driveFolderName" value="Meu Caixa - Backups"></label>
+          <label>Pasta no Drive<input id="driveFolderName" value="SaldoPlan - Backups"></label>
           <label class="check-row"><input id="driveAutoBackup" type="checkbox"> Fazer backup automático enquanto o Drive estiver conectado</label>
           <label>Manter backups automáticos por<select id="driveRetentionDays"><option value="10">10 dias</option><option value="15">15 dias</option><option value="30">30 dias</option></select></label>
           <div class="button-stack">
@@ -307,13 +307,13 @@
       </section>
 
       <section id="view-about" class="view">
-        <div class="page-head"><span class="muted">Informações</span><h2>Sobre o Meu Caixa</h2></div>
+        <div class="page-head"><span class="muted">Informações</span><h2>Sobre o SaldoPlan</h2></div>
         <section class="panel">
-          <h3>Meu Caixa</h3>
+          <h3>SaldoPlan</h3>
           <p class="helper">Controle financeiro pessoal para registrar entradas, gastos, valores guardados e simulação de folha.</p>
           <p class="helper">Criado por <strong>Joey Rickson</strong> como um PWA: funciona no navegador, pode ser instalado no celular e trabalha offline.</p>
           <p class="helper">Tecnologias: HTML, CSS, JavaScript, armazenamento local, Service Worker e integrações opcionais de backup em nuvem.</p>
-          <p class="helper small-text">Versão 2.4</p>
+          <p class="helper small-text">Versão 2.5</p>
         </section>
       </section>
     </main>
@@ -406,6 +406,6 @@
     </form>
   </dialog>
 
-<script src="app.js?v=2.4"></script>
+<script src="app.js?v=2.5"></script>
 </body>
 </html>

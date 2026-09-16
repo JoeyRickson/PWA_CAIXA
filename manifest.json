@@ -1,31 +1,24 @@
 {
   "id": "/PWA_CAIXA/",
-  "name": "Meu Caixa - Controle Financeiro",
-  "short_name": "Meu Caixa",
+  "name": "SaldoPlan - Controle Financeiro",
+  "short_name": "SaldoPlan",
   "lang": "pt-BR",
   "dir": "ltr",
-
   "start_url": "./",
   "scope": "./",
-
   "display": "standalone",
   "display_override": [
     "window-controls-overlay",
     "standalone"
   ],
-
   "orientation": "portrait",
-
   "background_color": "#070a0f",
   "theme_color": "#111827",
-
   "categories": [
     "finance",
     "productivity"
   ],
-
   "description": "Controle pessoal de salário, bônus, gastos, reservas, horas extras e simulação de folha.",
-
   "icons": [
     {
       "src": "icons/icon-192.png",
@@ -52,7 +45,6 @@
       "purpose": "maskable"
     }
   ],
-
   "screenshots": [
     {
       "src": "screenshots/resumo.png",
