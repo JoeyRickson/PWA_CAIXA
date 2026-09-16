@@ -316,6 +316,15 @@
       <button class="nav-item" data-nav="about"><span>ⓘ</span>Sobre</button>
     </nav>
   </div>
+  <div id="operationOverlay" class="operation-overlay hidden" role="dialog" aria-modal="true" aria-live="polite">
+    <div class="operation-modal">
+      <div id="operationAnimation" class="operation-animation"><i></i><i></i><i></i></div>
+      <h2 id="operationTitle">Processando</h2>
+      <p id="operationDetail">Aguarde um instante.</p>
+      <div class="operation-track"><i id="operationBar"></i></div>
+      <button id="operationOk" class="btn full hidden" type="button">OK</button>
+    </div>
+  </div>
 
   <dialog id="entryDialog">
     <form id="entryForm" method="dialog" class="dialog-form">
