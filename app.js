@@ -26,6 +26,7 @@ const money=v=>{
 };
 const decimal=v=>Number(String(v??0).trim().replace(',','.'))||0;
 const round2=n=>Math.round((Number(n)+Number.EPSILON)*100)/100;
+const trunc2=n=>Math.floor((Number(n)+1e-9)*100)/100;
 const monthKey=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 const today=new Date();
 let cursor=new Date(today.getFullYear(),today.getMonth(),1);
@@ -249,19 +250,27 @@ function calculateExtraRecord(r){
 }
 function getAllHolidays(year){return new Set([...(NATIONAL_HOLIDAYS[year]||[]),...(AMAZONAS_HOLIDAYS[year]||[]),...(MANAUS_HOLIDAYS[year]||[])]);}
 function getDSRCalendar(monthKeyValue){
-  const [year,month]=monthKeyValue.split('-').map(Number),totalDays=new Date(year,month,0).getDate(),holidays=getAllHolidays(year);
-  let sundays=0,holidaysCount=0;
+  const [year,month]=monthKeyValue.split('-').map(Number);
+  const totalDays=new Date(year,month,0).getDate();
+  let sundays=0;
   for(let day=1;day<=totalDays;day++){
-    const date=new Date(year,month-1,day),iso=`${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    if(date.getDay()===0){sundays++;continue}
-    if(holidays.has(iso))holidaysCount++;
+    const date=new Date(year,month-1,day);
+    if(date.getDay()===0)sundays++;
   }
-  const restDays=sundays+holidaysCount;
-  return {totalDays,sundays,holidays:holidaysCount,restDays,workingDays:totalDays-restDays};
+  const restDays=sundays;
+  const workingDays=totalDays-sundays;
+  return {totalDays,sundays,holidays:0,restDays,workingDays};
 }
 function inss2026(base){
-  const brackets=[[1621,0.075],[2902.84,0.09],[4354.27,0.12],[8475.55,0.14]];let prev=0,total=0;
-  for(const [upper,rate] of brackets){const part=Math.max(0,Math.min(base,upper)-prev);total+=round2(part*rate);prev=upper;if(base<=upper)break}return round2(total);
+  const brackets=[[1621,0.075],[2902.84,0.09],[4354.27,0.12],[8475.55,0.14]];
+  let prev=0,total=0;
+  for(const [upper,rate] of brackets){
+    const part=Math.max(0,Math.min(base,upper)-prev);
+    total+=trunc2(part*rate);
+    prev=upper;
+    if(base<=upper)break;
+  }
+  return round2(total);
 }
 function irrf2026(gross,inss){
   const simplified=607.20;const deduction=Math.max(inss,simplified);const base=Math.max(0,gross-deduction);let before=0;
@@ -284,18 +293,19 @@ const logs = state.overtimeLogs.filter(
   if(monthCfg.referenceHours&&logs.length===0){h50=Number(monthCfg.referenceHours.h50||0);h100=Number(monthCfg.referenceHours.h100||0);night=Number(monthCfg.referenceHours.night||0)}
   const hourBase=Number(cfg.baseSalary||0)/Math.max(1,Number(cfg.monthlyHours||220));
   const v50=round2(h50*hourBase*1.5),v100=round2(h100*hourBase*2),nightValue=round2(night*hourBase*(Number(cfg.nightPct||20)/100));
-  const extraBase=round2(v50+v100+nightValue),calendar=getDSRCalendar(k),manualHolidays=Math.max(0,Number(monthCfg.holidayCount||0)),holidays=calendar.holidays+manualHolidays,restDays=calendar.restDays+manualHolidays,workDays=Math.max(1,calendar.workingDays-manualHolidays),dsr=round2(extraBase/workDays*restDays);
+  const extraBase=round2(v50+v100+nightValue),calendar=getDSRCalendar(k),restDays=calendar.sundays,workDays=Math.max(1,calendar.totalDays-calendar.sundays),dsr=round2(extraBase/workDays*restDays);
   const extras=round2(extraBase+dsr),gross=round2(Number(cfg.baseSalary||0)+extras),inss=inss2026(gross),ir=irrf2026(gross,inss),netMonth=round2(gross-inss-ir.value),advance=round2(Number(cfg.advance||0)),finalPay=round2(netMonth-advance);
-  return {k,h50,h100,night,hourBase,v50,v100,nightValue,extraBase,sundays:calendar.sundays,holidays,automaticHolidays:calendar.holidays,manualHolidays,restDays,workDays,dsr,extras,gross,inss,ir,netMonth,advance,finalPay,logs,reference:monthCfg.referenceHours&&logs.length===0};
+  return {k,h50,h100,night,hourBase,v50,v100,nightValue,extraBase,sundays:calendar.sundays,holidays:0,automaticHolidays:0,manualHolidays:0,restDays,workDays,dsr,extras,gross,inss,ir,netMonth,advance,finalPay,logs,reference:monthCfg.referenceHours&&logs.length===0};
 }
 function renderSimulator(){
+  const referenceButton=document.querySelector('#loadJulyReference');if(referenceButton)referenceButton.textContent='Referência set/26';
   document.querySelector('#simMonthLabel').textContent=`${MONTHS[simCursor.getMonth()]} ${simCursor.getFullYear()}`;
   const cfg=state.payrollConfig,monthCfg=payrollMonthConfig();document.querySelector('#simBaseSalary').value=Number(cfg.baseSalary).toFixed(2).replace('.',',');document.querySelector('#simMonthlyHours').value=cfg.monthlyHours;document.querySelector('#simAdvance').value=Number(cfg.advance).toFixed(2).replace('.',',');document.querySelector('#simHolidayCount').value=monthCfg.holidayCount||0;document.querySelector('#simNightPct').value=cfg.nightPct;document.querySelector('#simExtraGoal').value=cfg.extraGoal||0;
   const p=payrollSimulation();document.querySelector('#simHours50').textContent=hoursLabel(p.h50);document.querySelector('#simValue50').textContent=fmt.format(p.v50);document.querySelector('#simHours100').textContent=hoursLabel(p.h100);document.querySelector('#simValue100').textContent=fmt.format(p.v100);document.querySelector('#simNightHours').textContent=hoursLabel(p.night);document.querySelector('#simNightValue').textContent=fmt.format(p.nightValue);setMoney('simDsrValue',p.dsr);document.querySelector('#simDsrDetail').textContent=`${p.restDays} DSR / ${p.workDays} dias no divisor`;
   setMoney('payBase',state.payrollConfig.baseSalary);setMoney('payExtras',p.extras);setMoney('payGross',p.gross);document.querySelector('#payInss').textContent=`− ${fmt.format(p.inss)}`;document.querySelector('#payIrrf').textContent=`− ${fmt.format(p.ir.value)}`;setMoney('payNetMonth',p.netMonth);document.querySelector('#payAdvance').textContent=`− ${fmt.format(p.advance)}`;setMoney('payFinal',p.finalPay);
-  document.querySelector('#payrollReferenceNote').textContent=p.reference?'Referência de julho/2026 carregada: 39h08 de HE 50%, 3h00 de HE 100% e 7h00 de adicional noturno. O resultado deve reproduzir de perto o seu contracheque.':'INSS e IRRF usam as tabelas de 2026; DSR considera feriados automáticos nacionais + AM + Manaus e feriados extras manuais.';
+  document.querySelector('#payrollReferenceNote').textContent=p.reference?'Referência de setembro/2026 carregada: 60h00 de HE 50%, 0h00 de HE 100% e 6h00 de adicional noturno. A calibração reproduz o holerite de setembro.':'INSS e IRRF usam as tabelas de 2026; o DSR da simulação segue o padrão observado no holerite de setembro, usando os domingos do mês.';
   const records=[...p.logs].sort((a,b)=>b.date.localeCompare(a.date));
-  let refHtml='';if(p.reference)refHtml=`<div class="item"><span class="item-icon">✓</span><span class="item-main"><strong>Referência do contracheque — julho/2026</strong><span>39h08 HE50 · 3h00 HE100 · 7h00 noturno</span></span><span class="item-side"><strong>${fmt.format(p.extras)}</strong><span>Calibração</span></span></div>`;
+  let refHtml='';if(p.reference)refHtml=`<div class="item"><span class="item-icon">✓</span><span class="item-main"><strong>Referência do contracheque — setembro/2026</strong><span>60h00 HE50 · 0h00 HE100 · 6h00 noturno</span></span><span class="item-side"><strong>${fmt.format(p.extras)}</strong><span>Calibração</span></span></div>`;
   document.querySelector('#extraList').innerHTML=refHtml+(records.length?records.map(r=>{const c=calculateExtraRecord(r);return `<button class="item" data-extra-edit="${r.id}" style="width:100%;text-align:left;cursor:pointer"><span class="item-icon">⌁</span><span class="item-main"><strong>${escapeHtml(r.description)}</strong><span>${formatDate(r.date)} · ${r.start}–${r.end}${r.holiday?' · HE 100%':''}</span></span><span class="item-side"><strong>${hoursLabel(c.minutes/60)}</strong><span>${c.is100?'100%':'50%'}${c.nightHours?` · ${hoursLabel(c.nightHours)} not.`:''}</span></span></button>`}).join(''):'');
   if(!p.reference&&!records.length)document.querySelector('#extraList').innerHTML='<div class="empty">Nenhuma hora extra registrada nesta competência.</div>';
 }
@@ -438,7 +448,7 @@ extraForm.addEventListener('submit',e=>{e.preventDefault();const id=document.que
 document.querySelector('#deleteExtra').onclick=()=>{const id=document.querySelector('#extraId').value;if(!id||!confirm('Excluir este registro de hora extra?'))return;state.overtimeLogs=state.overtimeLogs.filter(x=>x.id!==id);save();extraDlg.close();renderAll()};
 
 document.querySelector('#savePayrollConfig').onclick=()=>{state.payrollConfig.baseSalary=money(document.querySelector('#simBaseSalary').value);state.payrollConfig.monthlyHours=Math.max(1,decimal(document.querySelector('#simMonthlyHours').value));state.payrollConfig.advance=money(document.querySelector('#simAdvance').value);state.payrollConfig.nightPct=Math.max(0,decimal(document.querySelector('#simNightPct').value));state.payrollConfig.extraGoal=Math.max(0,decimal(document.querySelector('#simExtraGoal').value));payrollMonthConfig().holidayCount=Math.max(0,Number(document.querySelector('#simHolidayCount').value||0));save();renderSimulator();alert('Parâmetros da simulação salvos.')};
-document.querySelector('#loadJulyReference').onclick=()=>{simCursor=new Date(2026,6,1);const m=payrollMonthConfig('2026-07');m.holidayCount=0;m.referenceHours={h50:39.14,h100:3,night:7};state.payrollConfig.baseSalary=5000;state.payrollConfig.monthlyHours=220;state.payrollConfig.advance=2000;state.payrollConfig.nightPct=20;save();renderSimulator()};
+document.querySelector('#loadJulyReference').onclick=()=>{simCursor=new Date(2026,8,1);const m=payrollMonthConfig('2026-09');m.holidayCount=0;m.referenceHours={h50:60,h100:0,night:6};state.payrollConfig.baseSalary=5000;state.payrollConfig.monthlyHours=220;state.payrollConfig.advance=2000;state.payrollConfig.nightPct=20;save();renderSimulator()};
 document.querySelector('#useSimulationIncome').onclick=()=>{const p=payrollSimulation(),[y,m]=p.k.split('-').map(Number),last=new Date(y,m,0).getDate(),date=`${y}-${String(m).padStart(2,'0')}-${String(last).padStart(2,'0')}`;let x=state.transactions.find(t=>t.source==='payroll-simulation'&&t.date?.slice(0,7)===p.k);const obj={id:x?.id||uid(),kind:'income',incomeType:'second',description:'Salário - final do mês (simulação)',amount:Math.max(0,p.finalPay),date,status:'planned',source:'payroll-simulation'};if(x)Object.assign(x,obj);else state.transactions.push(obj);cursor=new Date(y,m-1,1);save();renderAll();alert('Entrada prevista atualizada em Lançamentos.')};
 
 // Preferências e backup local
