@@ -1,4 +1,4 @@
-const CACHE='saldoplan-v2.5';
+﻿const CACHE='saldoplan-v2.5.2';
 
 const ASSETS=[
   './',
@@ -37,3 +37,4 @@ self.addEventListener('fetch',e=>{
       .catch(()=>caches.match(e.request))
   );
 });
+
