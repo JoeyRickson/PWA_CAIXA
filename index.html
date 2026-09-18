@@ -1,10 +1,10 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#111827" />
-  <meta name="description" content="Controle financeiro pessoal com salÃ¡rio, bÃ´nus, reserva, horas extras e simulaÃ§Ã£o de folha." />
+  <meta name="description" content="Controle financeiro pessoal com salário, bônus, reserva, horas extras e simulação de folha." />
   <title>SaldoPlan</title>
 <link rel="manifest" href="manifest.json" />
 
@@ -31,7 +31,7 @@
         <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.5.2</small></h1>
       </div>
       <div class="top-actions">
-        <button id="themeQuickBtn" class="icon-btn" aria-label="Alternar tema" title="Alternar tema">â˜¾</button>
+        <button id="themeQuickBtn" class="icon-btn" aria-label="Alternar tema" title="Alternar tema">☾</button>
         <button id="installBtn" class="btn ghost hidden">Instalar</button>
       </div>
     </header>
@@ -39,12 +39,12 @@
     <main>
       <section id="view-dashboard" class="view active">
         <div class="month-row">
-          <button class="icon-btn" id="prevMonth" aria-label="MÃªs anterior">â€¹</button>
+          <button class="icon-btn" id="prevMonth" aria-label="Mês anterior">‹</button>
           <div>
-            <span class="muted">MÃªs</span>
-            <h2 id="monthLabel">â€”</h2>
+            <span class="muted">Mês</span>
+            <h2 id="monthLabel">—</h2>
           </div>
-          <button class="icon-btn" id="nextMonth" aria-label="PrÃ³ximo mÃªs">â€º</button>
+          <button class="icon-btn" id="nextMonth" aria-label="Próximo mês">›</button>
         </div>
 
         <div id="importNote" class="notice hidden">
@@ -62,21 +62,21 @@
     href="https://github.com/JoeyRickson/PWA_CAIXA/releases/latest/download/SaldoPlan.apk"
     download
   >
-    â†“ Baixar APK
+    ↓ Baixar APK
   </a>
 </section>
           <div>
             <strong>Seus dados antigos foram preservados</strong>
-            <p>A versÃ£o nova migra os lanÃ§amentos da versÃ£o anterior e acrescenta Guardado, SimulaÃ§Ã£o, tema e backup em nuvem.</p>
+            <p>A versão nova migra os lançamentos da versão anterior e acrescenta Guardado, Simulação, tema e backup em nuvem.</p>
           </div>
-          <button id="dismissImportNote" class="icon-btn small">Ã—</button>
+          <button id="dismissImportNote" class="icon-btn small">×</button>
         </div>
 
         <div class="grid kpis">
           <article class="card hero">
-            <span>Saldo disponÃ­vel agora</span>
+            <span>Saldo disponível agora</span>
             <strong id="cashNow">R$ 0,00</strong>
-            <small>Recebido âˆ’ gastos pagos</small>
+            <small>Recebido − gastos pagos</small>
           </article>
           <article class="card">
             <span>Saldo projetado</span>
@@ -84,14 +84,14 @@
             <small>Inclui entradas e contas previstas</small>
           </article>
           <article class="card">
-            <span data-bonus-label>BÃ´nus disponÃ­vel</span>
+            <span data-bonus-label>Bônus disponível</span>
             <strong id="flashNow">R$ 0,00</strong>
             <small id="flashProjected">Projetado: R$ 0,00</small>
           </article>
           <article class="card savings-card">
             <span>Guardado acumulado</span>
             <strong id="savedTotal">R$ 0,00</strong>
-            <small id="savedMonthText">No mÃªs: R$ 0,00</small>
+            <small id="savedMonthText">No mês: R$ 0,00</small>
           </article>
           <article class="card accent">
             <span>Potencial para guardar</span>
@@ -107,21 +107,21 @@
             <button class="btn small" data-action="new-income">+ Entrada</button>
           </div>
           <div class="split-grid">
-            <div class="mini-stat"><span>AtÃ© dia 15</span><strong id="incomeFirst">R$ 0,00</strong></div>
-            <div class="mini-stat"><span>Final do mÃªs</span><strong id="incomeSecond">R$ 0,00</strong></div>
+            <div class="mini-stat"><span>Até dia 15</span><strong id="incomeFirst">R$ 0,00</strong></div>
+            <div class="mini-stat"><span>Final do mês</span><strong id="incomeSecond">R$ 0,00</strong></div>
             <div class="mini-stat"><span>Extras</span><strong id="incomeExtra">R$ 0,00</strong></div>
-            <div class="mini-stat" data-bonus-visibility><span data-bonus-label>BÃ´nus</span><strong id="incomeFlash">R$ 0,00</strong></div>
+            <div class="mini-stat" data-bonus-visibility><span data-bonus-label>Bônus</span><strong id="incomeFlash">R$ 0,00</strong></div>
           </div>
         </section>
 
         <section class="panel">
           <div class="section-head">
-            <div><span class="muted">SaÃ­das</span><h3>Para onde vai</h3></div>
+            <div><span class="muted">Saídas</span><h3>Para onde vai</h3></div>
             <button class="btn small" data-action="new-expense">+ Gasto</button>
           </div>
           <div class="expense-summary">
             <div><span class="dot fixed"></span><span>Fixos</span><strong id="fixedTotal">R$ 0,00</strong></div>
-            <div><span class="dot variable"></span><span>VariÃ¡veis</span><strong id="variableTotal">R$ 0,00</strong></div>
+            <div><span class="dot variable"></span><span>Variáveis</span><strong id="variableTotal">R$ 0,00</strong></div>
             <div><span class="dot unplanned"></span><span>Imprevistos</span><strong id="unplannedTotal">R$ 0,00</strong></div>
           </div>
           <div id="categoryBars" class="bars"></div>
@@ -129,7 +129,7 @@
 
         <section class="panel">
           <div class="section-head">
-            <div><span class="muted">PrÃ³ximos</span><h3>Contas pendentes</h3></div>
+            <div><span class="muted">Próximos</span><h3>Contas pendentes</h3></div>
             <button class="text-btn" data-nav="transactions">Ver todos</button>
           </div>
           <div id="pendingList" class="list"></div>
@@ -138,7 +138,7 @@
 
       <section id="view-transactions" class="view">
         <div class="section-head page-head">
-          <div><span class="muted">MÃªs selecionado</span><h2>LanÃ§amentos</h2></div>
+          <div><span class="muted">Mês selecionado</span><h2>Lançamentos</h2></div>
           <button class="btn" data-action="new-expense">+ Novo</button>
         </div>
         <div class="filter-row">
@@ -152,73 +152,73 @@
 
       <section id="view-savings" class="view">
         <div class="section-head page-head">
-          <div><span class="muted">PatrimÃ´nio pessoal</span><h2>Guardado</h2></div>
+          <div><span class="muted">Patrimônio pessoal</span><h2>Guardado</h2></div>
           <button class="btn" data-action="new-saving">+ Movimentar</button>
         </div>
-        <p class="helper">Registre cada valor que vocÃª guardar. Se retirar dinheiro de uma reserva ou investimento, lance uma retirada e o saldo acumulado Ã© atualizado na hora.</p>
+        <p class="helper">Registre cada valor que você guardar. Se retirar dinheiro de uma reserva ou investimento, lance uma retirada e o saldo acumulado é atualizado na hora.</p>
         <div class="grid kpis compact-kpis">
-          <article class="card hero"><span>Total guardado agora</span><strong id="savingBalance">R$ 0,00</strong><small>DepÃ³sitos âˆ’ retiradas</small></article>
-          <article class="card"><span>Guardado neste mÃªs</span><strong id="savingDepositsMonth">R$ 0,00</strong><small>Somente aportes</small></article>
-          <article class="card"><span>Retirado neste mÃªs</span><strong id="savingWithdrawalsMonth">R$ 0,00</strong><small>SaÃ­das das reservas</small></article>
-          <article class="card"><span>Resultado do mÃªs</span><strong id="savingNetMonth">R$ 0,00</strong><small>Aportes âˆ’ retiradas</small></article>
+          <article class="card hero"><span>Total guardado agora</span><strong id="savingBalance">R$ 0,00</strong><small>Depósitos − retiradas</small></article>
+          <article class="card"><span>Guardado neste mês</span><strong id="savingDepositsMonth">R$ 0,00</strong><small>Somente aportes</small></article>
+          <article class="card"><span>Retirado neste mês</span><strong id="savingWithdrawalsMonth">R$ 0,00</strong><small>Saídas das reservas</small></article>
+          <article class="card"><span>Resultado do mês</span><strong id="savingNetMonth">R$ 0,00</strong><small>Aportes − retiradas</small></article>
         </div>
         <section class="panel">
-          <div class="section-head"><div><span class="muted">EvoluÃ§Ã£o</span><h3>Saldo acumulado</h3></div></div>
+          <div class="section-head"><div><span class="muted">Evolução</span><h3>Saldo acumulado</h3></div></div>
           <div id="savingChart" class="saving-chart"></div>
         </section>
         <section class="panel">
-          <div class="section-head"><div><span class="muted">HistÃ³rico</span><h3>MovimentaÃ§Ãµes</h3></div></div>
+          <div class="section-head"><div><span class="muted">Histórico</span><h3>Movimentações</h3></div></div>
           <div id="savingList" class="list large"></div>
         </section>
       </section>
 
       <section id="view-simulator" class="view">
         <div class="section-head page-head">
-          <div><span class="muted">Somente seus dados</span><h2>SimulaÃ§Ã£o de folha</h2></div>
+          <div><span class="muted">Somente seus dados</span><h2>Simulação de folha</h2></div>
           <button class="btn" data-action="new-extra">+ Hora extra</button>
         </div>
-        <p class="helper">SimulaÃ§Ã£o pessoal baseada na sua folha e na lÃ³gica da planilha de horas extras. Ã‰ uma estimativa: o fechamento oficial da folha pode ter diferenÃ§as de regras, arredondamentos e eventos internos.</p>
+        <p class="helper">Simulação pessoal baseada na sua folha e na lógica da planilha de horas extras. É uma estimativa: o fechamento oficial da folha pode ter diferenças de regras, arredondamentos e eventos internos.</p>
 
         <div class="month-row slim">
-          <button class="icon-btn" id="prevSimMonth" aria-label="MÃªs anterior">â€¹</button>
-          <div><span class="muted">CompetÃªncia simulada</span><h3 id="simMonthLabel">â€”</h3></div>
-          <button class="icon-btn" id="nextSimMonth" aria-label="PrÃ³ximo mÃªs">â€º</button>
+          <button class="icon-btn" id="prevSimMonth" aria-label="Mês anterior">‹</button>
+          <div><span class="muted">Competência simulada</span><h3 id="simMonthLabel">—</h3></div>
+          <button class="icon-btn" id="nextSimMonth" aria-label="Próximo mês">›</button>
         </div>
 
         <section class="panel form-panel">
-          <div class="section-head"><div><span class="muted">ParÃ¢metros</span><h3>Sua folha</h3></div><button id="loadJulyReference" class="btn ghost small">ReferÃªncia jul/26</button></div>
+          <div class="section-head"><div><span class="muted">Parâmetros</span><h3>Sua folha</h3></div><button id="loadJulyReference" class="btn ghost small">Referência jul/26</button></div>
           <div class="two-col">
-            <label>SalÃ¡rio base<div class="money-input"><span>R$</span><input id="simBaseSalary" inputmode="decimal"></div></label>
+            <label>Salário base<div class="money-input"><span>R$</span><input id="simBaseSalary" inputmode="decimal"></div></label>
             <label>Carga mensal (h)<input id="simMonthlyHours" inputmode="decimal"></label>
           </div>
           <div class="two-col">
             <label>Adiantamento recebido<div class="money-input"><span>R$</span><input id="simAdvance" inputmode="decimal"></div></label>
-            <label>Feriados extras manuais no mÃªs<input id="simHolidayCount" type="number" min="0" max="10" inputmode="numeric"><small class="input-help">AutomÃ¡ticos: nacionais + AM + Manaus.</small></label>
+            <label>Feriados extras manuais no mês<input id="simHolidayCount" type="number" min="0" max="10" inputmode="numeric"><small class="input-help">Automáticos: nacionais + AM + Manaus.</small></label>
           </div>
           <div class="two-col">
             <label>Adicional noturno (%)<input id="simNightPct" inputmode="decimal"></label>
             <label>Meta de HE mensal (h)<input id="simExtraGoal" inputmode="decimal"></label>
           </div>
-          <button id="savePayrollConfig" class="btn full">Salvar parÃ¢metros</button>
+          <button id="savePayrollConfig" class="btn full">Salvar parâmetros</button>
         </section>
 
         <div class="grid kpis compact-kpis">
           <article class="card"><span>HE 50%</span><strong id="simHours50">0h00</strong><small id="simValue50">R$ 0,00</small></article>
           <article class="card"><span>HE 100%</span><strong id="simHours100">0h00</strong><small id="simValue100">R$ 0,00</small></article>
           <article class="card"><span>Adicional noturno</span><strong id="simNightHours">0h00</strong><small id="simNightValue">R$ 0,00</small></article>
-          <article class="card"><span>DSR sobre extras</span><strong id="simDsrValue">R$ 0,00</strong><small id="simDsrDetail">â€”</small></article>
+          <article class="card"><span>DSR sobre extras</span><strong id="simDsrValue">R$ 0,00</strong><small id="simDsrDetail">—</small></article>
         </div>
 
         <section class="panel payroll-result">
           <div class="section-head"><div><span class="muted">Estimativa</span><h3>Fechamento da folha</h3></div></div>
           <div class="pay-grid">
-            <div><span>SalÃ¡rio base</span><strong id="payBase">R$ 0,00</strong></div>
+            <div><span>Salário base</span><strong id="payBase">R$ 0,00</strong></div>
             <div><span>Extras + adicionais</span><strong id="payExtras">R$ 0,00</strong></div>
             <div class="total-row"><span>Total bruto</span><strong id="payGross">R$ 0,00</strong></div>
-            <div><span>INSS estimado</span><strong id="payInss" class="negative">âˆ’ R$ 0,00</strong></div>
-            <div><span>IRRF estimado</span><strong id="payIrrf" class="negative">âˆ’ R$ 0,00</strong></div>
-            <div><span>LÃ­quido total do mÃªs</span><strong id="payNetMonth">R$ 0,00</strong></div>
-            <div><span>Adiantamento jÃ¡ recebido</span><strong id="payAdvance" class="negative">âˆ’ R$ 0,00</strong></div>
+            <div><span>INSS estimado</span><strong id="payInss" class="negative">− R$ 0,00</strong></div>
+            <div><span>IRRF estimado</span><strong id="payIrrf" class="negative">− R$ 0,00</strong></div>
+            <div><span>Líquido total do mês</span><strong id="payNetMonth">R$ 0,00</strong></div>
+            <div><span>Adiantamento já recebido</span><strong id="payAdvance" class="negative">− R$ 0,00</strong></div>
             <div class="final-row"><span>Estimativa a receber no final</span><strong id="payFinal">R$ 0,00</strong></div>
           </div>
           <button id="useSimulationIncome" class="btn secondary full">Usar valor final como entrada prevista</button>
@@ -226,28 +226,28 @@
         </section>
 
         <section class="panel">
-          <div class="section-head"><div><span class="muted">Meus extras</span><h3>Registros do mÃªs</h3></div><button class="btn small" data-action="new-extra">+ Adicionar</button></div>
+          <div class="section-head"><div><span class="muted">Meus extras</span><h3>Registros do mês</h3></div><button class="btn small" data-action="new-extra">+ Adicionar</button></div>
           <div id="extraList" class="list large"></div>
         </section>
       </section>
 
       <section id="view-fixed" class="view">
         <div class="section-head page-head">
-          <div><span class="muted">AutomaÃ§Ã£o</span><h2>Gastos fixos</h2></div>
+          <div><span class="muted">Automação</span><h2>Gastos fixos</h2></div>
           <button class="btn" data-action="new-fixed">+ Fixo</button>
         </div>
-        <p class="helper">Cadastre uma vez. O app cria esse gasto automaticamente em cada mÃªs.</p>
+        <p class="helper">Cadastre uma vez. O app cria esse gasto automaticamente em cada mês.</p>
         <div id="fixedList" class="list large"></div>
       </section>
 
       <section id="view-data" class="view">
-        <div class="page-head"><span class="muted">SeguranÃ§a e preferÃªncias</span><h2>Dados e backup</h2></div>
+        <div class="page-head"><span class="muted">Segurança e preferências</span><h2>Dados e backup</h2></div>
 
         <section class="panel form-panel">
-          <h3>AparÃªncia</h3>
+          <h3>Aparência</h3>
           <div class="segmented" id="themeSelector">
-            <button data-theme-option="light">â˜€ Claro</button>
-            <button data-theme-option="dark">â˜¾ Escuro</button>
+            <button data-theme-option="light">☀ Claro</button>
+            <button data-theme-option="dark">☾ Escuro</button>
           </div>
         </section>
 
@@ -259,16 +259,16 @@
         </section>
 
         <section class="panel form-panel">
-          <h3>BÃ´nus opcional</h3>
-          <p class="helper">Use este recurso para vale, cartÃ£o benefÃ­cio ou qualquer bÃ´nus recebido. VocÃª escolhe o nome ou pode desativÃ¡-lo.</p>
-          <label class="check-row"><input id="bonusEnabled" type="checkbox"> Usar bÃ´nus no app</label>
-          <label>Nome do bÃ´nus<input id="bonusName" placeholder="Ex.: Vale alimentaÃ§Ã£o, cartÃ£o benefÃ­cio"></label>
-          <button id="saveBonusConfig" class="btn full">Salvar configuraÃ§Ã£o do bÃ´nus</button>
+          <h3>Bônus opcional</h3>
+          <p class="helper">Use este recurso para vale, cartão benefício ou qualquer bônus recebido. Você escolhe o nome ou pode desativá-lo.</p>
+          <label class="check-row"><input id="bonusEnabled" type="checkbox"> Usar bônus no app</label>
+          <label>Nome do bônus<input id="bonusName" placeholder="Ex.: Vale alimentação, cartão benefício"></label>
+          <button id="saveBonusConfig" class="btn full">Salvar configuração do bônus</button>
         </section>
 
         <section class="panel cloud-panel">
           <div class="section-head"><div><span class="muted">Provedor de backup</span><h3>Backup em nuvem</h3></div><span id="driveStatus" class="status-pill">Desconectado</span></div>
-          <p id="cloudProviderHelp" class="helper">Cada pessoa conecta a prÃ³pria conta. O app nÃ£o compartilha nem acessa o armazenamento de outras pessoas.</p>
+          <p id="cloudProviderHelp" class="helper">Cada pessoa conecta a própria conta. O app não compartilha nem acessa o armazenamento de outras pessoas.</p>
           <label>Onde guardar o backup<select id="cloudProvider"><option value="google">Google Drive</option><option value="onedrive">OneDrive</option><option value="dropbox">Dropbox</option></select></label>
           <div id="googleCloudFields">
             <label>Sua conta Google <span class="field-note">(opcional)</span><input id="googleEmailHint" type="email" placeholder="voce@gmail.com"></label>
@@ -280,69 +280,69 @@
             <p id="cloudProviderStatus" class="helper small-text"></p>
           </div>
           <label>Pasta no Drive<input id="driveFolderName" value="SaldoPlan - Backups"></label>
-          <label class="check-row"><input id="driveAutoBackup" type="checkbox"> Fazer backup automÃ¡tico enquanto o Drive estiver conectado</label>
-          <label>Manter backups automÃ¡ticos por<select id="driveRetentionDays"><option value="10">10 dias</option><option value="15">15 dias</option><option value="30">30 dias</option></select></label>
+          <label class="check-row"><input id="driveAutoBackup" type="checkbox"> Fazer backup automático enquanto o Drive estiver conectado</label>
+          <label>Manter backups automáticos por<select id="driveRetentionDays"><option value="10">10 dias</option><option value="15">15 dias</option><option value="30">30 dias</option></select></label>
           <div class="button-stack">
-            <button id="saveCloudConfig" class="btn secondary full">Salvar configuraÃ§Ã£o</button>
+            <button id="saveCloudConfig" class="btn secondary full">Salvar configuração</button>
             <button id="connectDrive" class="btn full">Conectar ao Google Drive</button>
             <button id="backupDrive" class="btn secondary full">Enviar backup agora</button>
             <button id="restoreDrive" class="btn ghost full">Restaurar do Drive</button>
           </div>
           <div id="backupProgress" class="backup-progress hidden" role="status" aria-live="polite">
-            <div class="backup-progress-head"><span id="backupProgressIcon">â†—</span><strong id="backupProgressTitle">Preparando backup</strong><span id="backupProgressPercent">0%</span></div>
+            <div class="backup-progress-head"><span id="backupProgressIcon">↗</span><strong id="backupProgressTitle">Preparando backup</strong><span id="backupProgressPercent">0%</span></div>
             <div class="backup-progress-track"><i id="backupProgressBar"></i></div>
-            <small id="backupProgressDetail">Aguarde enquanto os dados sÃ£o enviados.</small>
+            <small id="backupProgressDetail">Aguarde enquanto os dados são enviados.</small>
           </div>
-          <p id="driveDetail" class="helper small-text">O backup serÃ¡ salvo na pasta configurada.</p>
-          <p class="helper small-text">Google Drive, OneDrive e Dropbox tÃªm conexÃ£o automÃ¡tica quando suas credenciais OAuth sÃ£o informadas. Outros serviÃ§os podem receber o arquivo exportado manualmente.</p>
+          <p id="driveDetail" class="helper small-text">O backup será salvo na pasta configurada.</p>
+          <p class="helper small-text">Google Drive, OneDrive e Dropbox têm conexão automática quando suas credenciais OAuth são informadas. Outros serviços podem receber o arquivo exportado manualmente.</p>
         </section>
 
         <section class="panel">
           <h3>Dados deste aparelho</h3>
-          <p class="helper">Salva suas informaÃ§Ãµes localmente neste celular ou computador. Esse armazenamento funciona offline e nÃ£o envia os dados para ninguÃ©m.</p>
-          <button id="saveLocalData" class="btn full">Salvar informaÃ§Ãµes neste aparelho</button>
-          <p id="localSaveStatus" class="helper small-text">As alteraÃ§Ãµes tambÃ©m sÃ£o salvas automaticamente ao usar o app.</p>
+          <p class="helper">Salva suas informações localmente neste celular ou computador. Esse armazenamento funciona offline e não envia os dados para ninguém.</p>
+          <button id="saveLocalData" class="btn full">Salvar informações neste aparelho</button>
+          <p id="localSaveStatus" class="helper small-text">As alterações também são salvas automaticamente ao usar o app.</p>
         </section>
 
         <section class="panel">
           <h3>Backup manual</h3>
-          <p class="helper">O arquivo JSON inclui lanÃ§amentos, gastos fixos, valores guardados, horas extras e configuraÃ§Ãµes. ImportaÃ§Ãµes antigas da versÃ£o 1 tambÃ©m sÃ£o aceitas.</p>
+          <p class="helper">O arquivo JSON inclui lançamentos, gastos fixos, valores guardados, horas extras e configurações. Importações antigas da versão 1 também são aceitas.</p>
           <div class="button-stack">
             <button id="exportJson" class="btn full">Exportar backup (.json)</button>
-            <button id="exportCsv" class="btn secondary full">Exportar lanÃ§amentos (.csv)</button>
-            <button id="exportPdf" class="btn secondary full">Exportar relatÃ³rio (.pdf)</button>
+            <button id="exportCsv" class="btn secondary full">Exportar lançamentos (.csv)</button>
+            <button id="exportPdf" class="btn secondary full">Exportar relatório (.pdf)</button>
             <label class="btn ghost full file-label">Importar backup<input id="importJson" type="file" accept="application/json,.json"></label>
-            <button id="restorePreviousLocal" class="btn ghost full">Restaurar cÃ³pia local anterior</button>
+            <button id="restorePreviousLocal" class="btn ghost full">Restaurar cópia local anterior</button>
           </div>
         </section>
 
         <section class="panel danger-zone">
           <h3>Limpar dados</h3>
-          <p class="helper">Apaga os dados deste aparelho. FaÃ§a um backup antes.</p>
+          <p class="helper">Apaga os dados deste aparelho. Faça um backup antes.</p>
           <button id="resetData" class="btn danger full">Apagar tudo</button>
         </section>
       </section>
 
       <section id="view-about" class="view">
-        <div class="page-head"><span class="muted">InformaÃ§Ãµes</span><h2>Sobre o SaldoPlan</h2></div>
+        <div class="page-head"><span class="muted">Informações</span><h2>Sobre o SaldoPlan</h2></div>
         <section class="panel">
           <h3>SaldoPlan</h3>
-          <p class="helper">Controle financeiro pessoal para registrar entradas, gastos, valores guardados e simulaÃ§Ã£o de folha.</p>
+          <p class="helper">Controle financeiro pessoal para registrar entradas, gastos, valores guardados e simulação de folha.</p>
           <p class="helper">Criado por <strong>Joey Rickson</strong> como um PWA: funciona no navegador, pode ser instalado no celular e trabalha offline.</p>
-          <p class="helper">Tecnologias: HTML, CSS, JavaScript, armazenamento local, Service Worker e integraÃ§Ãµes opcionais de backup em nuvem.</p>
-          <p class="helper small-text">VersÃ£o 2.5</p>
+          <p class="helper">Tecnologias: HTML, CSS, JavaScript, armazenamento local, Service Worker e integrações opcionais de backup em nuvem.</p>
+          <p class="helper small-text">Versão 2.5</p>
         </section>
       </section>
     </main>
 
-    <nav class="bottom-nav" aria-label="NavegaÃ§Ã£o principal">
-      <button class="nav-item active" data-nav="dashboard"><span>â—«</span>Resumo</button>
-      <button class="nav-item" data-nav="transactions"><span>â‰¡</span>LanÃ§amentos</button>
-      <button class="nav-item" data-nav="savings"><span>â—†</span>Guardado</button>
-      <button class="nav-item" data-nav="simulator"><span>âŒ</span>SimulaÃ§Ã£o</button>
-      <button class="nav-item" data-nav="fixed"><span>â†»</span>Fixos</button>
-      <button class="nav-item" data-nav="data"><span>âš™</span>Dados</button>
-      <button class="nav-item" data-nav="about"><span>â“˜</span>Sobre</button>
+    <nav class="bottom-nav" aria-label="Navegação principal">
+      <button class="nav-item active" data-nav="dashboard"><span>◫</span>Resumo</button>
+      <button class="nav-item" data-nav="transactions"><span>≡</span>Lançamentos</button>
+      <button class="nav-item" data-nav="savings"><span>◆</span>Guardado</button>
+      <button class="nav-item" data-nav="simulator"><span>⌁</span>Simulação</button>
+      <button class="nav-item" data-nav="fixed"><span>↻</span>Fixos</button>
+      <button class="nav-item" data-nav="data"><span>⚙</span>Dados</button>
+      <button class="nav-item" data-nav="about"><span>ⓘ</span>Sobre</button>
     </nav>
   </div>
   <div id="operationOverlay" class="operation-overlay hidden" role="dialog" aria-modal="true" aria-live="polite">
@@ -357,46 +357,46 @@
 
   <dialog id="entryDialog">
     <form id="entryForm" method="dialog" class="dialog-form">
-      <div class="dialog-head"><div><span class="muted" id="formEyebrow">LANÃ‡AMENTO</span><h2 id="formTitle">Novo gasto</h2></div><button type="button" class="icon-btn" id="closeDialog">Ã—</button></div>
+      <div class="dialog-head"><div><span class="muted" id="formEyebrow">LANÇAMENTO</span><h2 id="formTitle">Novo gasto</h2></div><button type="button" class="icon-btn" id="closeDialog">×</button></div>
       <input type="hidden" id="entryId">
       <input type="hidden" id="entryKind" value="expense">
       <input type="hidden" id="fixedTemplateMode" value="0">
 
       <div id="incomeFields" class="conditional hidden">
-        <label>Tipo de entrada<select id="incomeType"><option value="first">AtÃ© dia 15 / quinzena</option><option value="second">Final do mÃªs</option><option value="extra">Extra</option><option value="flash">CrÃ©dito Flash</option></select></label>
+        <label>Tipo de entrada<select id="incomeType"><option value="first">Até dia 15 / quinzena</option><option value="second">Final do mês</option><option value="extra">Extra</option><option value="flash">Crédito Flash</option></select></label>
       </div>
 
       <div id="expenseFields" class="conditional">
         <div class="two-col">
-          <label>Tipo<select id="expenseType"><option value="fixed">Fixo</option><option value="variable">VariÃ¡vel</option><option value="unplanned">Imprevisto</option></select></label>
-          <label>Pago com<select id="paySource"><option value="cash">SalÃ¡rio / conta</option><option value="flash">Flash</option></select></label>
+          <label>Tipo<select id="expenseType"><option value="fixed">Fixo</option><option value="variable">Variável</option><option value="unplanned">Imprevisto</option></select></label>
+          <label>Pago com<select id="paySource"><option value="cash">Salário / conta</option><option value="flash">Flash</option></select></label>
         </div>
         <label>Categoria<input id="category" list="categoryOptions" placeholder="Ex.: Moradia"></label>
-        <datalist id="categoryOptions"><option>Moradia</option><option>Internet</option><option>Telefone</option><option>EducaÃ§Ã£o</option><option>CartÃ£o</option><option>AlimentaÃ§Ã£o</option><option>Mercado</option><option>Transporte</option><option>SaÃºde</option><option>Lazer</option><option>Assinaturas</option><option>Outros</option></datalist>
+        <datalist id="categoryOptions"><option>Moradia</option><option>Internet</option><option>Telefone</option><option>Educação</option><option>Cartão</option><option>Alimentação</option><option>Mercado</option><option>Transporte</option><option>Saúde</option><option>Lazer</option><option>Assinaturas</option><option>Outros</option></datalist>
       </div>
 
-      <label>DescriÃ§Ã£o <span class="field-note">(opcional)</span><input id="description" placeholder="Ex.: Aluguel, salÃ¡rio, fatura..."><small class="input-help">Se deixar em branco, o app preenche automaticamente conforme o tipo.</small></label>
+      <label>Descrição <span class="field-note">(opcional)</span><input id="description" placeholder="Ex.: Aluguel, salário, fatura..."><small class="input-help">Se deixar em branco, o app preenche automaticamente conforme o tipo.</small></label>
       <label>Valor<div class="money-input"><span>R$</span><input id="amount" required inputmode="decimal" placeholder="0,00"></div></label>
       <div class="two-col">
         <label>Data<input id="entryDate" type="date" required></label>
         <label>Status<select id="entryStatus"><option value="realized">Recebido / pago</option><option value="planned">Previsto / pendente</option></select></label>
       </div>
-      <label id="repeatLabel" class="check-row"><input id="repeatMonthly" type="checkbox"> Repetir automaticamente todo mÃªs</label>
+      <label id="repeatLabel" class="check-row"><input id="repeatMonthly" type="checkbox"> Repetir automaticamente todo mês</label>
       <div class="dialog-actions"><button type="button" id="deleteEntry" class="btn danger ghost hidden">Excluir</button><button type="submit" class="btn">Salvar</button></div>
     </form>
   </dialog>
 
   <dialog id="savingDialog">
     <form id="savingForm" method="dialog" class="dialog-form">
-      <div class="dialog-head"><div><span class="muted">GUARDADO</span><h2 id="savingFormTitle">Nova movimentaÃ§Ã£o</h2></div><button type="button" class="icon-btn" id="closeSavingDialog">Ã—</button></div>
+      <div class="dialog-head"><div><span class="muted">GUARDADO</span><h2 id="savingFormTitle">Nova movimentação</h2></div><button type="button" class="icon-btn" id="closeSavingDialog">×</button></div>
       <input type="hidden" id="savingId">
       <div class="two-col">
         <label>Movimento<select id="savingType"><option value="deposit">Guardar / aportar</option><option value="withdrawal">Retirar</option></select></label>
         <label>Data<input id="savingDate" type="date" required></label>
       </div>
-      <label>Onde estÃ¡ guardado<input id="savingAccount" list="savingAccountOptions" placeholder="Ex.: Reserva, CDB, PoupanÃ§a"></label>
-      <datalist id="savingAccountOptions"><option>Reserva de emergÃªncia</option><option>Investimentos</option><option>PoupanÃ§a</option><option>CDB</option><option>Conta separada</option></datalist>
-      <label>DescriÃ§Ã£o<input id="savingDescription" required placeholder="Ex.: Aporte setembro"></label>
+      <label>Onde está guardado<input id="savingAccount" list="savingAccountOptions" placeholder="Ex.: Reserva, CDB, Poupança"></label>
+      <datalist id="savingAccountOptions"><option>Reserva de emergência</option><option>Investimentos</option><option>Poupança</option><option>CDB</option><option>Conta separada</option></datalist>
+      <label>Descrição<input id="savingDescription" required placeholder="Ex.: Aporte setembro"></label>
       <label>Valor<div class="money-input"><span>R$</span><input id="savingAmount" required inputmode="decimal" placeholder="0,00"></div></label>
       <div class="dialog-actions"><button type="button" id="deleteSaving" class="btn danger ghost hidden">Excluir</button><button type="submit" class="btn">Salvar</button></div>
     </form>
@@ -404,21 +404,21 @@
 
   <dialog id="extraDialog">
     <form id="extraForm" method="dialog" class="dialog-form">
-      <div class="dialog-head"><div><span class="muted">MEUS EXTRAS</span><h2 id="extraFormTitle">Novo registro</h2></div><button type="button" class="icon-btn" id="closeExtraDialog">Ã—</button></div>
+      <div class="dialog-head"><div><span class="muted">MEUS EXTRAS</span><h2 id="extraFormTitle">Novo registro</h2></div><button type="button" class="icon-btn" id="closeExtraDialog">×</button></div>
       <input type="hidden" id="extraId">
       <label>Data<input id="extraDate" type="date" required></label>
-      <label>DescriÃ§Ã£o / motivo<input id="extraDescription" required placeholder="Ex.: ManutenÃ§Ã£o de firewall"></label>
+      <label>Descrição / motivo<input id="extraDescription" required placeholder="Ex.: Manutenção de firewall"></label>
       <div class="two-col">
-        <label>InÃ­cio<input id="extraStart" type="time" required></label>
+        <label>Início<input id="extraStart" type="time" required></label>
         <label>Fim<input id="extraEnd" type="time" required></label>
       </div>
-      <label class="check-row"><input id="extraDeductLunch" type="checkbox"> Descontar intervalo/almoÃ§o</label>
+      <label class="check-row"><input id="extraDeductLunch" type="checkbox"> Descontar intervalo/almoço</label>
       <div id="lunchFields" class="two-col hidden">
-        <label>InÃ­cio intervalo<input id="extraLunchStart" type="time"></label>
+        <label>Início intervalo<input id="extraLunchStart" type="time"></label>
         <label>Fim intervalo<input id="extraLunchEnd" type="time"></label>
       </div>
       <label class="check-row"><input id="extraHoliday" type="checkbox"> Considerar feriado / HE 100%</label>
-      <div id="extraPreview" class="preview-box">Total calculado: â€”</div>
+      <div id="extraPreview" class="preview-box">Total calculado: —</div>
       <div class="dialog-actions"><button type="button" id="deleteExtra" class="btn danger ghost hidden">Excluir</button><button type="submit" class="btn">Salvar</button></div>
     </form>
   </dialog>
@@ -426,4 +426,3 @@
 <script src="app.js?v=2.5.2"></script>
 </body>
 </html>
-
