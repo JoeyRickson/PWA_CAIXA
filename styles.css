@@ -124,3 +124,159 @@ dialog{border:0;padding:0;border-radius:22px;background:var(--surface);color:var
     width:100%;
   }
 }
+
+/* ===== SaldoPlan v2.6 — Login ===== */
+.auth-gate{
+  position:fixed;
+  inset:0;
+  z-index:250;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  background:color-mix(in srgb,#020617 72%,transparent);
+  backdrop-filter:blur(14px);
+}
+.auth-gate.hidden{display:none}
+.auth-gate-open{overflow:hidden}
+.auth-card{
+  width:min(94vw,430px);
+  padding:28px;
+  border:1px solid var(--line);
+  border-radius:26px;
+  background:var(--surface);
+  color:var(--ink);
+  box-shadow:0 30px 90px rgba(0,0,0,.38);
+  text-align:center;
+}
+.auth-logo{
+  display:block;
+  margin:0 auto 14px;
+  border-radius:22px;
+}
+.auth-card h2{margin:5px 0 9px;font-size:1.55rem}
+.auth-card .auth-intro{margin:0 0 20px}
+.auth-google{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+.google-g{
+  width:24px;
+  height:24px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:#fff;
+  color:#1a73e8;
+  font-weight:900;
+}
+.auth-privacy-note{
+  margin-top:18px;
+  padding:13px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface-2);
+  text-align:left;
+  font-size:.8rem;
+  line-height:1.45;
+}
+.auth-privacy-note strong,
+.auth-privacy-note span{display:block}
+.auth-privacy-note span{margin-top:3px;color:var(--muted)}
+.error-text{color:var(--danger)!important}
+
+.account-quick{
+  border:1px solid var(--line);
+  background:var(--surface);
+  color:var(--ink);
+  min-height:42px;
+  padding:5px 10px 5px 6px;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-weight:800;
+  cursor:pointer;
+}
+.account-quick.hidden{display:none}
+.account-avatar{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  object-fit:cover;
+  background:var(--surface-2);
+}
+.account-avatar.hidden{display:none}
+.account-avatar-large{width:54px;height:54px}
+.account-summary{
+  display:flex;
+  align-items:center;
+  gap:13px;
+  margin:14px 0;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--surface-2);
+}
+.account-avatar-wrap{
+  width:54px;
+  height:54px;
+  flex:0 0 54px;
+  position:relative;
+  display:grid;
+  place-items:center;
+}
+.account-avatar-fallback{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:var(--surface);
+  border:1px solid var(--line);
+  font-weight:900;
+}
+.account-avatar-large:not(.hidden)+.account-avatar-fallback{display:none}
+.account-copy{
+  min-width:0;
+  display:grid;
+  gap:3px;
+}
+.account-copy strong{font-size:1rem}
+.account-copy span{
+  color:var(--muted);
+  font-size:.82rem;
+  overflow-wrap:anywhere;
+}
+.account-actions{margin-top:8px}
+
+@media(max-width:520px){
+  .auth-card{padding:22px 18px}
+  .account-quick span{display:none}
+  .account-quick{padding:5px}
+}
+
+/* ===== SaldoPlan v2.6.1 — Google Drive Picker ===== */
+.drive-account-card,
+.drive-folder-card{
+  display:grid;
+  gap:4px;
+  padding:13px 14px;
+  margin:10px 0;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface-2);
+}
+.drive-account-card strong,
+.drive-folder-card strong{font-size:.92rem}
+.drive-folder-card small{color:var(--muted);font-size:.76rem;line-height:1.35}
+.drive-folder-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin:9px 0 13px;
+}
+@media(max-width:520px){
+  .drive-folder-actions{grid-template-columns:1fr}
+}

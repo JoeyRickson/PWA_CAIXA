@@ -20,17 +20,53 @@
   sizes="180x180"
   href="icons/apple-touch-icon.png"
 />
-  <link rel="stylesheet" href="styles.css?v=2.5.2" />
+  <link rel="stylesheet" href="styles.css?v=2.6.1" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
+
+  <div id="authGate" class="auth-gate hidden" role="dialog" aria-modal="true" aria-labelledby="authGateTitle">
+    <section class="auth-card">
+      <img class="auth-logo" src="icons/icon-192.png" alt="" width="76" height="76">
+      <p class="eyebrow">CONTROLE FINANCEIRO</p>
+      <h2 id="authGateTitle">Bem-vindo ao SaldoPlan</h2>
+      <p class="helper auth-intro">
+        Entre para identificar sua conta ou continue usando seus dados somente neste aparelho.
+      </p>
+
+      <button id="authGoogleBtn" class="btn full auth-google" type="button">
+        <span class="google-g" aria-hidden="true">G</span>
+        Entrar com Google
+      </button>
+
+      <button id="authOfflineBtn" class="btn ghost full" type="button">
+        Continuar offline
+      </button>
+
+      <p id="authGateMessage" class="helper small-text" aria-live="polite"></p>
+
+      <div class="auth-privacy-note">
+        <strong>Login e Google Drive são separados.</strong>
+        <span>
+          Entrar não dá acesso ao seu Drive. O backup só é autorizado quando você escolher conectar o Google Drive.
+        </span>
+      </div>
+    </section>
+  </div>
+
   <div class="app-shell">
     <header class="topbar">
       <div>
         <p class="eyebrow">CONTROLE FINANCEIRO</p>
-        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.5.2</small></h1>
+        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.6.1</small></h1>
       </div>
       <div class="top-actions">
+        
+        <button id="accountQuickBtn" class="account-quick hidden" type="button" aria-label="Abrir conta" title="Conta">
+          <img id="accountQuickAvatar" class="account-avatar hidden" alt="" referrerpolicy="no-referrer">
+          <span id="accountQuickName">Conta</span>
+        </button>
+
         <button id="themeQuickBtn" class="icon-btn" aria-label="Alternar tema" title="Alternar tema">☾</button>
         <button id="installBtn" class="btn ghost hidden">Instalar</button>
       </div>
@@ -243,6 +279,48 @@
       <section id="view-data" class="view">
         <div class="page-head"><span class="muted">Segurança e preferências</span><h2>Dados e backup</h2></div>
 
+        <section class="panel account-panel">
+          <div class="section-head">
+            <div>
+              <span class="muted">Sua conta</span>
+              <h3>Login do SaldoPlan</h3>
+            </div>
+            <span id="accountState" class="status-pill">Não conectado</span>
+          </div>
+
+          <div class="account-summary">
+            <div class="account-avatar-wrap">
+              <img id="accountAvatar" class="account-avatar account-avatar-large hidden" alt="" referrerpolicy="no-referrer">
+              <span class="account-avatar-fallback" aria-hidden="true">SP</span>
+            </div>
+
+            <div class="account-copy">
+              <strong id="accountName">Entre com sua conta Google</strong>
+              <span id="accountEmail">
+                O login identifica sua conta. O Google Drive continua separado e opcional.
+              </span>
+            </div>
+          </div>
+
+          <div class="button-stack account-actions">
+            <button id="accountGoogleBtn" class="btn full" type="button">
+              Entrar com Google
+            </button>
+            <button id="accountOfflineBtn" class="btn ghost full" type="button">
+              Usar sem conta
+            </button>
+            <button id="accountSignOutBtn" class="btn ghost full hidden" type="button">
+              Sair da conta
+            </button>
+          </div>
+
+          <p class="helper small-text">
+            Seus lançamentos continuam armazenados localmente neste aparelho.
+            Entrar com Google não envia seus dados financeiros ao Firebase e não conecta o Google Drive automaticamente.
+          </p>
+        </section>
+
+
         <section class="panel form-panel">
           <h3>Aparência</h3>
           <div class="segmented" id="themeSelector">
@@ -267,34 +345,75 @@
         </section>
 
         <section class="panel cloud-panel">
-          <div class="section-head"><div><span class="muted">Provedor de backup</span><h3>Backup em nuvem</h3></div><span id="driveStatus" class="status-pill">Desconectado</span></div>
-          <p id="cloudProviderHelp" class="helper">Cada pessoa conecta a própria conta. O app não compartilha nem acessa o armazenamento de outras pessoas.</p>
-          <label>Onde guardar o backup<select id="cloudProvider"><option value="google">Google Drive</option><option value="onedrive">OneDrive</option><option value="dropbox">Dropbox</option></select></label>
-          <div id="googleCloudFields">
-            <label>Sua conta Google <span class="field-note">(opcional)</span><input id="googleEmailHint" type="email" placeholder="voce@gmail.com"></label>
-            <label>Google OAuth Client ID<input id="googleClientId" placeholder="xxxxxxxx.apps.googleusercontent.com"></label>
+          <div class="section-head">
+            <div><span class="muted">Provedor de backup</span><h3>Backup em nuvem</h3></div>
+            <span id="driveStatus" class="status-pill">Desconectado</span>
           </div>
+          <p id="cloudProviderHelp" class="helper">O login do SaldoPlan e o backup são independentes. Para usar o Drive, basta conectar sua conta e escolher a pasta onde os backups serão guardados.</p>
+
+          <label>Onde guardar o backup
+            <select id="cloudProvider">
+              <option value="google">Google Drive</option>
+              <option value="onedrive">OneDrive</option>
+              <option value="dropbox">Dropbox</option>
+            </select>
+          </label>
+
+          <div id="googleCloudFields">
+            <input id="googleEmailHint" type="hidden">
+            <input id="googleClientId" type="hidden">
+
+            <div class="drive-account-card">
+              <span class="muted">Conta Google</span>
+              <strong id="driveAccountLabel">Use a conta conectada ao SaldoPlan</strong>
+            </div>
+
+            <div class="drive-folder-card">
+              <span class="muted">Pasta de backup</span>
+              <strong id="driveFolderLabel">Nenhuma pasta selecionada</strong>
+              <small id="driveFolderSubtext">Conecte o Google Drive e escolha uma pasta.</small>
+            </div>
+
+            <div class="drive-folder-actions">
+              <button id="chooseDriveFolder" class="btn secondary" type="button">Escolher pasta</button>
+              <button id="createDriveFolder" class="btn ghost" type="button">+ Criar nova pasta</button>
+            </div>
+          </div>
+
           <div id="otherCloudFields" class="hidden">
             <label id="cloudAccountLabel">Conta do provedor<input id="cloudAccount" type="email" placeholder="voce@exemplo.com"></label>
             <label id="cloudClientLabel">Client ID OAuth do provedor<input id="cloudClientId" placeholder="Informe o Client ID do provedor"></label>
             <p id="cloudProviderStatus" class="helper small-text"></p>
           </div>
-          <label>Pasta no Drive<input id="driveFolderName" value="SaldoPlan - Backups"></label>
+
+          <label id="driveFolderNameLabel" class="hidden">Pasta de backup
+            <input id="driveFolderName" value="SaldoPlan - Backups">
+          </label>
+
           <label class="check-row"><input id="driveAutoBackup" type="checkbox"> Fazer backup automático enquanto o Drive estiver conectado</label>
-          <label>Manter backups automáticos por<select id="driveRetentionDays"><option value="10">10 dias</option><option value="15">15 dias</option><option value="30">30 dias</option></select></label>
+          <label>Manter backups automáticos por
+            <select id="driveRetentionDays">
+              <option value="10">10 dias</option>
+              <option value="15">15 dias</option>
+              <option value="30">30 dias</option>
+            </select>
+          </label>
+
           <div class="button-stack">
-            <button id="saveCloudConfig" class="btn secondary full">Salvar configuração</button>
             <button id="connectDrive" class="btn full">Conectar ao Google Drive</button>
+            <button id="saveCloudConfig" class="btn secondary full">Salvar preferências</button>
             <button id="backupDrive" class="btn secondary full">Enviar backup agora</button>
             <button id="restoreDrive" class="btn ghost full">Restaurar do Drive</button>
           </div>
+
           <div id="backupProgress" class="backup-progress hidden" role="status" aria-live="polite">
             <div class="backup-progress-head"><span id="backupProgressIcon">↗</span><strong id="backupProgressTitle">Preparando backup</strong><span id="backupProgressPercent">0%</span></div>
             <div class="backup-progress-track"><i id="backupProgressBar"></i></div>
             <small id="backupProgressDetail">Aguarde enquanto os dados são enviados.</small>
           </div>
-          <p id="driveDetail" class="helper small-text">O backup será salvo na pasta configurada.</p>
-          <p class="helper small-text">Google Drive, OneDrive e Dropbox têm conexão automática quando suas credenciais OAuth são informadas. Outros serviços podem receber o arquivo exportado manualmente.</p>
+
+          <p id="driveDetail" class="helper small-text">Conecte o Google Drive e escolha uma pasta para começar.</p>
+          <p class="helper small-text">O SaldoPlan usa somente a permissão necessária para trabalhar com os arquivos e a pasta escolhidos para o backup.</p>
         </section>
 
         <section class="panel">
@@ -330,7 +449,7 @@
           <p class="helper">Controle financeiro pessoal para registrar entradas, gastos, valores guardados e simulação de folha.</p>
           <p class="helper">Criado por <strong>Joey Rickson</strong> como um PWA: funciona no navegador, pode ser instalado no celular e trabalha offline.</p>
           <p class="helper">Tecnologias: HTML, CSS, JavaScript, armazenamento local, Service Worker e integrações opcionais de backup em nuvem.</p>
-          <p class="helper small-text">Versão 2.5</p>
+          <p class="helper small-text">Versão 2.6.1</p>
         </section>
       </section>
     </main>
@@ -423,6 +542,8 @@
     </form>
   </dialog>
 
-<script src="app.js?v=2.5.2"></script>
+<script src="drive-config.js?v=2.6.1"></script>
+<script src="app.js?v=2.6.1"></script>
+  <script type="module" src="auth.js?v=2.6.1"></script>
 </body>
 </html>
