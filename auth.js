@@ -3,6 +3,8 @@ import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   onAuthStateChanged,
   setPersistence,
@@ -226,6 +228,15 @@ if (!configReady()) {
     console.warn("Persistência do login não pôde ser configurada:", error);
   }
 
+  try {
+    await getRedirectResult(auth);
+  } catch (error) {
+    console.error("Erro ao concluir login por redirecionamento:", error);
+    setGateStatus(
+      error?.message || "Não foi possível concluir o login com Google.",
+      true
+    );
+  }
   async function loginWithGoogle() {
     setGateStatus("Abrindo o login do Google…");
     googleButton?.setAttribute("disabled", "disabled");
@@ -237,9 +248,14 @@ if (!configReady()) {
     } catch (error) {
       console.error("Erro no login Google:", error);
 
+      if (error?.code === "auth/popup-blocked") {
+        setGateStatus("Pop-up bloqueado. Redirecionando para o Google…");
+
+        await signInWithRedirect(auth, provider);
+        return;
+      }
+
       const messages = {
-        "auth/popup-blocked":
-          "O navegador bloqueou a janela do Google. Permita pop-ups e tente novamente.",
         "auth/popup-closed-by-user":
           "O login foi fechado antes de terminar.",
         "auth/cancelled-popup-request":

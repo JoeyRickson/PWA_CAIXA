@@ -1,6 +1,6 @@
 export const firebaseConfig = {
   apiKey: "AIzaSyCYKmYcduP5CfBWn-BV6JvZ5g6E9lPT8qs",
-  authDomain: "saldoplan.firebaseapp.com",
+  authDomain: location.hostname === "saldoplan.vercel.app" ? "saldoplan.vercel.app" : "saldoplan.firebaseapp.com",
   projectId: "saldoplan",
   storageBucket: "saldoplan.firebasestorage.app",
   messagingSenderId: "292722512495",
