@@ -581,6 +581,19 @@ function requestDriveToken(forceConsent=false){
         driveToken=resp.access_token;
         updateDriveStatus('Google Drive conectado nesta sessão.');
         resolve(driveToken);
+      },
+      error_callback:err=>{
+        if(err?.type==='popup_failed_to_open'){
+          reject(new Error('O navegador bloqueou a autorização do Google Drive. Permita pop-ups para saldoplan.vercel.app e tente novamente.'));
+          return;
+        }
+
+        if(err?.type==='popup_closed'){
+          reject(new Error('A janela de autorização do Google Drive foi fechada antes de concluir.'));
+          return;
+        }
+
+        reject(new Error('Não foi possível abrir a autorização do Google Drive.'));
       }
     });
     tokenClient.requestAccessToken({prompt:forceConsent?'consent':''});
