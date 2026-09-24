@@ -280,3 +280,36 @@ dialog{border:0;padding:0;border-radius:22px;background:var(--surface);color:var
 @media(max-width:520px){
   .drive-folder-actions{grid-template-columns:1fr}
 }
+
+/* ===== SaldoPlan v2.7.0 — Ciclos financeiros ===== */
+.cycle-help{margin:-2px 0 10px;max-width:920px}
+.cycle-grid{display:grid;grid-template-columns:1fr;gap:14px}
+.cycle-panel{margin-top:0;min-width:0}
+.cycle-title-row{align-items:flex-start}
+.cycle-income-date{margin:8px 0 12px}
+.cycle-balance-box{display:grid;gap:3px;padding:15px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2);margin-bottom:12px}
+.cycle-balance-box span{font-size:.78rem;color:var(--muted)}
+.cycle-balance-box strong{font-size:1.65rem;letter-spacing:-.04em}
+.cycle-balance-box small{color:var(--muted);font-size:.72rem}
+.cycle-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.cycle-stats .mini-stat{padding:11px}
+.cycle-projection{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;margin-top:10px;border-radius:13px;background:color-mix(in srgb,var(--brand) 7%,var(--surface-2));border:1px solid var(--line)}
+.cycle-projection span{color:var(--muted);font-size:.76rem}
+.cycle-projection strong{font-size:.9rem;white-space:nowrap}
+.cycle-details{margin-top:12px;border-top:1px solid var(--line);padding-top:11px}
+.cycle-details summary{cursor:pointer;font-size:.82rem;font-weight:800;color:var(--ink);list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.cycle-details summary::-webkit-details-marker{display:none}
+.cycle-details summary::after{content:'⌄';color:var(--muted);font-size:1rem;transition:transform .18s ease}
+.cycle-details[open] summary::after{transform:rotate(180deg)}
+.cycle-total-panel{overflow:hidden}
+.cycle-total-badge{font-size:.72rem;font-weight:800;padding:6px 10px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);color:var(--muted)}
+.cycle-total-value{font-size:2.1rem;font-weight:900;letter-spacing:-.05em;margin:14px 0 3px}
+.cycle-total-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}
+.cycle-total-grid>div{display:grid;gap:4px;padding:12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line)}
+.cycle-total-grid span{font-size:.74rem;color:var(--muted)}
+.cycle-total-grid strong{font-size:.92rem}
+.cycle-projection.total{margin-top:12px}
+.cycle-note{margin-top:10px}
+@media(min-width:860px){.cycle-grid{grid-template-columns:1fr 1fr}.cycle-total-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:420px){.cycle-stats,.cycle-total-grid{grid-template-columns:1fr 1fr}.cycle-balance-box strong{font-size:1.4rem}.cycle-projection{align-items:flex-start;flex-direction:column}.cycle-projection strong{white-space:normal}
+}

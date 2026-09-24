@@ -177,6 +177,72 @@ function metrics(){
   const flashExpAll=sum(exp.filter(x=>x.paySource==='flash'));
   return {tx,inc,exp,cashNow:cashIncReal-cashExpReal,cashProjected:cashIncAll-cashExpAll,flashNow:flashIncReal-flashExpReal,flashProjected:flashIncAll-flashExpAll};
 }
+
+
+function transactionDay(x){return Number(String(x?.date||'').slice(8,10))||0}
+function cycleWindow(kind){
+  const tx=transactions(),isFirst=kind==='first',startDay=isFirst?10:20,[year,month]=key().split('-').map(Number),endDay=isFirst?18:new Date(year,month,0).getDate();
+  const incomes=tx.filter(x=>x.kind==='income'&&x.incomeType===kind),expenses=tx.filter(x=>x.kind==='expense'&&x.paySource==='cash'&&transactionDay(x)>=startDay&&transactionDay(x)<=endDay);
+  const receivedItems=incomes.filter(x=>x.status==='realized'),plannedIncomeItems=incomes.filter(x=>x.status==='planned'),paidItems=expenses.filter(x=>x.status==='realized'),plannedExpenseItems=expenses.filter(x=>x.status==='planned');
+  const received=sum(receivedItems),plannedIncome=sum(plannedIncomeItems),paid=sum(paidItems),plannedExpense=sum(plannedExpenseItems),incomeTotal=received+plannedIncome,expenseTotal=paid+plannedExpense;
+  const hasReceived=received>0,actualLeft=hasReceived?round2(received-paid):0,projectedLeft=round2(incomeTotal-expenseTotal);
+  const incomeDates=[...receivedItems].sort((a,b)=>a.date.localeCompare(b.date)).map(x=>x.date),plannedDates=[...plannedIncomeItems].sort((a,b)=>a.date.localeCompare(b.date)).map(x=>x.date);
+  return {kind,title:isFirst?'Quinzena':'Final do mês',startDay,endDay,received,plannedIncome,paid,plannedExpense,incomeTotal,expenseTotal,hasReceived,actualLeft,projectedLeft,receivedItems,plannedIncomeItems,paidItems,plannedExpenseItems,incomeDates,plannedDates};
+}
+function cycleStatus(c){return c.hasReceived?{text:'Recebido',ok:true}:c.plannedIncome>0?{text:'Previsto',ok:false}:{text:'Sem entrada',ok:false}}
+function cycleDateText(c){
+  if(c.incomeDates.length)return `Recebido em ${c.incomeDates.map(formatDate).join(', ')}`;
+  if(c.plannedDates.length)return `Previsto para ${c.plannedDates.map(formatDate).join(', ')}`;
+  return 'Nenhuma entrada registrada neste mês';
+}
+function cycleExpenseListHtml(items){
+  if(!items.length)return '<div class="empty">Nenhum gasto pago neste ciclo.</div>';
+  return items.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(itemHtml).join('');
+}
+function cycleCardHtml(c){
+  const status=cycleStatus(c),balanceText=c.hasReceived?fmt.format(c.actualLeft):'Aguardando entrada',balanceClass=c.hasReceived&&c.actualLeft<0?'negative':'',hasProjection=c.plannedIncome>0||c.plannedExpense>0;
+  return `
+    <div class="section-head cycle-title-row">
+      <div><span class="muted">Dias ${String(c.startDay).padStart(2,'0')}–${String(c.endDay).padStart(2,'0')}</span><h3>${c.title}</h3></div>
+      <span class="status-pill ${status.ok?'ok':''}">${status.text}</span>
+    </div>
+    <p class="helper cycle-income-date">${escapeHtml(cycleDateText(c))}</p>
+    <div class="cycle-balance-box">
+      <span>Sobra do ciclo</span>
+      <strong class="${balanceClass}">${balanceText}</strong>
+      <small>${c.hasReceived?'Entrada recebida − gastos pagos':'A sobra aparece quando a entrada for realizada'}</small>
+    </div>
+    <div class="cycle-stats">
+      <div class="mini-stat"><span>Entrada recebida</span><strong>${fmt.format(c.received)}</strong></div>
+      <div class="mini-stat"><span>Pago / gasto</span><strong>${fmt.format(c.paid)}</strong></div>
+      <div class="mini-stat"><span>A pagar no ciclo</span><strong>${fmt.format(c.plannedExpense)}</strong></div>
+      <div class="mini-stat"><span>Entrada prevista</span><strong>${fmt.format(c.plannedIncome)}</strong></div>
+    </div>
+    ${hasProjection?`<div class="cycle-projection"><span>Projeção após previstos</span><strong class="${c.projectedLeft<0?'negative':''}">${fmt.format(c.projectedLeft)}</strong></div>`:''}
+    <details class="cycle-details">
+      <summary>Ver gastos pagos (${c.paidItems.length})</summary>
+      <div class="list">${cycleExpenseListHtml(c.paidItems)}</div>
+    </details>`;
+}
+function renderCycles(){
+  const first=cycleWindow('first'),second=cycleWindow('second'),totalActual=round2(first.actualLeft+second.actualLeft),totalPaid=round2(first.paid+second.paid),totalProjected=round2(first.projectedLeft+second.projectedLeft),receivedTotal=round2(first.received+second.received);
+  const label=document.querySelector('#cycleMonthLabel');if(!label)return;
+  label.textContent=`${MONTHS[cursor.getMonth()]} ${cursor.getFullYear()}`;
+  document.querySelector('#cycleFirstCard').innerHTML=cycleCardHtml(first);
+  document.querySelector('#cycleSecondCard').innerHTML=cycleCardHtml(second);
+  document.querySelector('#cycleTotalCard').innerHTML=`
+    <div class="section-head"><div><span class="muted">Resumo dos dois ciclos</span><h3>Sobra total do mês</h3></div><span class="cycle-total-badge">${first.hasReceived&&second.hasReceived?'Fechado':'Parcial'}</span></div>
+    <div class="cycle-total-value ${totalActual<0?'negative':''}">${fmt.format(totalActual)}</div>
+    <p class="helper">Soma das sobras já realizadas da quinzena e do pagamento final.</p>
+    <div class="cycle-total-grid">
+      <div><span>Entradas recebidas</span><strong>${fmt.format(receivedTotal)}</strong></div>
+      <div><span>Total pago nos ciclos</span><strong>${fmt.format(totalPaid)}</strong></div>
+      <div><span>Sobra da quinzena</span><strong class="${first.actualLeft<0?'negative':''}">${first.hasReceived?fmt.format(first.actualLeft):'—'}</strong></div>
+      <div><span>Sobra do final</span><strong class="${second.actualLeft<0?'negative':''}">${second.hasReceived?fmt.format(second.actualLeft):'—'}</strong></div>
+    </div>
+    <div class="cycle-projection total"><span>Projeção considerando entradas e gastos previstos dos dois ciclos</span><strong class="${totalProjected<0?'negative':''}">${fmt.format(totalProjected)}</strong></div>
+    <p class="helper small-text cycle-note">Não entram neste cálculo: bônus/Flash, entradas extras, gastos pagos com bônus, dias 01–09 e dia 19.</p>`;
+}
 function savingsMetrics(k=key()){
   const all=[...state.savings].sort((a,b)=>a.date.localeCompare(b.date));
   const deposits=sum(all.filter(x=>x.type==='deposit'));
@@ -325,7 +391,7 @@ function renderData(){
   renderDriveFolderSelection();
   document.querySelectorAll('[data-theme-option]').forEach(b=>b.classList.toggle('active',b.dataset.themeOption===state.settings.theme));updateDriveStatus();updateLocalSaveStatus();
 }
-function renderAll(){applyTheme();renderDashboard();renderTransactions();renderSavings();renderSimulator();renderFixed();renderData()}
+function renderAll(){applyTheme();renderDashboard();renderTransactions();renderCycles();renderSavings();renderSimulator();renderFixed();renderData()}
 
 const cloudProviderNames={google:'Google Drive',onedrive:'OneDrive',dropbox:'Dropbox'};
 function updateCloudProviderFields(){
@@ -344,7 +410,7 @@ function applyTheme(){
   const theme=state.settings?.theme==='dark'?'dark':'light';document.body.dataset.theme=theme;document.documentElement.style.colorScheme=theme;document.querySelector('meta[name="theme-color"]').setAttribute('content',theme==='dark'?'#070a0f':'#111827');document.querySelector('#themeQuickBtn').textContent=theme==='dark'?'☀':'☾';
 }
 function toggleTheme(){state.settings.theme=state.settings.theme==='dark'?'light':'dark';save();applyTheme();renderData()}
-function go(view){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.querySelector(`#view-${view}`).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.nav===view));if(view==='transactions')renderTransactions();if(view==='savings')renderSavings();if(view==='simulator')renderSimulator();if(view==='fixed')renderFixed();if(view==='data')renderData();window.scrollTo({top:0,behavior:'smooth'})}
+function go(view){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.querySelector(`#view-${view}`).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.nav===view));if(view==='transactions')renderTransactions();if(view==='cycles')renderCycles();if(view==='savings')renderSavings();if(view==='simulator')renderSimulator();if(view==='fixed')renderFixed();if(view==='data')renderData();window.scrollTo({top:0,behavior:'smooth'})}
 
 // Navegação e atalhos
 addEventListener('click',e=>{
@@ -358,6 +424,8 @@ addEventListener('click',e=>{
 document.querySelector('#themeQuickBtn').onclick=toggleTheme;
 document.querySelector('#prevMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);renderAll()};
 document.querySelector('#nextMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);renderAll()};
+document.querySelector('#prevCycleMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);renderAll()};
+document.querySelector('#nextCycleMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);renderAll()};
 document.querySelector('#prevSimMonth').onclick=()=>{simCursor=new Date(simCursor.getFullYear(),simCursor.getMonth()-1,1);renderSimulator()};
 document.querySelector('#nextSimMonth').onclick=()=>{simCursor=new Date(simCursor.getFullYear(),simCursor.getMonth()+1,1);renderSimulator()};
 document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');filter=c.dataset.filter;renderTransactions()});

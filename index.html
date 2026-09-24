@@ -20,7 +20,7 @@
   sizes="180x180"
   href="icons/apple-touch-icon.png"
 />
-  <link rel="stylesheet" href="styles.css?v=2.6.3" />
+  <link rel="stylesheet" href="styles.css?v=2.7.0" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -58,7 +58,7 @@
     <header class="topbar">
       <div>
         <p class="eyebrow">CONTROLE FINANCEIRO</p>
-        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.6.3</small></h1>
+        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.7.0</small></h1>
       </div>
       <div class="top-actions">
         
@@ -184,6 +184,34 @@
           <button class="chip" data-filter="pending">Pendentes</button>
         </div>
         <div id="transactionList" class="list large"></div>
+      </section>
+
+      <section id="view-cycles" class="view">
+        <div class="page-head">
+          <span class="muted">Salário por período</span>
+          <h2>Ciclos financeiros</h2>
+        </div>
+
+        <div class="month-row slim">
+          <button class="icon-btn" id="prevCycleMonth" aria-label="Mês anterior">‹</button>
+          <div>
+            <span class="muted">Mês analisado</span>
+            <h3 id="cycleMonthLabel">—</h3>
+          </div>
+          <button class="icon-btn" id="nextCycleMonth" aria-label="Próximo mês">›</button>
+        </div>
+
+        <p class="helper cycle-help">
+          A quinzena considera gastos pagos entre os dias 10 e 18. O ciclo final considera os dias 20 até o último dia do mês.
+          Somente gastos realizados pagos com salário/conta entram na sobra; bônus/Flash e gastos previstos ficam separados.
+        </p>
+
+        <div class="cycle-grid">
+          <section id="cycleFirstCard" class="panel cycle-panel"></section>
+          <section id="cycleSecondCard" class="panel cycle-panel"></section>
+        </div>
+
+        <section id="cycleTotalCard" class="panel cycle-total-panel"></section>
       </section>
 
       <section id="view-savings" class="view">
@@ -449,7 +477,7 @@
           <p class="helper">Controle financeiro pessoal para registrar entradas, gastos, valores guardados e simulação de folha.</p>
           <p class="helper">Criado por <strong>Joey Rickson</strong> como um PWA: funciona no navegador, pode ser instalado no celular e trabalha offline.</p>
           <p class="helper">Tecnologias: HTML, CSS, JavaScript, armazenamento local, Service Worker e integrações opcionais de backup em nuvem.</p>
-          <p class="helper small-text">Versão 2.6.1</p>
+          <p class="helper small-text">Versão 2.7.0</p>
         </section>
       </section>
     </main>
@@ -457,6 +485,7 @@
     <nav class="bottom-nav" aria-label="Navegação principal">
       <button class="nav-item active" data-nav="dashboard"><span>◫</span>Resumo</button>
       <button class="nav-item" data-nav="transactions"><span>≡</span>Lançamentos</button>
+      <button class="nav-item" data-nav="cycles"><span>◷</span>Ciclos</button>
       <button class="nav-item" data-nav="savings"><span>◆</span>Guardado</button>
       <button class="nav-item" data-nav="simulator"><span>⌁</span>Simulação</button>
       <button class="nav-item" data-nav="fixed"><span>↻</span>Fixos</button>
@@ -542,8 +571,8 @@
     </form>
   </dialog>
 
-<script src="drive-config.js?v=2.6.3"></script>
-<script src="app.js?v=2.6.3"></script>
-  <script type="module" src="auth.js?v=2.6.3"></script>
+<script src="drive-config.js?v=2.7.0"></script>
+<script src="app.js?v=2.7.0"></script>
+  <script type="module" src="auth.js?v=2.7.0"></script>
 </body>
 </html>
