@@ -182,12 +182,16 @@ function metrics(){
 function transactionDay(x){return Number(String(x?.date||'').slice(8,10))||0}
 function cycleWindow(kind){
   const tx=transactions(),isFirst=kind==='first',startDay=isFirst?10:20,[year,month]=key().split('-').map(Number),endDay=isFirst?18:new Date(year,month,0).getDate();
-  const incomes=tx.filter(x=>x.kind==='income'&&x.incomeType===kind),expenses=tx.filter(x=>x.kind==='expense'&&x.paySource==='cash'&&transactionDay(x)>=startDay&&transactionDay(x)<=endDay);
+  const salaryIncomes=tx.filter(x=>x.kind==='income'&&x.incomeType===kind);
+  const extraItems=tx.filter(x=>x.kind==='income'&&x.incomeType==='extra'&&transactionDay(x)>=startDay&&transactionDay(x)<=endDay);
+  const includedExtraItems=extraItems.filter(x=>x.cycleInclude===true);
+  const incomes=[...salaryIncomes,...includedExtraItems],expenses=tx.filter(x=>x.kind==='expense'&&x.paySource==='cash'&&transactionDay(x)>=startDay&&transactionDay(x)<=endDay);
   const receivedItems=incomes.filter(x=>x.status==='realized'),plannedIncomeItems=incomes.filter(x=>x.status==='planned'),paidItems=expenses.filter(x=>x.status==='realized'),plannedExpenseItems=expenses.filter(x=>x.status==='planned');
   const received=sum(receivedItems),plannedIncome=sum(plannedIncomeItems),paid=sum(paidItems),plannedExpense=sum(plannedExpenseItems),incomeTotal=received+plannedIncome,expenseTotal=paid+plannedExpense;
   const hasReceived=received>0,actualLeft=hasReceived?round2(received-paid):0,projectedLeft=round2(incomeTotal-expenseTotal);
-  const incomeDates=[...receivedItems].sort((a,b)=>a.date.localeCompare(b.date)).map(x=>x.date),plannedDates=[...plannedIncomeItems].sort((a,b)=>a.date.localeCompare(b.date)).map(x=>x.date);
-  return {kind,title:isFirst?'Quinzena':'Final do mês',startDay,endDay,received,plannedIncome,paid,plannedExpense,incomeTotal,expenseTotal,hasReceived,actualLeft,projectedLeft,receivedItems,plannedIncomeItems,paidItems,plannedExpenseItems,incomeDates,plannedDates};
+  const salaryReceivedItems=salaryIncomes.filter(x=>x.status==='realized'),salaryPlannedItems=salaryIncomes.filter(x=>x.status==='planned');
+  const incomeDates=[...salaryReceivedItems].sort((a,b)=>a.date.localeCompare(b.date)).map(x=>x.date),plannedDates=[...salaryPlannedItems].sort((a,b)=>a.date.localeCompare(b.date)).map(x=>x.date);
+  return {kind,title:isFirst?'Quinzena':'Final do mês',startDay,endDay,received,plannedIncome,paid,plannedExpense,incomeTotal,expenseTotal,hasReceived,actualLeft,projectedLeft,receivedItems,plannedIncomeItems,paidItems,plannedExpenseItems,incomeDates,plannedDates,extraItems,includedExtraItems};
 }
 function cycleStatus(c){return c.hasReceived?{text:'Recebido',ok:true}:c.plannedIncome>0?{text:'Previsto',ok:false}:{text:'Sem entrada',ok:false}}
 function cycleDateText(c){
@@ -198,6 +202,19 @@ function cycleDateText(c){
 function cycleExpenseListHtml(items){
   if(!items.length)return '<div class="empty">Nenhum gasto pago neste ciclo.</div>';
   return items.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(itemHtml).join('');
+}
+function cycleExtraListHtml(items){
+  if(!items.length)return '<div class="empty">Nenhuma entrada extra registrada neste período.</div>';
+  return items.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(x=>{
+    const included=x.cycleInclude===true,status=x.status==='planned'?'Previsto':'Realizado';
+    return `<div class="cycle-extra-item">
+      <div class="cycle-extra-copy">
+        <strong>${escapeHtml(x.description||'Entrada extra')}</strong>
+        <span>${formatDate(x.date)} · ${status} · ${fmt.format(x.amount)}</span>
+      </div>
+      <button type="button" class="cycle-extra-toggle ${included?'active':''}" data-cycle-extra-toggle="${x.id}" aria-pressed="${included?'true':'false'}">${included?'Considerando':'Ignorado'}</button>
+    </div>`;
+  }).join('');
 }
 function cycleCardHtml(c){
   const status=cycleStatus(c),balanceText=c.hasReceived?fmt.format(c.actualLeft):'Aguardando entrada',balanceClass=c.hasReceived&&c.actualLeft<0?'negative':'',hasProjection=c.plannedIncome>0||c.plannedExpense>0;
@@ -219,6 +236,11 @@ function cycleCardHtml(c){
       <div class="mini-stat"><span>Entrada prevista</span><strong>${fmt.format(c.plannedIncome)}</strong></div>
     </div>
     ${hasProjection?`<div class="cycle-projection"><span>Projeção após previstos</span><strong class="${c.projectedLeft<0?'negative':''}">${fmt.format(c.projectedLeft)}</strong></div>`:''}
+    <details class="cycle-details cycle-extra-organizer">
+      <summary>Organizar extras (${c.includedExtraItems.length}/${c.extraItems.length} considerados)</summary>
+      <p class="helper small-text">Extras entram neste ciclo pela data do lançamento. Marque apenas os valores que devem compor a sobra.</p>
+      <div class="cycle-extra-list">${cycleExtraListHtml(c.extraItems)}</div>
+    </details>
     <details class="cycle-details">
       <summary>Ver gastos pagos (${c.paidItems.length})</summary>
       <div class="list">${cycleExpenseListHtml(c.paidItems)}</div>
@@ -241,7 +263,7 @@ function renderCycles(){
       <div><span>Sobra do final</span><strong class="${second.actualLeft<0?'negative':''}">${second.hasReceived?fmt.format(second.actualLeft):'—'}</strong></div>
     </div>
     <div class="cycle-projection total"><span>Projeção considerando entradas e gastos previstos dos dois ciclos</span><strong class="${totalProjected<0?'negative':''}">${fmt.format(totalProjected)}</strong></div>
-    <p class="helper small-text cycle-note">Não entram neste cálculo: bônus/Flash, entradas extras, gastos pagos com bônus, dias 01–09 e dia 19.</p>`;
+    <p class="helper small-text cycle-note">Entradas extras dos períodos 10–18 e 20–fim do mês entram somente quando marcadas como “Considerando”. Bônus/Flash, gastos pagos com bônus, dias 01–09 e dia 19 continuam fora do cálculo.</p>`;
 }
 function savingsMetrics(k=key()){
   const all=[...state.savings].sort((a,b)=>a.date.localeCompare(b.date));
@@ -416,6 +438,7 @@ function go(view){document.querySelectorAll('.view').forEach(v=>v.classList.remo
 addEventListener('click',e=>{
   const nav=e.target.closest('[data-nav]');if(nav){go(nav.dataset.nav);return}
   const action=e.target.closest('[data-action]');if(action){if(action.dataset.action==='new-income')openEntry('income');else if(action.dataset.action==='new-fixed')openTemplate();else if(action.dataset.action==='new-saving')openSaving();else if(action.dataset.action==='new-extra')openExtra();else openEntry('expense');return}
+  const cycleExtra=e.target.closest('[data-cycle-extra-toggle]');if(cycleExtra){const t=state.transactions.find(x=>x.id===cycleExtra.dataset.cycleExtraToggle&&x.kind==='income'&&x.incomeType==='extra');if(t){t.cycleInclude=t.cycleInclude!==true;save();renderAll()}return}
   const edit=e.target.closest('[data-edit]');if(edit){const t=state.transactions.find(x=>x.id===edit.dataset.edit);if(t)openEntry(t.kind,t);return}
   const templ=e.target.closest('[data-template]');if(templ){openTemplate(state.fixedTemplates.find(t=>t.id===templ.dataset.template));return}
   const sedit=e.target.closest('[data-saving-edit]');if(sedit){openSaving(state.savings.find(x=>x.id===sedit.dataset.savingEdit));return}

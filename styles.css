@@ -281,7 +281,7 @@ dialog{border:0;padding:0;border-radius:22px;background:var(--surface);color:var
   .drive-folder-actions{grid-template-columns:1fr}
 }
 
-/* ===== SaldoPlan v2.7.0 — Ciclos financeiros ===== */
+/* ===== SaldoPlan v2.7.1 — Ciclos financeiros ===== */
 .cycle-help{margin:-2px 0 10px;max-width:920px}
 .cycle-grid{display:grid;grid-template-columns:1fr;gap:14px}
 .cycle-panel{margin-top:0;min-width:0}
@@ -310,6 +310,18 @@ dialog{border:0;padding:0;border-radius:22px;background:var(--surface);color:var
 .cycle-total-grid strong{font-size:.92rem}
 .cycle-projection.total{margin-top:12px}
 .cycle-note{margin-top:10px}
+.cycle-extra-organizer .helper{margin:8px 0 10px}
+.cycle-extra-list{display:grid;gap:8px;margin-top:8px}
+.cycle-extra-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 11px;border:1px solid var(--line);border-radius:13px;background:var(--surface-2)}
+.cycle-extra-copy{display:grid;gap:3px;min-width:0}
+.cycle-extra-copy strong{font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cycle-extra-copy span{font-size:.72rem;color:var(--muted)}
+.cycle-extra-toggle{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:7px 10px;font-size:.72rem;font-weight:800;cursor:pointer;white-space:nowrap}
+.cycle-extra-toggle.active{background:var(--accent-soft);color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
 @media(min-width:860px){.cycle-grid{grid-template-columns:1fr 1fr}.cycle-total-grid{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:420px){.cycle-stats,.cycle-total-grid{grid-template-columns:1fr 1fr}.cycle-balance-box strong{font-size:1.4rem}.cycle-projection{align-items:flex-start;flex-direction:column}.cycle-projection strong{white-space:normal}
+}
+@media(max-width:420px){
+  .cycle-extra-item{grid-template-columns:1fr}
+  .cycle-extra-toggle{width:100%}
 }
