@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#111827" />
-  <meta name="description" content="Controle financeiro pessoal com salário, bônus, reserva, horas extras e simulação de folha." />
+  <meta name="description" content="Controle financeiro pessoal multiplataforma com ciclos financeiros, gastos, reservas, simulação de folha, backup em nuvem e aplicativo Android." />
   <title>SaldoPlan</title>
 <link rel="manifest" href="manifest.json" />
 
@@ -20,7 +20,7 @@
   sizes="180x180"
   href="icons/apple-touch-icon.png"
 />
-  <link rel="stylesheet" href="styles.css?v=2.7.1" />
+  <link rel="stylesheet" href="styles.css?v=2.7.4" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -58,7 +58,7 @@
     <header class="topbar">
       <div>
         <p class="eyebrow">CONTROLE FINANCEIRO</p>
-        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.7.1</small></h1>
+        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.7.4</small></h1>
       </div>
       <div class="top-actions">
         
@@ -471,16 +471,135 @@
       </section>
 
       <section id="view-about" class="view">
-        <div class="page-head"><span class="muted">Informações</span><h2>Sobre o SaldoPlan</h2></div>
-        <section class="panel">
-          <h3>SaldoPlan</h3>
-          <p class="helper">Controle financeiro pessoal para registrar entradas, gastos, valores guardados e simulação de folha.</p>
-          <p class="helper">Criado por <strong>Joey Rickson</strong> como um PWA: funciona no navegador, pode ser instalado no celular e trabalha offline.</p>
-          <p class="helper">Tecnologias: HTML, CSS, JavaScript, armazenamento local, Service Worker e integrações opcionais de backup em nuvem.</p>
-          <p class="helper small-text">Versão 2.7.1</p>
-        </section>
-      </section>
-    </main>
+  <div class="page-head">
+    <span class="muted">Informações</span>
+    <h2>Sobre o SaldoPlan</h2>
+  </div>
+
+  <section class="panel about-hero">
+    <span class="muted">CONTROLE FINANCEIRO PESSOAL</span>
+    <h3>SaldoPlan</h3>
+    <p class="helper">
+      Uma aplicação multiplataforma criada para organizar a vida financeira,
+      acompanhar o salário por períodos e reunir entradas, gastos, reservas,
+      projeções e simulação de folha em um só lugar.
+    </p>
+
+    <div class="about-tags">
+      <span class="about-tag">Web</span>
+      <span class="about-tag">PWA</span>
+      <span class="about-tag">Android</span>
+      <span class="about-tag">Offline</span>
+      <span class="about-tag">Google Drive</span>
+    </div>
+  </section>
+
+  <div class="about-grid">
+    <section class="panel about-feature">
+      <span class="muted">RECURSOS</span>
+      <h3>Controle financeiro</h3>
+
+      <div class="about-list">
+        <span>✓ Entradas e despesas</span>
+        <span>✓ Gastos fixos, variáveis e imprevistos</span>
+        <span>✓ Valores guardados e reservas</span>
+        <span>✓ Ciclos de quinzena e final do mês</span>
+        <span>✓ Entradas extras selecionáveis nos ciclos</span>
+        <span>✓ Projeções financeiras mensais</span>
+        <span>✓ Histórico por competência</span>
+      </div>
+    </section>
+
+    <section class="panel about-feature">
+      <span class="muted">FOLHA</span>
+      <h3>Simulação salarial</h3>
+
+      <div class="about-list">
+        <span>✓ Salário base e adiantamento</span>
+        <span>✓ Horas extras 50% e 100%</span>
+        <span>✓ Adicional noturno</span>
+        <span>✓ DSR sobre extras</span>
+        <span>✓ INSS e IRRF estimados</span>
+        <span>✓ Competências mensais independentes</span>
+      </div>
+    </section>
+
+    <section class="panel about-feature">
+      <span class="muted">PLATAFORMAS</span>
+      <h3>Disponibilidade</h3>
+
+      <div class="about-list">
+        <span>🌐 Aplicação Web</span>
+        <span>📲 PWA instalável</span>
+        <span>🤖 Aplicativo Android via APK</span>
+        <span>📴 Funcionamento offline</span>
+        <span>💻 Compatível com desktop e mobile</span>
+      </div>
+    </section>
+
+    <section class="panel about-feature">
+      <span class="muted">DADOS</span>
+      <h3>Backup e segurança</h3>
+
+      <div class="about-list">
+        <span>✓ Armazenamento local no dispositivo</span>
+        <span>✓ Login com conta Google</span>
+        <span>✓ Backup no Google Drive</span>
+        <span>✓ Seleção de pasta pelo Google Picker</span>
+        <span>✓ Exportação JSON e CSV</span>
+        <span>✓ Restauração de backups</span>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <span class="muted">TECNOLOGIAS</span>
+    <h3>Stack do projeto</h3>
+
+    <div class="about-tags about-tech">
+      <span class="about-tag">HTML5</span>
+      <span class="about-tag">CSS3</span>
+      <span class="about-tag">JavaScript</span>
+      <span class="about-tag">LocalStorage</span>
+      <span class="about-tag">Service Worker</span>
+      <span class="about-tag">Web App Manifest</span>
+      <span class="about-tag">Firebase Authentication</span>
+      <span class="about-tag">Google Identity Services</span>
+      <span class="about-tag">Google Drive API</span>
+      <span class="about-tag">Google Picker API</span>
+      <span class="about-tag">Git</span>
+      <span class="about-tag">GitHub</span>
+      <span class="about-tag">Vercel</span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <span class="muted">PRIVACIDADE</span>
+    <h3>Seus dados continuam seus</h3>
+
+    <p class="helper">
+      As informações financeiras são mantidas localmente no dispositivo.
+      O acesso ao Google Drive é separado do login e somente é autorizado
+      quando o próprio usuário conecta o serviço para utilizar o backup.
+    </p>
+  </section>
+
+  <section class="panel about-footer">
+    <div>
+      <span class="muted">DESENVOLVIMENTO</span>
+      <h3>Joey Rickson</h3>
+      <p class="helper">
+        Projeto desenvolvido e mantido de forma independente.
+      </p>
+    </div>
+
+    <div class="about-version">
+      <span>SaldoPlan</span>
+      <strong>v2.7.4</strong>
+    </div>
+  </section>
+</section>
+</main>
 
     <nav class="bottom-nav" aria-label="Navegação principal">
       <button class="nav-item active" data-nav="dashboard"><span>◫</span>Resumo</button>
@@ -571,8 +690,8 @@
     </form>
   </dialog>
 
-<script src="drive-config.js?v=2.7.1"></script>
-<script src="app.js?v=2.7.1"></script>
-  <script type="module" src="auth.js?v=2.7.1"></script>
+<script src="drive-config.js?v=2.7.4"></script>
+<script src="app.js?v=2.7.4"></script>
+  <script type="module" src="auth.js?v=2.7.4"></script>
 </body>
 </html>

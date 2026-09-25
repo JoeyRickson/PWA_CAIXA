@@ -1,11 +1,11 @@
-const CACHE='saldoplan-v2.7.1';
+const CACHE='saldoplan-v2.7.4';
 
 const ASSETS=[
   './',
   './index.html',
-  './styles.css?v=2.7.1',
-  './drive-config.js?v=2.7.1',
-  './app.js?v=2.7.1',
+  './styles.css?v=2.7.4',
+  './drive-config.js?v=2.7.4',
+  './app.js?v=2.7.4',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
