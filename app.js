@@ -31,6 +31,41 @@ const monthKey=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`
 const today=new Date();
 let cursor=new Date(today.getFullYear(),today.getMonth(),1);
 let simCursor=new Date(today.getFullYear(),today.getMonth(),1);
+
+const LAST_VIEW_MONTH_KEY='saldoplan.lastViewMonth';
+
+try{
+  const savedMonth=localStorage.getItem(LAST_VIEW_MONTH_KEY);
+  if(/^\d{4}-\d{2}$/.test(savedMonth||'')){
+    const [savedYear,savedMonthNumber]=savedMonth.split('-').map(Number);
+    if(savedYear&&savedMonthNumber>=1&&savedMonthNumber<=12){
+      cursor=new Date(savedYear,savedMonthNumber-1,1);
+    }
+  }
+}catch{}
+
+function rememberViewMonth(){
+  try{
+    localStorage.setItem(LAST_VIEW_MONTH_KEY,monthKey(cursor));
+  }catch{}
+}
+const LAST_SIM_MONTH_KEY='saldoplan.lastSimMonth';
+
+try{
+  const savedSimMonth=localStorage.getItem(LAST_SIM_MONTH_KEY);
+  if(/^\d{4}-\d{2}$/.test(savedSimMonth||'')){
+    const [simYear,simMonthNumber]=savedSimMonth.split('-').map(Number);
+    if(simYear&&simMonthNumber>=1&&simMonthNumber<=12){
+      simCursor=new Date(simYear,simMonthNumber-1,1);
+    }
+  }
+}catch{}
+
+function rememberSimMonth(){
+  try{
+    localStorage.setItem(LAST_SIM_MONTH_KEY,monthKey(simCursor));
+  }catch{}
+}
 let filter='all';
 let deferredPrompt=null;
 let driveToken=null;
@@ -445,12 +480,12 @@ addEventListener('click',e=>{
   const xedit=e.target.closest('[data-extra-edit]');if(xedit){openExtra(state.overtimeLogs.find(x=>x.id===xedit.dataset.extraEdit));return}
 });
 document.querySelector('#themeQuickBtn').onclick=toggleTheme;
-document.querySelector('#prevMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);renderAll()};
-document.querySelector('#nextMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);renderAll()};
-document.querySelector('#prevCycleMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);renderAll()};
-document.querySelector('#nextCycleMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);renderAll()};
-document.querySelector('#prevSimMonth').onclick=()=>{simCursor=new Date(simCursor.getFullYear(),simCursor.getMonth()-1,1);renderSimulator()};
-document.querySelector('#nextSimMonth').onclick=()=>{simCursor=new Date(simCursor.getFullYear(),simCursor.getMonth()+1,1);renderSimulator()};
+document.querySelector('#prevMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);rememberViewMonth();renderAll()};
+document.querySelector('#nextMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);rememberViewMonth();renderAll()};
+document.querySelector('#prevCycleMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);rememberViewMonth();renderAll()};
+document.querySelector('#nextCycleMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);rememberViewMonth();renderAll()};
+document.querySelector('#prevSimMonth').onclick=()=>{simCursor=new Date(simCursor.getFullYear(),simCursor.getMonth()-1,1);rememberSimMonth();renderSimulator()};
+document.querySelector('#nextSimMonth').onclick=()=>{simCursor=new Date(simCursor.getFullYear(),simCursor.getMonth()+1,1);rememberSimMonth();renderSimulator()};
 document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');filter=c.dataset.filter;renderTransactions()});
 document.querySelector('#dismissImportNote').onclick=()=>{state.importNote=false;save();renderDashboard()};
 document.querySelectorAll('[data-theme-option]').forEach(b=>b.onclick=()=>{state.settings.theme=b.dataset.themeOption;save();applyTheme();renderData()});
