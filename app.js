@@ -28,9 +28,37 @@ const decimal=v=>Number(String(v??0).trim().replace(',','.'))||0;
 const round2=n=>Math.round((Number(n)+Number.EPSILON)*100)/100;
 const trunc2=n=>Math.floor((Number(n)+1e-9)*100)/100;
 const monthKey=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+const VIEW_MONTH_KEY='saldoplan.viewMonth';
+const SIM_MONTH_KEY='saldoplan.simMonth';
+
+function storedMonth(storageKey){
+  try{
+    const value=localStorage.getItem(storageKey);
+    if(/^\d{4}-\d{2}$/.test(value||'')){
+      const [y,m]=value.split('-').map(Number);
+      if(y&&m>=1&&m<=12)return new Date(y,m-1,1);
+    }
+  }catch{}
+  return null;
+}
+
+function rememberMonth(storageKey,date){
+  try{
+    localStorage.setItem(storageKey,monthKey(date));
+  }catch(e){
+    console.warn('Não foi possível salvar o mês selecionado.',e);
+  }
+}
+
 const today=new Date();
-let cursor=new Date(today.getFullYear(),today.getMonth(),1);
-let simCursor=new Date(today.getFullYear(),today.getMonth(),1);
+
+let cursor=
+  storedMonth(VIEW_MONTH_KEY) ||
+  new Date(today.getFullYear(),today.getMonth(),1);
+
+let simCursor=
+  storedMonth(SIM_MONTH_KEY) ||
+  new Date(today.getFullYear(),today.getMonth(),1);
 let filter='all';
 let deferredPrompt=null;
 let driveToken=null;
@@ -445,12 +473,12 @@ addEventListener('click',e=>{
   const xedit=e.target.closest('[data-extra-edit]');if(xedit){openExtra(state.overtimeLogs.find(x=>x.id===xedit.dataset.extraEdit));return}
 });
 document.querySelector('#themeQuickBtn').onclick=toggleTheme;
-document.querySelector('#prevMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);saveMonthCursor(VIEW_MONTH_KEY,cursor);renderAll()};
-document.querySelector('#nextMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);saveMonthCursor(VIEW_MONTH_KEY,cursor);renderAll()};
+document.querySelector('#prevMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);rememberMonth(VIEW_MONTH_KEY,cursor);renderAll()};rememberMonth(VIEW_MONTH_KEY,cursor);renderAll()};
+document.querySelector('#nextMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);rememberMonth(VIEW_MONTH_KEY,cursor);renderAll()};rememberMonth(VIEW_MONTH_KEY,cursor);renderAll()};
 document.querySelector('#prevCycleMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);renderAll()};
 document.querySelector('#nextCycleMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);renderAll()};
-document.querySelector('#prevSimMonth').onclick=()=>{simCursor=new Date(simCursor.getFullYear(),simCursor.getMonth()-1,1);saveMonthCursor(SIM_MONTH_KEY,simCursor);renderSimulator()};
-document.querySelector('#nextSimMonth').onclick=()=>{simCursor=new Date(simCursor.getFullYear(),simCursor.getMonth()+1,1);saveMonthCursor(SIM_MONTH_KEY,simCursor);renderSimulator()};
+document.querySelector('#prevSimMonth').onclick=()=>{simCursor=new Date(simCursor.getFullYear(),simCursor.getMonth()-1,1);rememberMonth(SIM_MONTH_KEY,simCursor);renderSimulator()};rememberMonth(SIM_MONTH_KEY,simCursor);renderSimulator()};
+document.querySelector('#nextSimMonth').onclick=()=>{simCursor=new Date(simCursor.getFullYear(),simCursor.getMonth()+1,1);rememberMonth(SIM_MONTH_KEY,simCursor);renderSimulator()};rememberMonth(SIM_MONTH_KEY,simCursor);renderSimulator()};
 document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');filter=c.dataset.filter;renderTransactions()});
 document.querySelector('#dismissImportNote').onclick=()=>{state.importNote=false;save();renderDashboard()};
 document.querySelectorAll('[data-theme-option]').forEach(b=>b.onclick=()=>{state.settings.theme=b.dataset.themeOption;save();applyTheme();renderData()});
@@ -517,7 +545,7 @@ form.addEventListener('submit',e=>{
       }
       state.transactions[ix]={...state.transactions[ix],...obj};
     }else state.transactions.push(obj);
-    const [y,m]=date.slice(0,7).split('-').map(Number);cursor=new Date(y,m-1,1);saveMonthCursor(VIEW_MONTH_KEY,cursor);
+    const [y,m]=date.slice(0,7).split('-').map(Number);cursor=new Date(y,m-1,1);rememberMonth(VIEW_MONTH_KEY,cursor);
   }
   save();closeDialog();renderAll();
 });
