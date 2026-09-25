@@ -445,12 +445,12 @@ addEventListener('click',e=>{
   const xedit=e.target.closest('[data-extra-edit]');if(xedit){openExtra(state.overtimeLogs.find(x=>x.id===xedit.dataset.extraEdit));return}
 });
 document.querySelector('#themeQuickBtn').onclick=toggleTheme;
-document.querySelector('#prevMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);renderAll()};
-document.querySelector('#nextMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);renderAll()};
+document.querySelector('#prevMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);saveMonthCursor(VIEW_MONTH_KEY,cursor);renderAll()};
+document.querySelector('#nextMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);saveMonthCursor(VIEW_MONTH_KEY,cursor);renderAll()};
 document.querySelector('#prevCycleMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);renderAll()};
 document.querySelector('#nextCycleMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);renderAll()};
-document.querySelector('#prevSimMonth').onclick=()=>{simCursor=new Date(simCursor.getFullYear(),simCursor.getMonth()-1,1);renderSimulator()};
-document.querySelector('#nextSimMonth').onclick=()=>{simCursor=new Date(simCursor.getFullYear(),simCursor.getMonth()+1,1);renderSimulator()};
+document.querySelector('#prevSimMonth').onclick=()=>{simCursor=new Date(simCursor.getFullYear(),simCursor.getMonth()-1,1);saveMonthCursor(SIM_MONTH_KEY,simCursor);renderSimulator()};
+document.querySelector('#nextSimMonth').onclick=()=>{simCursor=new Date(simCursor.getFullYear(),simCursor.getMonth()+1,1);saveMonthCursor(SIM_MONTH_KEY,simCursor);renderSimulator()};
 document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');filter=c.dataset.filter;renderTransactions()});
 document.querySelector('#dismissImportNote').onclick=()=>{state.importNote=false;save();renderDashboard()};
 document.querySelectorAll('[data-theme-option]').forEach(b=>b.onclick=()=>{state.settings.theme=b.dataset.themeOption;save();applyTheme();renderData()});
@@ -517,7 +517,7 @@ form.addEventListener('submit',e=>{
       }
       state.transactions[ix]={...state.transactions[ix],...obj};
     }else state.transactions.push(obj);
-    const [y,m]=date.slice(0,7).split('-').map(Number);cursor=new Date(y,m-1,1);
+    const [y,m]=date.slice(0,7).split('-').map(Number);cursor=new Date(y,m-1,1);saveMonthCursor(VIEW_MONTH_KEY,cursor);
   }
   save();closeDialog();renderAll();
 });
