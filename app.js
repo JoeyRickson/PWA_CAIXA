@@ -183,20 +183,96 @@ function hoursLabel(decimalHours){
   return `${Math.floor(mins/60)}h${String(mins%60).padStart(2,'0')}`;
 }
 
+function transactionMonth(x){
+  return String(x?.date||'').slice(0,7);
+}
+
+function freezeRecurringHistory(templateId,beforeMonth){
+  state.transactions.forEach(x=>{
+    if(
+      x.templateId===templateId &&
+      transactionMonth(x)<beforeMonth
+    ){
+      delete x.templateId;
+      delete x.recurringMarker;
+    }
+  });
+}
+
+function removeRecurringFrom(templateId,fromMonth,exceptId=''){
+  state.transactions=state.transactions.filter(x=>{
+    if(x.id===exceptId)return true;
+    if(x.templateId!==templateId)return true;
+
+    return transactionMonth(x)<fromMonth;
+  });
+}
+
+function inferRecurringStartMonth(t,targetKey){
+  if(t.startMonth)return t.startMonth;
+
+  const months=state.transactions
+    .filter(x=>x.templateId===t.id)
+    .map(transactionMonth)
+    .filter(Boolean)
+    .sort();
+
+  // Para templates antigos, usa a ocorrência mais recente já existente.
+  // Isso impede que a recorrência continue invadindo meses anteriores.
+  return months.length
+    ? months[months.length-1]
+    : targetKey;
+}
+
 function ensureRecurring(){
   const targetKey=key();
   const [y,m]=targetKey.split('-').map(Number);
+
   let changed=false;
+
   state.fixedTemplates.forEach(t=>{
+    const startMonth=inferRecurringStartMonth(t,targetKey);
+
+    if(!t.startMonth){
+      t.startMonth=startMonth;
+      changed=true;
+    }
+
+    // Nunca cria recorrência antes do mês em que ela começou.
+    if(targetKey<startMonth)return;
+
     const marker=`${t.id}:${targetKey}`;
+
     if(state.transactions.some(x=>x.recurringMarker===marker))return;
-    const day=Math.min(t.dueDay||1,new Date(y,m,0).getDate());
-    const obj={id:uid(),kind:t.kind||'expense',description:t.description,amount:t.amount,date:`${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`,status:'planned',recurringMarker:marker,templateId:t.id};
-    if(obj.kind==='income')obj.incomeType=t.incomeType||'first';
-    else{obj.expenseType=t.expenseType||'fixed';obj.paySource=t.paySource||'cash';obj.category=t.category||'Outros'}
+
+    const day=Math.min(
+      t.dueDay||1,
+      new Date(y,m,0).getDate()
+    );
+
+    const obj={
+      id:uid(),
+      kind:t.kind||'expense',
+      description:t.description,
+      amount:t.amount,
+      date:`${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`,
+      status:'planned',
+      recurringMarker:marker,
+      templateId:t.id
+    };
+
+    if(obj.kind==='income'){
+      obj.incomeType=t.incomeType||'first';
+    }else{
+      obj.expenseType=t.expenseType||'fixed';
+      obj.paySource=t.paySource||'cash';
+      obj.category=t.category||'Outros';
+    }
+
     state.transactions.push(obj);
     changed=true;
   });
+
   if(changed)save();
 }
 function transactions(){ensureRecurring();return state.transactions.filter(x=>inMonth(x)).sort((a,b)=>a.date.localeCompare(b.date))}
@@ -509,60 +585,264 @@ function closeDialog(){document.querySelector('#expenseType').disabled=false;doc
 document.querySelector('#closeDialog').onclick=closeDialog;
 form.addEventListener('submit',e=>{
   e.preventDefault();
-  const id=document.querySelector('#entryId').value,templateMode=document.querySelector('#fixedTemplateMode').value==='1',kind=document.querySelector('#entryKind').value,amount=money(document.querySelector('#amount').value),date=document.querySelector('#entryDate').value;
-  const incomeType=document.querySelector('#incomeType').value,expenseType=document.querySelector('#expenseType').value,category=document.querySelector('#category').value.trim();
+
+  const id=document.querySelector('#entryId').value;
+  const templateMode=document.querySelector('#fixedTemplateMode').value==='1';
+  const kind=document.querySelector('#entryKind').value;
+  const amount=money(document.querySelector('#amount').value);
+  const date=document.querySelector('#entryDate').value;
+
+  const incomeType=document.querySelector('#incomeType').value;
+  const expenseType=document.querySelector('#expenseType').value;
+  const category=document.querySelector('#category').value.trim();
+
   let description=document.querySelector('#description').value.trim();
-  if(!description)description=kind==='income'?defaultIncomeDescription(incomeType):defaultExpenseDescription(expenseType,category);
-  if(!(amount>0)){alert('Informe um valor maior que zero. Ex.: 2000 ou 2.000,00.');document.querySelector('#amount').focus();return}
-  if(!date){alert('Informe a data do lançamento.');document.querySelector('#entryDate').focus();return}
+
+  if(!description){
+    description=kind==='income'
+      ?defaultIncomeDescription(incomeType)
+      :defaultExpenseDescription(expenseType,category);
+  }
+
+  if(!(amount>0)){
+    alert('Informe um valor maior que zero. Ex.: 2000 ou 2.000,00.');
+    document.querySelector('#amount').focus();
+    return;
+  }
+
+  if(!date){
+    alert('Informe a data do lançamento.');
+    document.querySelector('#entryDate').focus();
+    return;
+  }
+
+  const effectiveMonth=date.slice(0,7);
+
   if(templateMode){
-    const t={id:id||uid(),description,amount,dueDay:Number(date.slice(-2)),category:category||'Outros',paySource:document.querySelector('#paySource').value};
-    const ix=state.fixedTemplates.findIndex(x=>x.id===id);if(ix>=0)state.fixedTemplates[ix]=t;else state.fixedTemplates.push(t);
+
+    const previousTemplate=state.fixedTemplates.find(x=>x.id===id);
+
+    const t={
+      id:id||uid(),
+      kind:'expense',
+      expenseType:'fixed',
+      description,
+      amount,
+      dueDay:Number(date.slice(-2)),
+      category:category||'Outros',
+      paySource:document.querySelector('#paySource').value,
+      startMonth:previousTemplate?.startMonth||effectiveMonth
+    };
+
+    const ix=state.fixedTemplates.findIndex(x=>x.id===id);
+
+    if(ix>=0)state.fixedTemplates[ix]=t;
+    else state.fixedTemplates.push(t);
+
   }else{
-    const obj={id:id||uid(),kind,description,amount,date,status:document.querySelector('#entryStatus').value};
-    if(kind==='income')obj.incomeType=incomeType;else{obj.expenseType=expenseType;obj.paySource=document.querySelector('#paySource').value;obj.category=category||'Outros'}
+
+    const obj={
+      id:id||uid(),
+      kind,
+      description,
+      amount,
+      date,
+      status:document.querySelector('#entryStatus').value
+    };
+
+    if(kind==='income'){
+      obj.incomeType=incomeType;
+    }else{
+      obj.expenseType=expenseType;
+      obj.paySource=document.querySelector('#paySource').value;
+      obj.category=category||'Outros';
+    }
+
     const repeatMonthly=document.querySelector('#repeatMonthly').checked;
+
     const previousTransaction=state.transactions.find(x=>x.id===id);
     const oldTemplateId=previousTransaction?.templateId;
+
     if(repeatMonthly){
+
       const templateId=oldTemplateId||uid();
-      const template={id:templateId,kind,description,amount,dueDay:Number(date.slice(-2))};
-      if(kind==='income')template.incomeType=incomeType;
-      else{template.expenseType=expenseType;template.paySource=document.querySelector('#paySource').value;template.category=category||'Outros'}
-      const templateIndex=state.fixedTemplates.findIndex(t=>t.id===templateId);
-      if(templateIndex>=0)state.fixedTemplates[templateIndex]=template;
-      else state.fixedTemplates.push(template);
+
+      // Ao editar uma série existente:
+      // meses anteriores viram histórico independente
+      // e meses futuros serão reconstruídos com a nova configuração.
+      if(oldTemplateId){
+        freezeRecurringHistory(
+          templateId,
+          effectiveMonth
+        );
+
+        removeRecurringFrom(
+          templateId,
+          effectiveMonth,
+          id
+        );
+      }
+
+      const template={
+        id:templateId,
+        kind,
+        description,
+        amount,
+        dueDay:Number(date.slice(-2)),
+        startMonth:effectiveMonth
+      };
+
+      if(kind==='income'){
+        template.incomeType=incomeType;
+      }else{
+        template.expenseType=expenseType;
+        template.paySource=document.querySelector('#paySource').value;
+        template.category=category||'Outros';
+      }
+
+      const templateIndex=
+        state.fixedTemplates.findIndex(t=>t.id===templateId);
+
+      if(templateIndex>=0){
+        state.fixedTemplates[templateIndex]=template;
+      }else{
+        state.fixedTemplates.push(template);
+      }
+
       obj.templateId=templateId;
-      obj.recurringMarker=`${templateId}:${date.slice(0,7)}`;
+      obj.recurringMarker=
+        `${templateId}:${effectiveMonth}`;
+
     }else if(oldTemplateId){
-      state.fixedTemplates=state.fixedTemplates.filter(t=>t.id!==oldTemplateId);
-      state.transactions=state.transactions.filter(x=>{
-        if(x.id===id)return true;
-        if(x.templateId!==oldTemplateId)return true;
-        return x.date<=date;
-      });
+
+      // Desmarcou "repetir":
+      // mantém histórico anterior,
+      // mantém o lançamento atual,
+      // remove apenas a continuação futura.
+      freezeRecurringHistory(
+        oldTemplateId,
+        effectiveMonth
+      );
+
+      removeRecurringFrom(
+        oldTemplateId,
+        effectiveMonth,
+        id
+      );
+
+      state.fixedTemplates=
+        state.fixedTemplates.filter(
+          t=>t.id!==oldTemplateId
+        );
+
       delete obj.templateId;
       delete obj.recurringMarker;
     }
-    const ix=state.transactions.findIndex(x=>x.id===id);
+
+    const ix=
+      state.transactions.findIndex(x=>x.id===id);
+
     if(ix>=0){
+      state.transactions[ix]={
+        ...state.transactions[ix],
+        ...obj
+      };
+
       if(!repeatMonthly&&oldTemplateId){
         delete state.transactions[ix].templateId;
         delete state.transactions[ix].recurringMarker;
       }
-      state.transactions[ix]={...state.transactions[ix],...obj};
-    }else state.transactions.push(obj);
-    const [y,m]=date.slice(0,7).split('-').map(Number);cursor=new Date(y,m-1,1);
+
+    }else{
+      state.transactions.push(obj);
+    }
+
+    const [y,m]=date.slice(0,7).split('-').map(Number);
+
+    cursor=new Date(y,m-1,1);
+
+    if(typeof rememberViewMonth==='function'){
+      rememberViewMonth();
+    }
   }
-  save();closeDialog();renderAll();
+
+  save();
+  closeDialog();
+  renderAll();
 });
 document.querySelector('#incomeType').addEventListener('change',e=>{
   if(document.querySelector('#entryKind').value!=='income')return;
   const d=document.querySelector('#description'),autoValues=['Salário - quinzena','Salário - final do mês','Entrada extra','Crédito Flash',''];
   if(autoValues.includes(d.value.trim()))d.value=defaultIncomeDescription(e.target.value);
 });
-document.querySelector('#deleteEntry').onclick=()=>{const id=document.querySelector('#entryId').value,templateMode=document.querySelector('#fixedTemplateMode').value==='1';if(!id)return;if(!confirm('Excluir este item?'))return;if(templateMode){state.fixedTemplates=state.fixedTemplates.filter(x=>x.id!==id);state.transactions=state.transactions.filter(x=>x.templateId!==id)}else state.transactions=state.transactions.filter(x=>x.id!==id);save();closeDialog();renderAll()};
+document.querySelector('#deleteEntry').onclick=()=>{
+  const id=document.querySelector('#entryId').value;
+  const templateMode=
+    document.querySelector('#fixedTemplateMode').value==='1';
 
+  if(!id)return;
+
+  if(templateMode){
+
+    if(!confirm(
+      'Excluir este item recorrente deste mês em diante? Os meses anteriores serão preservados.'
+    ))return;
+
+    const cutoff=key();
+
+    freezeRecurringHistory(id,cutoff);
+    removeRecurringFrom(id,cutoff);
+
+    state.fixedTemplates=
+      state.fixedTemplates.filter(x=>x.id!==id);
+
+  }else{
+
+    const item=
+      state.transactions.find(x=>x.id===id);
+
+    if(!item)return;
+
+    if(item.templateId){
+
+      if(!confirm(
+        'Este lançamento é recorrente. Excluir este mês e interromper a repetição daqui para frente? Os meses anteriores serão preservados.'
+      ))return;
+
+      const templateId=item.templateId;
+      const cutoff=
+        transactionMonth(item)||key();
+
+      freezeRecurringHistory(
+        templateId,
+        cutoff
+      );
+
+      removeRecurringFrom(
+        templateId,
+        cutoff
+      );
+
+      state.fixedTemplates=
+        state.fixedTemplates.filter(
+          x=>x.id!==templateId
+        );
+
+    }else{
+
+      if(!confirm('Excluir este item?'))return;
+
+      state.transactions=
+        state.transactions.filter(
+          x=>x.id!==id
+        );
+    }
+  }
+
+  save();
+  closeDialog();
+  renderAll();
+};
 // Guardado
 const savingDlg=document.querySelector('#savingDialog'),savingForm=document.querySelector('#savingForm');
 function openSaving(obj=null){savingForm.reset();document.querySelector('#savingId').value=obj?.id||'';document.querySelector('#savingFormTitle').textContent=obj?'Editar movimentação':'Nova movimentação';document.querySelector('#savingType').value=obj?.type||'deposit';document.querySelector('#savingDate').value=obj?.date||baseDate();document.querySelector('#savingAccount').value=obj?.account||'Reserva de emergência';document.querySelector('#savingDescription').value=obj?.description||'';document.querySelector('#savingAmount').value=obj?Number(obj.amount).toFixed(2).replace('.',','):'';document.querySelector('#deleteSaving').classList.toggle('hidden',!obj);savingDlg.showModal()}
