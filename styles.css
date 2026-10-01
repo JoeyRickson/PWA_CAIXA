@@ -448,3 +448,38 @@ dialog{border:0;padding:0;border-radius:22px;background:var(--surface);color:var
   #view-about .about-grid{gap:8px}
   #view-about .about-list span{padding:7px 8px}
 }
+/* ===== SaldoPlan v2.8.0 — Recorrência por período ===== */
+.recurrence-box{
+  margin:10px 0 13px;
+  padding:13px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface-2);
+}
+.recurrence-title{
+  display:block;
+  margin-bottom:10px;
+  color:var(--ink);
+  font-size:.8rem;
+  font-weight:800;
+}
+.recurrence-box label{
+  margin-bottom:9px;
+}
+.recurrence-no-end{
+  margin:3px 0 5px!important;
+}
+.saving-repeat-check{
+  align-self:end;
+  min-height:42px;
+  margin-bottom:13px!important;
+  padding:0 2px;
+}
+.item-side .saving-status{
+  font-size:.72rem;
+}
+@media(max-width:520px){
+  .recurrence-box{
+    padding:11px;
+  }
+}

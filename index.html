@@ -20,7 +20,7 @@
   sizes="180x180"
   href="icons/apple-touch-icon.png"
 />
-  <link rel="stylesheet" href="styles.css?v=2.7.4" />
+  <link rel="stylesheet" href="styles.css?v=2.8.0" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -58,7 +58,7 @@
     <header class="topbar">
       <div>
         <p class="eyebrow">CONTROLE FINANCEIRO</p>
-        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.7.4</small></h1>
+        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.8.0</small></h1>
       </div>
       <div class="top-actions">
         
@@ -595,7 +595,7 @@
 
     <div class="about-version">
       <span>SaldoPlan</span>
-      <strong>v2.7.4</strong>
+      <strong>v2.8.0</strong>
     </div>
   </section>
 </section>
@@ -649,6 +649,28 @@
         <label>Status<select id="entryStatus"><option value="realized">Recebido / pago</option><option value="planned">Previsto / pendente</option></select></label>
       </div>
       <label id="repeatLabel" class="check-row"><input id="repeatMonthly" type="checkbox"> Repetir automaticamente todo mês</label>
+      <div id="repeatRangeFields" class="recurrence-box hidden">
+        <span class="recurrence-title">Período da repetição</span>
+
+        <div class="two-col">
+          <label>De
+            <input id="repeatStartMonth" type="month">
+          </label>
+
+          <label>Até
+            <input id="repeatEndMonth" type="month">
+          </label>
+        </div>
+
+        <label class="check-row recurrence-no-end">
+          <input id="repeatNoEnd" type="checkbox">
+          Continuar sem data final
+        </label>
+
+        <small class="input-help">
+          Você pode digitar o mês/ano ou usar o seletor. Meses anteriores ao início não são alterados.
+        </small>
+      </div>
       <div class="dialog-actions"><button type="button" id="deleteEntry" class="btn danger ghost hidden">Excluir</button><button type="submit" class="btn">Salvar</button></div>
     </form>
   </dialog>
@@ -665,6 +687,42 @@
       <datalist id="savingAccountOptions"><option>Reserva de emergência</option><option>Investimentos</option><option>Poupança</option><option>CDB</option><option>Conta separada</option></datalist>
       <label>Descrição<input id="savingDescription" required placeholder="Ex.: Aporte setembro"></label>
       <label>Valor<div class="money-input"><span>R$</span><input id="savingAmount" required inputmode="decimal" placeholder="0,00"></div></label>
+      <div class="two-col">
+        <label>Status
+          <select id="savingStatus">
+            <option value="realized">Realizado</option>
+            <option value="planned">Previsto</option>
+          </select>
+        </label>
+
+        <label id="savingRepeatLabel" class="check-row saving-repeat-check">
+          <input id="savingRepeatMonthly" type="checkbox">
+          Repetir mensalmente
+        </label>
+      </div>
+
+      <div id="savingRepeatRangeFields" class="recurrence-box hidden">
+        <span class="recurrence-title">Período da repetição</span>
+
+        <div class="two-col">
+          <label>De
+            <input id="savingRepeatStartMonth" type="month">
+          </label>
+
+          <label>Até
+            <input id="savingRepeatEndMonth" type="month">
+          </label>
+        </div>
+
+        <label class="check-row recurrence-no-end">
+          <input id="savingRepeatNoEnd" type="checkbox">
+          Continuar sem data final
+        </label>
+
+        <small class="input-help">
+          Aportes futuros são criados como previstos e só entram no total guardado quando forem marcados como realizados.
+        </small>
+      </div>
       <div class="dialog-actions"><button type="button" id="deleteSaving" class="btn danger ghost hidden">Excluir</button><button type="submit" class="btn">Salvar</button></div>
     </form>
   </dialog>
@@ -690,8 +748,8 @@
     </form>
   </dialog>
 
-<script src="drive-config.js?v=2.7.4"></script>
-<script src="app.js?v=2.7.4"></script>
-  <script type="module" src="auth.js?v=2.7.4"></script>
+<script src="drive-config.js?v=2.8.0"></script>
+<script src="app.js?v=2.8.0"></script>
+  <script type="module" src="auth.js?v=2.8.0"></script>
 </body>
 </html>

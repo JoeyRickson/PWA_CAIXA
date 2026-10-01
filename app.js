@@ -81,6 +81,7 @@ const seed={
   payrollConfig:{baseSalary:5000,monthlyHours:220,advance:2000,nightPct:20,extraGoal:40},
   payrollMonths:{},
   fixedTemplates:[],
+  savingTemplates:[],
   savings:[],
   overtimeLogs:[],
   transactions:[
@@ -115,6 +116,7 @@ function migrateState(raw){
   migrated.transactions=Array.isArray(raw.transactions)?raw.transactions:base.transactions;
   migrated.transactions=migrated.transactions.map(x=>x.description==='Crédito Flash'?{...x,description:migrated.settings.bonusName||'Bônus'}:x);
   migrated.fixedTemplates=Array.isArray(raw.fixedTemplates)?raw.fixedTemplates:[];
+  migrated.savingTemplates=Array.isArray(raw.savingTemplates)?raw.savingTemplates:[];
   migrated.savings=Array.isArray(raw.savings)?raw.savings:[];
   migrated.overtimeLogs=Array.isArray(raw.overtimeLogs)?raw.overtimeLogs:[];
   if(typeof migrated.savingGoal!=='number')migrated.savingGoal=money(migrated.savingGoal)||500;
@@ -187,24 +189,36 @@ function transactionMonth(x){
   return String(x?.date||'').slice(0,7);
 }
 
+function formatMonthValue(value){
+  if(!/^\d{4}-\d{2}$/.test(value||''))return '—';
+  const [y,m]=value.split('-').map(Number);
+  return `${String(m).padStart(2,'0')}/${y}`;
+}
+
 function freezeRecurringHistory(templateId,beforeMonth){
   state.transactions.forEach(x=>{
-    if(
-      x.templateId===templateId &&
-      transactionMonth(x)<beforeMonth
-    ){
+    if(x.templateId===templateId && transactionMonth(x)<beforeMonth){
       delete x.templateId;
       delete x.recurringMarker;
     }
   });
 }
 
-function removeRecurringFrom(templateId,fromMonth,exceptId=''){
+function removeRecurringPlannedFrom(templateId,fromMonth,exceptId=''){
   state.transactions=state.transactions.filter(x=>{
     if(x.id===exceptId)return true;
     if(x.templateId!==templateId)return true;
+    if(transactionMonth(x)<fromMonth)return true;
+    return x.status==='realized';
+  });
+}
 
-    return transactionMonth(x)<fromMonth;
+function detachRemainingRecurring(templateId){
+  state.transactions.forEach(x=>{
+    if(x.templateId===templateId){
+      delete x.templateId;
+      delete x.recurringMarker;
+    }
   });
 }
 
@@ -217,17 +231,12 @@ function inferRecurringStartMonth(t,targetKey){
     .filter(Boolean)
     .sort();
 
-  // Para templates antigos, usa a ocorrência mais recente já existente.
-  // Isso impede que a recorrência continue invadindo meses anteriores.
-  return months.length
-    ? months[months.length-1]
-    : targetKey;
+  return months.length ? months[months.length-1] : targetKey;
 }
 
 function ensureRecurring(){
   const targetKey=key();
   const [y,m]=targetKey.split('-').map(Number);
-
   let changed=false;
 
   state.fixedTemplates.forEach(t=>{
@@ -238,17 +247,13 @@ function ensureRecurring(){
       changed=true;
     }
 
-    // Nunca cria recorrência antes do mês em que ela começou.
     if(targetKey<startMonth)return;
+    if(t.endMonth && targetKey>t.endMonth)return;
 
     const marker=`${t.id}:${targetKey}`;
-
     if(state.transactions.some(x=>x.recurringMarker===marker))return;
 
-    const day=Math.min(
-      t.dueDay||1,
-      new Date(y,m,0).getDate()
-    );
+    const day=Math.min(t.dueDay||1,new Date(y,m,0).getDate());
 
     const obj={
       id:uid(),
@@ -270,6 +275,87 @@ function ensureRecurring(){
     }
 
     state.transactions.push(obj);
+    changed=true;
+  });
+
+  if(changed)save();
+}
+
+function savingMonth(x){
+  return String(x?.date||'').slice(0,7);
+}
+
+function freezeSavingHistory(templateId,beforeMonth){
+  state.savings.forEach(x=>{
+    if(x.savingTemplateId===templateId && savingMonth(x)<beforeMonth){
+      delete x.savingTemplateId;
+      delete x.savingRecurringMarker;
+    }
+  });
+}
+
+function removeSavingRecurringPlannedFrom(templateId,fromMonth,exceptId=''){
+  state.savings=state.savings.filter(x=>{
+    if(x.id===exceptId)return true;
+    if(x.savingTemplateId!==templateId)return true;
+    if(savingMonth(x)<fromMonth)return true;
+    return x.status==='realized';
+  });
+}
+
+function detachRemainingSavingRecurring(templateId){
+  state.savings.forEach(x=>{
+    if(x.savingTemplateId===templateId){
+      delete x.savingTemplateId;
+      delete x.savingRecurringMarker;
+    }
+  });
+}
+
+function inferSavingStartMonth(t,targetKey){
+  if(t.startMonth)return t.startMonth;
+
+  const months=state.savings
+    .filter(x=>x.savingTemplateId===t.id)
+    .map(savingMonth)
+    .filter(Boolean)
+    .sort();
+
+  return months.length ? months[months.length-1] : targetKey;
+}
+
+function ensureSavingRecurring(targetKey=key()){
+  const [y,m]=targetKey.split('-').map(Number);
+  let changed=false;
+
+  state.savingTemplates.forEach(t=>{
+    const startMonth=inferSavingStartMonth(t,targetKey);
+
+    if(!t.startMonth){
+      t.startMonth=startMonth;
+      changed=true;
+    }
+
+    if(targetKey<startMonth)return;
+    if(t.endMonth && targetKey>t.endMonth)return;
+
+    const marker=`${t.id}:${targetKey}`;
+    if(state.savings.some(x=>x.savingRecurringMarker===marker))return;
+
+    const day=Math.min(t.dueDay||1,new Date(y,m,0).getDate());
+
+    state.savings.push({
+      id:uid(),
+      type:t.type||'deposit',
+      date:`${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`,
+      account:t.account||'Reserva',
+      description:t.description||'Movimentação recorrente',
+      amount:t.amount,
+      status:'planned',
+      savingTemplateId:t.id,
+      savingRecurringMarker:marker
+    });
+
     changed=true;
   });
 
@@ -377,15 +463,27 @@ function renderCycles(){
     <p class="helper small-text cycle-note">Entradas extras dos períodos 10–18 e 20–fim do mês entram somente quando marcadas como “Considerando”. Bônus/Flash, gastos pagos com bônus, dias 01–09 e dia 19 continuam fora do cálculo.</p>`;
 }
 function savingsMetrics(k=key()){
-  const all=[...state.savings].sort((a,b)=>a.date.localeCompare(b.date));
+  ensureSavingRecurring(k);
+
+  const allItems=[...state.savings].sort((a,b)=>a.date.localeCompare(b.date));
+  const all=allItems.filter(x=>x.status!=='planned');
+
   const deposits=sum(all.filter(x=>x.type==='deposit'));
   const withdrawals=sum(all.filter(x=>x.type==='withdrawal'));
+
   const month=all.filter(x=>inMonth(x,k));
   const monthDeposits=sum(month.filter(x=>x.type==='deposit'));
   const monthWithdrawals=sum(month.filter(x=>x.type==='withdrawal'));
-  return {all,balance:deposits-withdrawals,monthDeposits,monthWithdrawals,monthNet:monthDeposits-monthWithdrawals};
-}
 
+  return {
+    all,
+    allItems,
+    balance:deposits-withdrawals,
+    monthDeposits,
+    monthWithdrawals,
+    monthNet:monthDeposits-monthWithdrawals
+  };
+}
 function renderDashboard(){
   const m=metrics(),s=savingsMetrics();
   document.querySelector('#monthLabel').textContent=`${MONTHS[cursor.getMonth()]} ${cursor.getFullYear()}`;
@@ -414,12 +512,57 @@ function itemHtml(x){
   return `<button class="item" data-edit="${x.id}" style="width:100%;text-align:left;cursor:pointer"><span class="item-icon ${flash?'flash':''}">${isInc?'+':'−'}</span><span class="item-main"><strong>${escapeHtml(x.description)}</strong><span>${formatDate(x.date)} · ${escapeHtml(label)}</span></span><span class="item-side"><strong class="${isInc?'positive':'negative'}">${isInc?'+ ':'− '}${fmt.format(x.amount)}</strong><span class="${x.status==='planned'?'pending':''}">${x.status==='planned'?'Previsto':'Realizado'}</span></span></button>`;
 }
 function renderTransactions(){let tx=transactions();if(filter==='income')tx=tx.filter(x=>x.kind==='income');if(filter==='expense')tx=tx.filter(x=>x.kind==='expense');if(filter==='pending')tx=tx.filter(x=>x.status==='planned');document.querySelector('#transactionList').innerHTML=tx.length?tx.map(itemHtml).join(''):'<div class="empty">Nada por aqui.</div>'}
-function renderFixed(){const fixeds=state.fixedTemplates.filter(t=>(t.kind||'expense')==='expense');document.querySelector('#fixedList').innerHTML=fixeds.length?fixeds.map(t=>`<button class="item" data-template="${t.id}" style="width:100%;text-align:left;cursor:pointer"><span class="item-icon">↻</span><span class="item-main"><strong>${escapeHtml(t.description)}</strong><span>Dia ${t.dueDay} · ${escapeHtml(t.category||'Sem categoria')} · ${t.paySource==='flash'?bonusLabel():'Salário / conta'}</span></span><span class="item-side"><strong>${fmt.format(t.amount)}</strong><span>Todo mês</span></span></button>`).join(''):'<div class="empty">Nenhum gasto fixo automático.</div>'}
+function renderFixed(){
+  const fixeds=state.fixedTemplates.filter(t=>(t.kind||'expense')==='expense');
 
+  document.querySelector('#fixedList').innerHTML=fixeds.length
+    ?fixeds.map(t=>{
+      const start=formatMonthValue(t.startMonth);
+      const end=t.endMonth?formatMonthValue(t.endMonth):'sem fim';
+
+      return `<button class="item" data-template="${t.id}" style="width:100%;text-align:left;cursor:pointer">
+        <span class="item-icon">↻</span>
+        <span class="item-main">
+          <strong>${escapeHtml(t.description)}</strong>
+          <span>Dia ${t.dueDay} · ${escapeHtml(t.category||'Sem categoria')} · ${t.paySource==='flash'?bonusLabel():'Salário / conta'}</span>
+        </span>
+        <span class="item-side">
+          <strong>${fmt.format(t.amount)}</strong>
+          <span>${start} → ${end}</span>
+        </span>
+      </button>`;
+    }).join('')
+    :'<div class="empty">Nenhum gasto fixo automático.</div>';
+}
 function renderSavings(){
-  const s=savingsMetrics();setMoney('savingBalance',s.balance);setMoney('savingDepositsMonth',s.monthDeposits);setMoney('savingWithdrawalsMonth',s.monthWithdrawals);setMoney('savingNetMonth',s.monthNet);
-  const list=[...state.savings].sort((a,b)=>b.date.localeCompare(a.date));
-  document.querySelector('#savingList').innerHTML=list.length?list.map(x=>`<button class="item" data-saving-edit="${x.id}" style="width:100%;text-align:left;cursor:pointer"><span class="item-icon saving">${x.type==='deposit'?'+':'−'}</span><span class="item-main"><strong>${escapeHtml(x.description)}</strong><span>${formatDate(x.date)} · ${escapeHtml(x.account||'Sem conta')}</span></span><span class="item-side"><strong class="${x.type==='deposit'?'positive':'negative'}">${x.type==='deposit'?'+ ':'− '}${fmt.format(x.amount)}</strong><span>${x.type==='deposit'?'Aporte':'Retirada'}</span></span></button>`).join(''):'<div class="empty">Você ainda não registrou valores guardados.</div>';
+  const s=savingsMetrics();
+
+  setMoney('savingBalance',s.balance);
+  setMoney('savingDepositsMonth',s.monthDeposits);
+  setMoney('savingWithdrawalsMonth',s.monthWithdrawals);
+  setMoney('savingNetMonth',s.monthNet);
+
+  const list=[...s.allItems].sort((a,b)=>b.date.localeCompare(a.date));
+
+  document.querySelector('#savingList').innerHTML=list.length
+    ?list.map(x=>{
+      const planned=x.status==='planned';
+      const movement=x.type==='deposit'?'Aporte':'Retirada';
+
+      return `<button class="item" data-saving-edit="${x.id}" style="width:100%;text-align:left;cursor:pointer">
+        <span class="item-icon saving">${x.type==='deposit'?'+':'−'}</span>
+        <span class="item-main">
+          <strong>${escapeHtml(x.description)}</strong>
+          <span>${formatDate(x.date)} · ${escapeHtml(x.account||'Sem conta')}</span>
+        </span>
+        <span class="item-side">
+          <strong class="${x.type==='deposit'?'positive':'negative'}">${x.type==='deposit'?'+ ':'− '}${fmt.format(x.amount)}</strong>
+          <span class="saving-status ${planned?'pending':''}">${movement} · ${planned?'Previsto':'Realizado'}</span>
+        </span>
+      </button>`;
+    }).join('')
+    :'<div class="empty">Você ainda não registrou valores guardados.</div>';
+
   renderSavingChart(s.all);
 }
 function renderSavingChart(items){
@@ -569,20 +712,130 @@ document.querySelectorAll('[data-theme-option]').forEach(b=>b.onclick=()=>{state
 // Lançamentos
 const dlg=document.querySelector('#entryDialog'),form=document.querySelector('#entryForm');
 function baseDate(d=cursor){const y=d.getFullYear(),m=d.getMonth();const day=(today.getFullYear()===y&&today.getMonth()===m)?today.getDate():1;return `${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`}
+function setEntryRecurrenceUI(show){
+  const box=document.querySelector('#repeatRangeFields');
+  if(!box)return;
+
+  box.classList.toggle('hidden',!show);
+
+  const noEnd=document.querySelector('#repeatNoEnd');
+  const end=document.querySelector('#repeatEndMonth');
+
+  if(end)end.disabled=!!noEnd?.checked;
+}
+
+function syncEntryEndMonth(){
+  const noEnd=document.querySelector('#repeatNoEnd');
+  const end=document.querySelector('#repeatEndMonth');
+  if(end)end.disabled=!!noEnd?.checked;
+}
+
 function openEntry(kind='expense',obj=null){
-  form.reset();document.querySelector('#entryId').value=obj?.id||'';document.querySelector('#entryKind').value=kind;document.querySelector('#fixedTemplateMode').value='0';document.querySelector('#formEyebrow').textContent=kind==='income'?'ENTRADA':'GASTO';document.querySelector('#formTitle').textContent=obj?'Editar lançamento':kind==='income'?'Nova entrada':'Novo gasto';document.querySelector('#incomeFields').classList.toggle('hidden',kind!=='income');document.querySelector('#expenseFields').classList.toggle('hidden',kind!=='expense');document.querySelector('#repeatLabel').classList.remove('hidden');document.querySelector('#deleteEntry').classList.toggle('hidden',!obj);document.querySelector('#entryDate').value=obj?.date||baseDate();document.querySelector('#entryStatus').value=obj?.status||'realized';document.querySelector('#repeatMonthly').checked=!!obj?.templateId;
+  form.reset();
+
+  document.querySelector('#entryId').value=obj?.id||'';
+  document.querySelector('#entryKind').value=kind;
+  document.querySelector('#fixedTemplateMode').value='0';
+  document.querySelector('#formEyebrow').textContent=kind==='income'?'ENTRADA':'GASTO';
+  document.querySelector('#formTitle').textContent=obj?'Editar lançamento':kind==='income'?'Nova entrada':'Novo gasto';
+  document.querySelector('#incomeFields').classList.toggle('hidden',kind!=='income');
+  document.querySelector('#expenseFields').classList.toggle('hidden',kind!=='expense');
+  document.querySelector('#repeatLabel').classList.remove('hidden');
+  document.querySelector('#deleteEntry').classList.toggle('hidden',!obj);
+  document.querySelector('#entryDate').value=obj?.date||baseDate();
+  document.querySelector('#entryStatus').value=obj?.status||'realized';
+
+  const template=obj?.templateId
+    ?state.fixedTemplates.find(t=>t.id===obj.templateId)
+    :null;
+
+  const recurring=!!obj?.templateId;
+
+  document.querySelector('#repeatMonthly').checked=recurring;
+
+  const occurrenceMonth=(obj?.date||baseDate()).slice(0,7);
+  document.querySelector('#repeatStartMonth').value=occurrenceMonth;
+  document.querySelector('#repeatEndMonth').value=template?.endMonth||'';
+  document.querySelector('#repeatNoEnd').checked=!template?.endMonth;
+
+  setEntryRecurrenceUI(recurring);
+
   if(kind==='income'){
-    const type=obj?.incomeType||'first';document.querySelector('#incomeType').value=type;document.querySelector('#description').value=obj?.description||defaultIncomeDescription(type);
+    const type=obj?.incomeType||'first';
+    document.querySelector('#incomeType').value=type;
+    document.querySelector('#description').value=obj?.description||defaultIncomeDescription(type);
   }else{
-    document.querySelector('#expenseType').value=obj?.expenseType||'variable';document.querySelector('#paySource').value=obj?.paySource||'cash';document.querySelector('#category').value=obj?.category||'';document.querySelector('#description').value=obj?.description||'';
+    document.querySelector('#expenseType').value=obj?.expenseType||'variable';
+    document.querySelector('#paySource').value=obj?.paySource||'cash';
+    document.querySelector('#category').value=obj?.category||'';
+    document.querySelector('#description').value=obj?.description||'';
   }
-  document.querySelector('#amount').value=obj?Number(obj.amount).toFixed(2).replace('.',','):'';dlg.showModal();
+
+  document.querySelector('#amount').value=obj
+    ?Number(obj.amount).toFixed(2).replace('.',',')
+    :'';
+
+  dlg.showModal();
 }
+
 function openTemplate(t=null){
-  form.reset();document.querySelector('#entryId').value=t?.id||'';document.querySelector('#entryKind').value='expense';document.querySelector('#fixedTemplateMode').value='1';document.querySelector('#formEyebrow').textContent='GASTO FIXO';document.querySelector('#formTitle').textContent=t?'Editar gasto fixo':'Novo gasto fixo';document.querySelector('#incomeFields').classList.add('hidden');document.querySelector('#expenseFields').classList.remove('hidden');document.querySelector('#repeatLabel').classList.add('hidden');document.querySelector('#deleteEntry').classList.toggle('hidden',!t);document.querySelector('#expenseType').value='fixed';document.querySelector('#expenseType').disabled=true;document.querySelector('#paySource').value=t?.paySource||'cash';document.querySelector('#category').value=t?.category||'';document.querySelector('#description').value=t?.description||'';document.querySelector('#amount').value=t?Number(t.amount).toFixed(2).replace('.',','):'';const day=t?.dueDay||15;document.querySelector('#entryDate').value=`${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;document.querySelector('#entryStatus').value='planned';document.querySelector('#entryStatus').closest('label').classList.add('hidden');dlg.showModal();
+  form.reset();
+
+  document.querySelector('#entryId').value=t?.id||'';
+  document.querySelector('#entryKind').value='expense';
+  document.querySelector('#fixedTemplateMode').value='1';
+  document.querySelector('#formEyebrow').textContent='GASTO FIXO';
+  document.querySelector('#formTitle').textContent=t?'Editar gasto fixo':'Novo gasto fixo';
+  document.querySelector('#incomeFields').classList.add('hidden');
+  document.querySelector('#expenseFields').classList.remove('hidden');
+  document.querySelector('#repeatLabel').classList.add('hidden');
+  document.querySelector('#deleteEntry').classList.toggle('hidden',!t);
+  document.querySelector('#expenseType').value='fixed';
+  document.querySelector('#expenseType').disabled=true;
+  document.querySelector('#paySource').value=t?.paySource||'cash';
+  document.querySelector('#category').value=t?.category||'';
+  document.querySelector('#description').value=t?.description||'';
+  document.querySelector('#amount').value=t
+    ?Number(t.amount).toFixed(2).replace('.',',')
+    :'';
+
+  const day=t?.dueDay||15;
+
+  document.querySelector('#entryDate').value=
+    `${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+
+  document.querySelector('#entryStatus').value='planned';
+  document.querySelector('#entryStatus').closest('label').classList.add('hidden');
+
+  document.querySelector('#repeatStartMonth').value=key();
+  document.querySelector('#repeatEndMonth').value=t?.endMonth||'';
+  document.querySelector('#repeatNoEnd').checked=!t?.endMonth;
+
+  setEntryRecurrenceUI(true);
+
+  dlg.showModal();
 }
-function closeDialog(){document.querySelector('#expenseType').disabled=false;document.querySelector('#entryStatus').closest('label').classList.remove('hidden');dlg.close()}
+
+function closeDialog(){
+  document.querySelector('#expenseType').disabled=false;
+  document.querySelector('#entryStatus').closest('label').classList.remove('hidden');
+  document.querySelector('#repeatRangeFields')?.classList.add('hidden');
+  dlg.close();
+}
+
 document.querySelector('#closeDialog').onclick=closeDialog;
+
+document.querySelector('#repeatMonthly').addEventListener('change',e=>{
+  const date=document.querySelector('#entryDate').value||baseDate();
+
+  if(e.target.checked){
+    document.querySelector('#repeatStartMonth').value=date.slice(0,7);
+  }
+
+  setEntryRecurrenceUI(e.target.checked);
+});
+
+document.querySelector('#repeatNoEnd').addEventListener('change',syncEntryEndMonth);
 form.addEventListener('submit',e=>{
   e.preventDefault();
 
@@ -617,10 +870,29 @@ form.addEventListener('submit',e=>{
   }
 
   const effectiveMonth=date.slice(0,7);
+  const requestedStart=document.querySelector('#repeatStartMonth')?.value||effectiveMonth;
+  const noEnd=!!document.querySelector('#repeatNoEnd')?.checked;
+  const requestedEnd=noEnd?'':(document.querySelector('#repeatEndMonth')?.value||'');
+
+  if(requestedStart<effectiveMonth){
+    alert('O início da repetição não pode ser anterior ao mês do lançamento.');
+    document.querySelector('#repeatStartMonth').focus();
+    return;
+  }
+
+  if(requestedEnd && requestedEnd<requestedStart){
+    alert('O mês final da repetição não pode ser anterior ao mês inicial.');
+    document.querySelector('#repeatEndMonth').focus();
+    return;
+  }
 
   if(templateMode){
-
     const previousTemplate=state.fixedTemplates.find(x=>x.id===id);
+
+    if(previousTemplate){
+      freezeRecurringHistory(previousTemplate.id,effectiveMonth);
+      removeRecurringPlannedFrom(previousTemplate.id,effectiveMonth);
+    }
 
     const t={
       id:id||uid(),
@@ -631,7 +903,8 @@ form.addEventListener('submit',e=>{
       dueDay:Number(date.slice(-2)),
       category:category||'Outros',
       paySource:document.querySelector('#paySource').value,
-      startMonth:previousTemplate?.startMonth||effectiveMonth
+      startMonth:requestedStart,
+      endMonth:requestedEnd
     };
 
     const ix=state.fixedTemplates.findIndex(x=>x.id===id);
@@ -640,7 +913,6 @@ form.addEventListener('submit',e=>{
     else state.fixedTemplates.push(t);
 
   }else{
-
     const obj={
       id:id||uid(),
       kind,
@@ -659,28 +931,17 @@ form.addEventListener('submit',e=>{
     }
 
     const repeatMonthly=document.querySelector('#repeatMonthly').checked;
-
     const previousTransaction=state.transactions.find(x=>x.id===id);
     const oldTemplateId=previousTransaction?.templateId;
 
-    if(repeatMonthly){
+    let attachedToSeries=false;
 
+    if(repeatMonthly){
       const templateId=oldTemplateId||uid();
 
-      // Ao editar uma série existente:
-      // meses anteriores viram histórico independente
-      // e meses futuros serão reconstruídos com a nova configuração.
       if(oldTemplateId){
-        freezeRecurringHistory(
-          templateId,
-          effectiveMonth
-        );
-
-        removeRecurringFrom(
-          templateId,
-          effectiveMonth,
-          id
-        );
+        freezeRecurringHistory(templateId,effectiveMonth);
+        removeRecurringPlannedFrom(templateId,effectiveMonth,id);
       }
 
       const template={
@@ -689,7 +950,8 @@ form.addEventListener('submit',e=>{
         description,
         amount,
         dueDay:Number(date.slice(-2)),
-        startMonth:effectiveMonth
+        startMonth:requestedStart,
+        endMonth:requestedEnd
       };
 
       if(kind==='income'){
@@ -700,47 +962,32 @@ form.addEventListener('submit',e=>{
         template.category=category||'Outros';
       }
 
-      const templateIndex=
-        state.fixedTemplates.findIndex(t=>t.id===templateId);
+      const templateIndex=state.fixedTemplates.findIndex(t=>t.id===templateId);
 
-      if(templateIndex>=0){
-        state.fixedTemplates[templateIndex]=template;
-      }else{
-        state.fixedTemplates.push(template);
+      if(templateIndex>=0)state.fixedTemplates[templateIndex]=template;
+      else state.fixedTemplates.push(template);
+
+      const currentIsInRange=
+        effectiveMonth>=requestedStart &&
+        (!requestedEnd || effectiveMonth<=requestedEnd);
+
+      if(currentIsInRange){
+        obj.templateId=templateId;
+        obj.recurringMarker=`${templateId}:${effectiveMonth}`;
+        attachedToSeries=true;
       }
 
-      obj.templateId=templateId;
-      obj.recurringMarker=
-        `${templateId}:${effectiveMonth}`;
-
     }else if(oldTemplateId){
-
-      // Desmarcou "repetir":
-      // mantém histórico anterior,
-      // mantém o lançamento atual,
-      // remove apenas a continuação futura.
-      freezeRecurringHistory(
-        oldTemplateId,
-        effectiveMonth
-      );
-
-      removeRecurringFrom(
-        oldTemplateId,
-        effectiveMonth,
-        id
-      );
+      freezeRecurringHistory(oldTemplateId,effectiveMonth);
+      removeRecurringPlannedFrom(oldTemplateId,effectiveMonth,id);
 
       state.fixedTemplates=
-        state.fixedTemplates.filter(
-          t=>t.id!==oldTemplateId
-        );
+        state.fixedTemplates.filter(t=>t.id!==oldTemplateId);
 
-      delete obj.templateId;
-      delete obj.recurringMarker;
+      detachRemainingRecurring(oldTemplateId);
     }
 
-    const ix=
-      state.transactions.findIndex(x=>x.id===id);
+    const ix=state.transactions.findIndex(x=>x.id===id);
 
     if(ix>=0){
       state.transactions[ix]={
@@ -748,17 +995,15 @@ form.addEventListener('submit',e=>{
         ...obj
       };
 
-      if(!repeatMonthly&&oldTemplateId){
+      if(!attachedToSeries){
         delete state.transactions[ix].templateId;
         delete state.transactions[ix].recurringMarker;
       }
-
     }else{
       state.transactions.push(obj);
     }
 
     const [y,m]=date.slice(0,7).split('-').map(Number);
-
     cursor=new Date(y,m-1,1);
 
     if(typeof rememberViewMonth==='function'){
@@ -777,65 +1022,54 @@ document.querySelector('#incomeType').addEventListener('change',e=>{
 });
 document.querySelector('#deleteEntry').onclick=()=>{
   const id=document.querySelector('#entryId').value;
-  const templateMode=
-    document.querySelector('#fixedTemplateMode').value==='1';
+  const templateMode=document.querySelector('#fixedTemplateMode').value==='1';
 
   if(!id)return;
 
   if(templateMode){
-
     if(!confirm(
-      'Excluir este item recorrente deste mês em diante? Os meses anteriores serão preservados.'
+      'Excluir esta recorrência deste mês em diante? Os meses anteriores serão preservados.'
     ))return;
 
     const cutoff=key();
 
     freezeRecurringHistory(id,cutoff);
-    removeRecurringFrom(id,cutoff);
+    removeRecurringPlannedFrom(id,cutoff);
 
     state.fixedTemplates=
       state.fixedTemplates.filter(x=>x.id!==id);
 
-  }else{
+    detachRemainingRecurring(id);
 
-    const item=
-      state.transactions.find(x=>x.id===id);
+  }else{
+    const item=state.transactions.find(x=>x.id===id);
 
     if(!item)return;
 
     if(item.templateId){
-
       if(!confirm(
         'Este lançamento é recorrente. Excluir este mês e interromper a repetição daqui para frente? Os meses anteriores serão preservados.'
       ))return;
 
       const templateId=item.templateId;
-      const cutoff=
-        transactionMonth(item)||key();
+      const cutoff=transactionMonth(item)||key();
 
-      freezeRecurringHistory(
-        templateId,
-        cutoff
-      );
+      freezeRecurringHistory(templateId,cutoff);
+      removeRecurringPlannedFrom(templateId,cutoff);
 
-      removeRecurringFrom(
-        templateId,
-        cutoff
-      );
+      state.transactions=
+        state.transactions.filter(x=>x.id!==id);
 
       state.fixedTemplates=
-        state.fixedTemplates.filter(
-          x=>x.id!==templateId
-        );
+        state.fixedTemplates.filter(x=>x.id!==templateId);
+
+      detachRemainingRecurring(templateId);
 
     }else{
-
       if(!confirm('Excluir este item?'))return;
 
       state.transactions=
-        state.transactions.filter(
-          x=>x.id!==id
-        );
+        state.transactions.filter(x=>x.id!==id);
     }
   }
 
@@ -845,11 +1079,234 @@ document.querySelector('#deleteEntry').onclick=()=>{
 };
 // Guardado
 const savingDlg=document.querySelector('#savingDialog'),savingForm=document.querySelector('#savingForm');
-function openSaving(obj=null){savingForm.reset();document.querySelector('#savingId').value=obj?.id||'';document.querySelector('#savingFormTitle').textContent=obj?'Editar movimentação':'Nova movimentação';document.querySelector('#savingType').value=obj?.type||'deposit';document.querySelector('#savingDate').value=obj?.date||baseDate();document.querySelector('#savingAccount').value=obj?.account||'Reserva de emergência';document.querySelector('#savingDescription').value=obj?.description||'';document.querySelector('#savingAmount').value=obj?Number(obj.amount).toFixed(2).replace('.',','):'';document.querySelector('#deleteSaving').classList.toggle('hidden',!obj);savingDlg.showModal()}
-document.querySelector('#closeSavingDialog').onclick=()=>savingDlg.close();
-savingForm.addEventListener('submit',e=>{e.preventDefault();const id=document.querySelector('#savingId').value,obj={id:id||uid(),type:document.querySelector('#savingType').value,date:document.querySelector('#savingDate').value,account:document.querySelector('#savingAccount').value.trim()||'Reserva',description:document.querySelector('#savingDescription').value.trim(),amount:money(document.querySelector('#savingAmount').value)};if(!obj.date||!obj.description||!obj.amount)return;const ix=state.savings.findIndex(x=>x.id===id);if(ix>=0)state.savings[ix]=obj;else state.savings.push(obj);save();savingDlg.close();renderAll()});
-document.querySelector('#deleteSaving').onclick=()=>{const id=document.querySelector('#savingId').value;if(!id||!confirm('Excluir esta movimentação?'))return;state.savings=state.savings.filter(x=>x.id!==id);save();savingDlg.close();renderAll()};
 
+function setSavingRecurrenceUI(show){
+  const box=document.querySelector('#savingRepeatRangeFields');
+  if(!box)return;
+
+  box.classList.toggle('hidden',!show);
+
+  const noEnd=document.querySelector('#savingRepeatNoEnd');
+  const end=document.querySelector('#savingRepeatEndMonth');
+
+  if(end)end.disabled=!!noEnd?.checked;
+}
+
+function syncSavingEndMonth(){
+  const noEnd=document.querySelector('#savingRepeatNoEnd');
+  const end=document.querySelector('#savingRepeatEndMonth');
+  if(end)end.disabled=!!noEnd?.checked;
+}
+
+function openSaving(obj=null){
+  savingForm.reset();
+
+  document.querySelector('#savingId').value=obj?.id||'';
+  document.querySelector('#savingFormTitle').textContent=obj?'Editar movimentação':'Nova movimentação';
+  document.querySelector('#savingType').value=obj?.type||'deposit';
+  document.querySelector('#savingDate').value=obj?.date||baseDate();
+  document.querySelector('#savingAccount').value=obj?.account||'Reserva de emergência';
+  document.querySelector('#savingDescription').value=obj?.description||'';
+  document.querySelector('#savingAmount').value=obj
+    ?Number(obj.amount).toFixed(2).replace('.',',')
+    :'';
+  document.querySelector('#savingStatus').value=obj?.status||'realized';
+
+  const template=obj?.savingTemplateId
+    ?state.savingTemplates.find(t=>t.id===obj.savingTemplateId)
+    :null;
+
+  const recurring=!!obj?.savingTemplateId;
+  const occurrenceMonth=(obj?.date||baseDate()).slice(0,7);
+
+  document.querySelector('#savingRepeatMonthly').checked=recurring;
+  document.querySelector('#savingRepeatStartMonth').value=occurrenceMonth;
+  document.querySelector('#savingRepeatEndMonth').value=template?.endMonth||'';
+  document.querySelector('#savingRepeatNoEnd').checked=!template?.endMonth;
+
+  setSavingRecurrenceUI(recurring);
+
+  document.querySelector('#deleteSaving').classList.toggle('hidden',!obj);
+
+  savingDlg.showModal();
+}
+
+document.querySelector('#closeSavingDialog').onclick=()=>savingDlg.close();
+
+document.querySelector('#savingRepeatMonthly').addEventListener('change',e=>{
+  const date=document.querySelector('#savingDate').value||baseDate();
+
+  if(e.target.checked){
+    document.querySelector('#savingRepeatStartMonth').value=date.slice(0,7);
+  }
+
+  setSavingRecurrenceUI(e.target.checked);
+});
+
+document.querySelector('#savingRepeatNoEnd').addEventListener('change',syncSavingEndMonth);
+
+savingForm.addEventListener('submit',e=>{
+  e.preventDefault();
+
+  const id=document.querySelector('#savingId').value;
+  const date=document.querySelector('#savingDate').value;
+  const amount=money(document.querySelector('#savingAmount').value);
+  const description=document.querySelector('#savingDescription').value.trim();
+
+  const obj={
+    id:id||uid(),
+    type:document.querySelector('#savingType').value,
+    date,
+    account:document.querySelector('#savingAccount').value.trim()||'Reserva',
+    description,
+    amount,
+    status:document.querySelector('#savingStatus').value
+  };
+
+  if(!obj.date||!obj.description||!(obj.amount>0)){
+    alert('Preencha data, descrição e um valor maior que zero.');
+    return;
+  }
+
+  const effectiveMonth=date.slice(0,7);
+  const repeatMonthly=document.querySelector('#savingRepeatMonthly').checked;
+
+  const requestedStart=
+    document.querySelector('#savingRepeatStartMonth').value||effectiveMonth;
+
+  const noEnd=
+    document.querySelector('#savingRepeatNoEnd').checked;
+
+  const requestedEnd=noEnd
+    ?''
+    :(document.querySelector('#savingRepeatEndMonth').value||'');
+
+  if(repeatMonthly && requestedStart<effectiveMonth){
+    alert('O início da repetição não pode ser anterior ao mês da movimentação.');
+    document.querySelector('#savingRepeatStartMonth').focus();
+    return;
+  }
+
+  if(repeatMonthly && requestedEnd && requestedEnd<requestedStart){
+    alert('O mês final da repetição não pode ser anterior ao mês inicial.');
+    document.querySelector('#savingRepeatEndMonth').focus();
+    return;
+  }
+
+  const previous=state.savings.find(x=>x.id===id);
+  const oldTemplateId=previous?.savingTemplateId;
+
+  let attachedToSeries=false;
+
+  if(repeatMonthly){
+    const templateId=oldTemplateId||uid();
+
+    if(oldTemplateId){
+      freezeSavingHistory(templateId,effectiveMonth);
+      removeSavingRecurringPlannedFrom(templateId,effectiveMonth,id);
+    }
+
+    const template={
+      id:templateId,
+      type:obj.type,
+      account:obj.account,
+      description:obj.description,
+      amount:obj.amount,
+      dueDay:Number(date.slice(-2)),
+      startMonth:requestedStart,
+      endMonth:requestedEnd
+    };
+
+    const templateIndex=
+      state.savingTemplates.findIndex(t=>t.id===templateId);
+
+    if(templateIndex>=0){
+      state.savingTemplates[templateIndex]=template;
+    }else{
+      state.savingTemplates.push(template);
+    }
+
+    const currentIsInRange=
+      effectiveMonth>=requestedStart &&
+      (!requestedEnd || effectiveMonth<=requestedEnd);
+
+    if(currentIsInRange){
+      obj.savingTemplateId=templateId;
+      obj.savingRecurringMarker=`${templateId}:${effectiveMonth}`;
+      attachedToSeries=true;
+    }
+
+  }else if(oldTemplateId){
+    freezeSavingHistory(oldTemplateId,effectiveMonth);
+    removeSavingRecurringPlannedFrom(oldTemplateId,effectiveMonth,id);
+
+    state.savingTemplates=
+      state.savingTemplates.filter(t=>t.id!==oldTemplateId);
+
+    detachRemainingSavingRecurring(oldTemplateId);
+  }
+
+  const ix=state.savings.findIndex(x=>x.id===id);
+
+  if(ix>=0){
+    state.savings[ix]={
+      ...state.savings[ix],
+      ...obj
+    };
+
+    if(!attachedToSeries){
+      delete state.savings[ix].savingTemplateId;
+      delete state.savings[ix].savingRecurringMarker;
+    }
+  }else{
+    state.savings.push(obj);
+  }
+
+  save();
+  savingDlg.close();
+  renderAll();
+});
+
+document.querySelector('#deleteSaving').onclick=()=>{
+  const id=document.querySelector('#savingId').value;
+
+  if(!id)return;
+
+  const item=state.savings.find(x=>x.id===id);
+
+  if(!item)return;
+
+  if(item.savingTemplateId){
+    if(!confirm(
+      'Esta movimentação é recorrente. Excluir este mês e interromper a repetição daqui para frente? Os meses anteriores serão preservados.'
+    ))return;
+
+    const templateId=item.savingTemplateId;
+    const cutoff=savingMonth(item)||key();
+
+    freezeSavingHistory(templateId,cutoff);
+    removeSavingRecurringPlannedFrom(templateId,cutoff);
+
+    state.savings=
+      state.savings.filter(x=>x.id!==id);
+
+    state.savingTemplates=
+      state.savingTemplates.filter(x=>x.id!==templateId);
+
+    detachRemainingSavingRecurring(templateId);
+
+  }else{
+    if(!confirm('Excluir esta movimentação?'))return;
+
+    state.savings=
+      state.savings.filter(x=>x.id!==id);
+  }
+
+  save();
+  savingDlg.close();
+  renderAll();
+};
+// Horas extras
 // Horas extras
 const extraDlg=document.querySelector('#extraDialog'),extraForm=document.querySelector('#extraForm');
 function openExtra(obj=null){
