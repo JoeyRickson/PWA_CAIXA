@@ -682,6 +682,121 @@ function updateCloudProviderFields(){
   const button=document.querySelector('#connectDrive');button.textContent=`Conectar ao ${name}`;button.disabled=false;
 }
 
+const BRAZIL_STATE_TIMEZONES={
+  AC:'America/Rio_Branco',
+  AL:'America/Maceio',
+  AP:'America/Belem',
+  AM:'America/Manaus',
+  BA:'America/Bahia',
+  CE:'America/Fortaleza',
+  DF:'America/Sao_Paulo',
+  ES:'America/Sao_Paulo',
+  GO:'America/Sao_Paulo',
+  MA:'America/Fortaleza',
+  MT:'America/Cuiaba',
+  MS:'America/Campo_Grande',
+  MG:'America/Sao_Paulo',
+  PA:'America/Belem',
+  PB:'America/Fortaleza',
+  PR:'America/Sao_Paulo',
+  PE:'America/Recife',
+  PI:'America/Fortaleza',
+  RJ:'America/Sao_Paulo',
+  RN:'America/Fortaleza',
+  RS:'America/Sao_Paulo',
+  RO:'America/Porto_Velho',
+  RR:'America/Boa_Vista',
+  SC:'America/Sao_Paulo',
+  SP:'America/Sao_Paulo',
+  SE:'America/Maceio',
+  TO:'America/Araguaina'
+};
+
+const TIMEZONE_STATE_KEY='saldoplan.timezoneState';
+
+function selectedTimezoneState(){
+  try{
+    return localStorage.getItem(TIMEZONE_STATE_KEY)||'auto';
+  }catch{
+    return 'auto';
+  }
+}
+
+function currentTimezone(){
+  const selected=selectedTimezoneState();
+
+  if(selected!=='auto' && BRAZIL_STATE_TIMEZONES[selected]){
+    return BRAZIL_STATE_TIMEZONES[selected];
+  }
+
+  try{
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  }catch{
+    return 'America/Sao_Paulo';
+  }
+}
+
+function updateLiveClock(){
+  const dateEl=document.querySelector('#liveDate');
+  const timeEl=document.querySelector('#liveTime');
+
+  if(!dateEl||!timeEl)return;
+
+  const now=new Date();
+  const timeZone=currentTimezone();
+
+  try{
+    dateEl.textContent=new Intl.DateTimeFormat('pt-BR',{
+      timeZone,
+      day:'2-digit',
+      month:'2-digit',
+      year:'numeric'
+    }).format(now);
+
+    timeEl.textContent=new Intl.DateTimeFormat('pt-BR',{
+      timeZone,
+      hour:'2-digit',
+      minute:'2-digit',
+      second:'2-digit',
+      hour12:false
+    }).format(now);
+
+    dateEl.title=`Fuso: ${timeZone}`;
+    timeEl.title=`Fuso: ${timeZone}`;
+  }catch{
+    dateEl.textContent=now.toLocaleDateString('pt-BR');
+    timeEl.textContent=now.toLocaleTimeString('pt-BR');
+  }
+}
+
+function initLiveClock(){
+  const select=document.querySelector('#timezoneState');
+
+  if(!select)return;
+
+  const saved=selectedTimezoneState();
+
+  if([...select.options].some(o=>o.value===saved)){
+    select.value=saved;
+  }else{
+    select.value='auto';
+  }
+
+  select.addEventListener('change',()=>{
+    try{
+      localStorage.setItem(
+        TIMEZONE_STATE_KEY,
+        select.value
+      );
+    }catch{}
+
+    updateLiveClock();
+  });
+
+  updateLiveClock();
+
+  setInterval(updateLiveClock,1000);
+}
 function applyTheme(){
   const theme=state.settings?.theme==='dark'?'dark':'light';document.body.dataset.theme=theme;document.documentElement.style.colorScheme=theme;document.querySelector('meta[name="theme-color"]').setAttribute('content',theme==='dark'?'#070a0f':'#111827');document.querySelector('#themeQuickBtn').textContent=theme==='dark'?'☀':'☾';
 }
@@ -714,14 +829,32 @@ const dlg=document.querySelector('#entryDialog'),form=document.querySelector('#e
 function baseDate(d=cursor){const y=d.getFullYear(),m=d.getMonth();const day=(today.getFullYear()===y&&today.getMonth()===m)?today.getDate():1;return `${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`}
 function setEntryRecurrenceUI(show){
   const box=document.querySelector('#repeatRangeFields');
+  const checkbox=document.querySelector('#repeatMonthly');
+
   if(!box)return;
 
-  box.classList.toggle('hidden',!show);
+  const visible=show ?? !!checkbox?.checked;
+
+  box.classList.toggle('hidden',!visible);
+
+  if(visible){
+    const date=document.querySelector('#entryDate')?.value||baseDate();
+    const month=date.slice(0,7);
+
+    const start=document.querySelector('#repeatStartMonth');
+
+    if(start){
+      start.value=month;
+      start.disabled=true;
+    }
+  }
 
   const noEnd=document.querySelector('#repeatNoEnd');
   const end=document.querySelector('#repeatEndMonth');
 
-  if(end)end.disabled=!!noEnd?.checked;
+  if(end){
+    end.disabled=!!noEnd?.checked;
+  }
 }
 
 function syncEntryEndMonth(){
@@ -836,6 +969,24 @@ document.querySelector('#repeatMonthly').addEventListener('change',e=>{
 });
 
 document.querySelector('#repeatNoEnd').addEventListener('change',syncEntryEndMonth);
+
+document.querySelector('#repeatMonthly').onclick=()=>{
+  setEntryRecurrenceUI(
+    document.querySelector('#repeatMonthly').checked
+  );
+};
+
+document.querySelector('#entryDate').addEventListener('change',()=>{
+  if(document.querySelector('#repeatMonthly').checked){
+    const month=document.querySelector('#entryDate').value.slice(0,7);
+
+    if(month){
+      document.querySelector('#repeatStartMonth').value=month;
+    }
+
+    setEntryRecurrenceUI(true);
+  }
+});
 form.addEventListener('submit',e=>{
   e.preventDefault();
 
@@ -1671,4 +1822,5 @@ window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPro
 document.querySelector('#installBtn').onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.querySelector('#installBtn').classList.add('hidden')};
 if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 
-if(handleCloudOAuthCallback()){}else{applyTheme();renderAll()}
+if(handleCloudOAuthCallback()){}else{applyTheme();
+initLiveClock();renderAll()}

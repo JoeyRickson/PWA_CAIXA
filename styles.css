@@ -483,3 +483,81 @@ dialog{border:0;padding:0;border-radius:22px;background:var(--surface);color:var
     padding:11px;
   }
 }
+
+/* ===== Relógio e fuso horário ===== */
+.live-clock{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 9px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface-2);
+}
+
+.live-clock-time{
+  display:flex;
+  flex-direction:column;
+  line-height:1.05;
+  text-align:right;
+  white-space:nowrap;
+}
+
+.live-clock-time strong{
+  font-size:.72rem;
+  font-weight:700;
+}
+
+.live-clock-time span{
+  margin-top:3px;
+  font-size:.82rem;
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+}
+
+.timezone-select{
+  min-width:112px;
+  height:34px;
+  padding:0 8px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  background:var(--surface);
+  color:var(--ink);
+  font-size:.72rem;
+}
+
+@media(max-width:700px){
+  .topbar{
+    align-items:flex-start;
+  }
+
+  .top-actions{
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+
+  .live-clock{
+    order:10;
+  }
+
+  .timezone-select{
+    min-width:102px;
+  }
+}
+
+@media(max-width:520px){
+  .live-clock{
+    width:100%;
+    justify-content:space-between;
+    margin-top:4px;
+  }
+
+  .live-clock-time{
+    text-align:left;
+  }
+
+  .timezone-select{
+    flex:1;
+    max-width:180px;
+  }
+}
