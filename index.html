@@ -20,7 +20,7 @@
   sizes="180x180"
   href="icons/apple-touch-icon.png"
 />
-  <link rel="stylesheet" href="styles.css?v=2.9.1" />
+  <link rel="stylesheet" href="styles.css?v=2.10.0" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -58,7 +58,7 @@
     <header class="topbar">
       <div>
         <p class="eyebrow">CONTROLE FINANCEIRO</p>
-        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.9.1</small></h1>
+        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.10.0</small></h1>
       </div>
       <div class="top-actions">
 
@@ -211,6 +211,31 @@
         </section>
       </section>
 
+
+        <section class="panel portfolio-dashboard-panel">
+          <div class="section-head">
+            <div>
+              <span class="muted">Patrimônio investido</span>
+              <h3>Carteira de investimentos</h3>
+            </div>
+            <button type="button" class="text-btn" data-nav="portfolio">Abrir carteira</button>
+          </div>
+
+          <div class="portfolio-dashboard-grid">
+            <div>
+              <span>Valor atual</span>
+              <strong id="dashboardPortfolioCurrent">R$ 0,00</strong>
+            </div>
+            <div>
+              <span>Resultado</span>
+              <strong id="dashboardPortfolioGain">R$ 0,00</strong>
+            </div>
+            <div>
+              <span>Posições ativas</span>
+              <strong id="dashboardPortfolioCount">0</strong>
+            </div>
+          </div>
+        </section>
       <section id="view-transactions" class="view">
         <div class="section-head page-head">
           <div><span class="muted">Mês selecionado</span><h2>Lançamentos</h2></div>
@@ -253,6 +278,92 @@
         <section id="cycleTotalCard" class="panel cycle-total-panel"></section>
       </section>
 
+
+      <section id="view-portfolio" class="view">
+        <div class="section-head page-head">
+          <div>
+            <span class="muted">Patrimônio e investimentos</span>
+            <h2>Carteira</h2>
+          </div>
+          <button id="portfolioNewBtn" type="button" class="btn">+ Investimento</button>
+        </div>
+
+        <p class="helper">
+          Cadastre suas posições para acompanhar valor aplicado, valor atual, vencimentos, instituição, liquidez e cobertura informada.
+        </p>
+
+        <div class="grid kpis compact-kpis portfolio-kpis">
+          <article class="card hero">
+            <span>Valor atual</span>
+            <strong id="portfolioCurrent">R$ 0,00</strong>
+            <small>Somente posições ativas</small>
+          </article>
+
+          <article class="card">
+            <span>Total aplicado</span>
+            <strong id="portfolioInvested">R$ 0,00</strong>
+            <small>Custo das posições ativas</small>
+          </article>
+
+          <article class="card">
+            <span>Resultado</span>
+            <strong id="portfolioGain">R$ 0,00</strong>
+            <small>Valor atual − aplicado</small>
+          </article>
+
+          <article class="card">
+            <span>Rentabilidade</span>
+            <strong id="portfolioReturn">0,00%</strong>
+            <small>Estimativa sobre o custo</small>
+          </article>
+        </div>
+
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <span class="muted">Alocação</span>
+              <h3>Distribuição da carteira</h3>
+            </div>
+          </div>
+          <div id="portfolioAllocation" class="portfolio-allocation">
+            <div class="empty">Cadastre um investimento para começar.</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <span class="muted">Agenda</span>
+              <h3>Próximos vencimentos</h3>
+            </div>
+          </div>
+          <div id="portfolioUpcoming" class="portfolio-upcoming">
+            <div class="empty">Nenhum vencimento cadastrado.</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <span class="muted">Posições</span>
+              <h3>Meus investimentos</h3>
+            </div>
+            <select id="portfolioFilter" class="portfolio-filter" aria-label="Filtrar carteira">
+              <option value="active">Ativos</option>
+              <option value="all">Todos</option>
+              <option value="redeemed">Encerrados</option>
+            </select>
+          </div>
+
+          <div id="portfolioList" class="portfolio-list">
+            <div class="empty">Nenhum investimento cadastrado.</div>
+          </div>
+        </section>
+
+        <p class="helper">
+          Os valores atuais são informados por você nesta versão. O SaldoPlan não executa ordens e não acessa sua corretora ou banco.
+        </p>
+      </section>
       <section id="view-savings" class="view">
         <div class="section-head page-head">
           <div><span class="muted">Patrimônio pessoal</span><h2>Guardado</h2></div>
@@ -821,7 +932,7 @@
 
     <div class="about-version">
       <span>SaldoPlan</span>
-      <strong>v2.9.1</strong>
+      <strong>v2.10.0</strong>
     </div>
   </section>
 </section>
@@ -850,6 +961,121 @@
     </div>
   </div>
 
+
+  <dialog id="portfolioDialog">
+    <form id="portfolioForm" method="dialog" class="dialog-form">
+      <div class="dialog-head">
+        <div>
+          <span class="muted">CARTEIRA</span>
+          <h2 id="portfolioFormTitle">Novo investimento</h2>
+        </div>
+        <button type="button" class="icon-btn" id="closePortfolioDialog">×</button>
+      </div>
+
+      <input type="hidden" id="portfolioId">
+
+      <div class="two-col">
+        <label>Instituição
+          <input id="portfolioInstitution" required placeholder="Ex.: Nubank, Inter, XP">
+        </label>
+
+        <label>Produto
+          <input id="portfolioProduct" required placeholder="Ex.: CDB 110% CDI">
+        </label>
+      </div>
+
+      <div class="two-col">
+        <label>Tipo
+          <select id="portfolioType">
+            <option value="cdb">CDB</option>
+            <option value="lci">LCI</option>
+            <option value="lca">LCA</option>
+            <option value="treasury">Tesouro Direto</option>
+            <option value="stock">Ação</option>
+            <option value="fii">FII</option>
+            <option value="etf">ETF</option>
+            <option value="fund">Fundo</option>
+            <option value="savings">Poupança</option>
+            <option value="other">Outro</option>
+          </select>
+        </label>
+
+        <label>Status
+          <select id="portfolioStatus">
+            <option value="active">Ativo</option>
+            <option value="redeemed">Encerrado / resgatado</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="two-col">
+        <label>Valor aplicado
+          <div class="money-input"><span>R$</span><input id="portfolioInvestedAmount" required inputmode="decimal"></div>
+        </label>
+
+        <label>Valor atual
+          <div class="money-input"><span>R$</span><input id="portfolioCurrentAmount" inputmode="decimal" placeholder="Se vazio, usa o aplicado"></div>
+        </label>
+      </div>
+
+      <div class="two-col">
+        <label>Data da aplicação
+          <input id="portfolioStartDate" type="date">
+        </label>
+
+        <label>Vencimento
+          <input id="portfolioMaturityDate" type="date">
+        </label>
+      </div>
+
+      <div class="two-col">
+        <label>Referência / indexador
+          <select id="portfolioBenchmark">
+            <option value="cdi">CDI</option>
+            <option value="selic">Selic</option>
+            <option value="ipca">IPCA+</option>
+            <option value="fixed">Prefixado</option>
+            <option value="market">Mercado / cotação</option>
+            <option value="none">Não informado</option>
+          </select>
+        </label>
+
+        <label>Taxa / percentual
+          <input id="portfolioRate" placeholder="Ex.: 110% CDI, IPCA + 6,5%">
+        </label>
+      </div>
+
+      <div class="two-col">
+        <label>Liquidez
+          <select id="portfolioLiquidity">
+            <option value="daily">Diária</option>
+            <option value="maturity">No vencimento</option>
+            <option value="market">Mercado secundário / venda</option>
+            <option value="other">Outra</option>
+          </select>
+        </label>
+
+        <label>FGC informado
+          <select id="portfolioFgc">
+            <option value="yes">Sim</option>
+            <option value="no">Não</option>
+            <option value="na">Não se aplica / não informado</option>
+          </select>
+        </label>
+      </div>
+
+      <label>Observações
+        <textarea id="portfolioNotes" rows="3" placeholder="Ex.: reserva de emergência, objetivo, condições do produto..."></textarea>
+      </label>
+
+      <div class="dialog-actions">
+        <button id="deletePortfolio" type="button" class="btn danger hidden">Excluir</button>
+        <span class="spacer"></span>
+        <button id="cancelPortfolio" type="button" class="btn ghost">Cancelar</button>
+        <button type="submit" class="btn">Salvar</button>
+      </div>
+    </form>
+  </dialog>
   <dialog id="entryDialog">
     <form id="entryForm" method="dialog" class="dialog-form">
       <div class="dialog-head"><div><span class="muted" id="formEyebrow">LANÇAMENTO</span><h2 id="formTitle">Novo gasto</h2></div><button type="button" class="icon-btn" id="closeDialog">×</button></div>
@@ -976,8 +1202,8 @@
     </form>
   </dialog>
 
-<script src="drive-config.js?v=2.9.1"></script>
-<script src="app.js?v=2.9.1"></script>
-  <script type="module" src="auth.js?v=2.9.1"></script>
+<script src="drive-config.js?v=2.10.0"></script>
+<script src="app.js?v=2.10.0"></script>
+  <script type="module" src="auth.js?v=2.10.0"></script>
 </body>
 </html>
