@@ -20,7 +20,7 @@
   sizes="180x180"
   href="icons/apple-touch-icon.png"
 />
-  <link rel="stylesheet" href="styles.css?v=2.8.1" />
+  <link rel="stylesheet" href="styles.css?v=2.9.0" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -58,7 +58,7 @@
     <header class="topbar">
       <div>
         <p class="eyebrow">CONTROLE FINANCEIRO</p>
-        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.8.1</small></h1>
+        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.9.0</small></h1>
       </div>
       <div class="top-actions">
 
@@ -100,7 +100,7 @@
             <option value="TO">TO · Tocantins</option>
           </select>
         </div>
-        
+
         <button id="accountQuickBtn" class="account-quick hidden" type="button" aria-label="Abrir conta" title="Conta">
           <img id="accountQuickAvatar" class="account-avatar hidden" alt="" referrerpolicy="no-referrer">
           <span id="accountQuickName">Conta</span>
@@ -343,7 +343,159 @@
         <div id="fixedList" class="list large"></div>
       </section>
 
-      <section id="view-data" class="view">
+
+      <section id="view-market" class="view">
+        <div class="page-head market-page-head">
+          <div>
+            <span class="muted">Dados, notícias e comparação</span>
+            <h2>Mercado & investimentos</h2>
+          </div>
+          <button id="marketRefresh" type="button" class="btn ghost">Atualizar</button>
+        </div>
+
+        <p id="marketFreshness" class="helper market-freshness">Carregando dados de mercado...</p>
+
+        <div class="market-kpis">
+          <section class="panel market-kpi">
+            <span class="muted">Selic</span>
+            <strong id="marketSelic">--</strong>
+            <small id="marketSelicDate">Banco Central</small>
+          </section>
+
+          <section class="panel market-kpi">
+            <span class="muted">Dólar venda</span>
+            <strong id="marketDollar">--</strong>
+            <small id="marketDollarDate">Banco Central</small>
+          </section>
+
+          <section class="panel market-kpi">
+            <span class="muted">IPCA 12 meses</span>
+            <strong id="marketIpca">--</strong>
+            <small id="marketIpcaDate">Últimos dados disponíveis</small>
+          </section>
+
+          <section class="panel market-kpi">
+            <span class="muted">Tesouro Direto</span>
+            <strong id="marketTreasuryCount">--</strong>
+            <small id="marketTreasuryDate">Títulos disponíveis</small>
+          </section>
+        </div>
+
+        <section class="panel market-scenario">
+          <div class="section-head">
+            <div>
+              <span class="muted">Leitura do cenário</span>
+              <h3>Radar de renda fixa</h3>
+            </div>
+            <span id="marketScenarioTag" class="status-pill">Aguardando</span>
+          </div>
+          <p id="marketScenarioText" class="helper">
+            O SaldoPlan cruza indicadores públicos para contextualizar o mercado. Não é recomendação de compra ou venda.
+          </p>
+          <div id="marketScenarioFacts" class="market-facts"></div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <span class="muted">Taxas oficiais</span>
+              <h3>Tesouro Direto</h3>
+            </div>
+          </div>
+          <div id="marketTreasuryList" class="market-treasury-list">
+            <div class="empty">Carregando títulos...</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <span class="muted">Simulação bruta</span>
+              <h3>Comparar uma oferta de renda fixa</h3>
+            </div>
+          </div>
+
+          <div class="market-compare-grid">
+            <label>Valor inicial
+              <div class="money-input"><span>R$</span><input id="marketCompareAmount" inputmode="decimal" value="5000,00"></div>
+            </label>
+
+            <label>Prazo (meses)
+              <input id="marketCompareMonths" type="number" min="1" max="600" value="12">
+            </label>
+
+            <label>Taxa de referência anual
+              <div class="market-percent-input"><input id="marketReferenceRate" inputmode="decimal" placeholder="Ex.: 14,00"><span>% a.a.</span></div>
+            </label>
+
+            <label>Oferta (% da referência)
+              <div class="market-percent-input"><input id="marketOfferPct" inputmode="decimal" value="110"><span>%</span></div>
+            </label>
+          </div>
+
+          <div class="market-compare-results">
+            <div>
+              <span>Referência 100%</span>
+              <strong id="marketReferenceResult">R$ 0,00</strong>
+            </div>
+            <div>
+              <span>Oferta informada</span>
+              <strong id="marketOfferResult">R$ 0,00</strong>
+            </div>
+            <div>
+              <span>Diferença bruta</span>
+              <strong id="marketDifferenceResult">R$ 0,00</strong>
+            </div>
+          </div>
+
+          <p class="helper">
+            Estimativa bruta por capitalização composta. Impostos, taxas, carência, marcação a mercado e regras específicas do produto não estão incluídos.
+          </p>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <span class="muted">Proteção e risco</span>
+              <h3>Checklist antes de investir</h3>
+            </div>
+          </div>
+
+          <div class="market-safety-grid">
+            <div><strong>CDB / LCI / LCA</strong><span>Confira emissor, vencimento, liquidez e se o produto é coberto pelo FGC.</span></div>
+            <div><strong>Tesouro Direto</strong><span>Observe vencimento, taxa contratada e possibilidade de oscilação se vender antes do vencimento.</span></div>
+            <div><strong>Fundos e bolsa</strong><span>Não use manchetes isoladas como decisão. Compare risco, custos, prazo e objetivo.</span></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <span class="muted">Atualizações recentes</span>
+              <h3>Notícias do mercado</h3>
+            </div>
+
+            <select id="marketNewsFilter" class="market-news-filter" aria-label="Filtrar notícias">
+              <option value="all">Todas</option>
+              <option value="renda-fixa">Renda fixa</option>
+              <option value="juros">Juros / inflação</option>
+              <option value="tesouro">Tesouro</option>
+              <option value="bancos">Bancos</option>
+              <option value="bolsa">Bolsa</option>
+              <option value="regulacao">CVM / regulação</option>
+            </select>
+          </div>
+
+          <div id="marketNewsList" class="market-news-list">
+            <div class="empty">Carregando notícias...</div>
+          </div>
+        </section>
+
+        <p class="helper market-disclaimer">
+          Fontes externas possuem frequências diferentes de atualização. O SaldoPlan mostra a data de referência de cada dado e não substitui análise profissional.
+        </p>
+      </section>
+<section id="view-data" class="view">
         <div class="page-head"><span class="muted">Segurança e preferências</span><h2>Dados e backup</h2></div>
 
         <section class="panel account-panel">
@@ -634,7 +786,7 @@
 
     <div class="about-version">
       <span>SaldoPlan</span>
-      <strong>v2.8.1</strong>
+      <strong>v2.9.0</strong>
     </div>
   </section>
 </section>
@@ -644,7 +796,9 @@
       <button class="nav-item active" data-nav="dashboard"><span>◫</span>Resumo</button>
       <button class="nav-item" data-nav="transactions"><span>≡</span>Lançamentos</button>
       <button class="nav-item" data-nav="cycles"><span>◷</span>Ciclos</button>
-      <button class="nav-item" data-nav="savings"><span>◆</span>Guardado</button>
+            <button class="nav-item" data-nav="market"><span>↗</span>Mercado</button>
+
+<button class="nav-item" data-nav="savings"><span>◆</span>Guardado</button>
       <button class="nav-item" data-nav="simulator"><span>⌁</span>Simulação</button>
       <button class="nav-item" data-nav="fixed"><span>↻</span>Fixos</button>
       <button class="nav-item" data-nav="data"><span>⚙</span>Dados</button>
@@ -787,8 +941,8 @@
     </form>
   </dialog>
 
-<script src="drive-config.js?v=2.8.1"></script>
-<script src="app.js?v=2.8.1"></script>
-  <script type="module" src="auth.js?v=2.8.1"></script>
+<script src="drive-config.js?v=2.9.0"></script>
+<script src="app.js?v=2.9.0"></script>
+  <script type="module" src="auth.js?v=2.9.0"></script>
 </body>
 </html>

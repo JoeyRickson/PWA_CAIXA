@@ -561,3 +561,205 @@ dialog{border:0;padding:0;border-radius:22px;background:var(--surface);color:var
     max-width:180px;
   }
 }
+/* ===== Mercado v2.9.0 ===== */
+.market-page-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.market-freshness{
+  margin-top:-4px;
+}
+.market-kpis{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.market-kpi{
+  min-width:0;
+}
+.market-kpi strong{
+  display:block;
+  margin:7px 0 4px;
+  font-size:1.35rem;
+  letter-spacing:-.02em;
+}
+.market-kpi small{
+  display:block;
+  color:var(--muted,#64748b);
+  line-height:1.35;
+}
+.market-scenario{
+  margin-top:10px;
+}
+.market-facts{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:10px;
+}
+.market-facts span{
+  padding:7px 9px;
+  border:1px solid var(--line,#dbe3ef);
+  border-radius:999px;
+  background:var(--surface-2,#f8fafc);
+  font-size:.78rem;
+}
+.market-treasury-list{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.market-treasury-card{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px;
+  border:1px solid var(--line,#dbe3ef);
+  border-radius:12px;
+  background:var(--surface-2,#f8fafc);
+}
+.market-treasury-card>div{
+  min-width:0;
+}
+.market-treasury-card>div:last-child{
+  text-align:right;
+  white-space:nowrap;
+}
+.market-treasury-card strong,
+.market-treasury-card span{
+  display:block;
+}
+.market-treasury-card span{
+  margin-top:4px;
+  color:var(--muted,#64748b);
+  font-size:.76rem;
+}
+.market-compare-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.market-percent-input{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.market-percent-input input{
+  min-width:0;
+  flex:1;
+}
+.market-percent-input span{
+  color:var(--muted,#64748b);
+  white-space:nowrap;
+  font-size:.78rem;
+}
+.market-compare-results{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin-top:12px;
+}
+.market-compare-results>div{
+  padding:12px;
+  border:1px solid var(--line,#dbe3ef);
+  border-radius:12px;
+  background:var(--surface-2,#f8fafc);
+}
+.market-compare-results span,
+.market-compare-results strong{
+  display:block;
+}
+.market-compare-results span{
+  color:var(--muted,#64748b);
+  font-size:.75rem;
+}
+.market-compare-results strong{
+  margin-top:5px;
+}
+.market-safety-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+}
+.market-safety-grid>div{
+  padding:12px;
+  border:1px solid var(--line,#dbe3ef);
+  border-radius:12px;
+  background:var(--surface-2,#f8fafc);
+}
+.market-safety-grid strong,
+.market-safety-grid span{
+  display:block;
+}
+.market-safety-grid span{
+  margin-top:5px;
+  color:var(--muted,#64748b);
+  font-size:.78rem;
+  line-height:1.4;
+}
+.market-news-filter{
+  width:auto;
+  min-width:150px;
+}
+.market-news-list{
+  display:grid;
+  gap:8px;
+}
+.market-news-item{
+  display:block;
+  padding:12px;
+  border:1px solid var(--line,#dbe3ef);
+  border-radius:12px;
+  color:inherit;
+  text-decoration:none;
+  background:var(--surface-2,#f8fafc);
+}
+.market-news-item:hover{
+  border-color:var(--accent,#4f7cff);
+}
+.market-news-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-bottom:6px;
+  color:var(--muted,#64748b);
+  font-size:.72rem;
+}
+.market-news-meta b{
+  color:var(--ink,#111827);
+}
+.market-news-item>strong{
+  line-height:1.35;
+}
+.market-disclaimer{
+  margin-bottom:16px;
+}
+@media(max-width:900px){
+  .market-kpis,
+  .market-compare-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media(max-width:650px){
+  .market-treasury-list,
+  .market-safety-grid,
+  .market-compare-results{
+    grid-template-columns:1fr;
+  }
+  .market-page-head,
+  #view-market .section-head{
+    align-items:flex-start;
+  }
+}
+@media(max-width:480px){
+  .market-kpis,
+  .market-compare-grid{
+    grid-template-columns:1fr;
+  }
+  .market-news-filter{
+    width:100%;
+  }
+}

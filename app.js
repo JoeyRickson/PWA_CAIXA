@@ -484,6 +484,306 @@ function savingsMetrics(k=key()){
     monthNet:monthDeposits-monthWithdrawals
   };
 }
+
+const MARKET_CACHE_KEY='saldoplan.market.cache.v1';
+const MARKET_CACHE_TTL=5*60*1000;
+let marketData=null;
+let marketNews=[];
+let marketLoading=false;
+
+function marketNumber(value,digits=2){
+  const n=Number(value);
+  if(!Number.isFinite(n))return '--';
+  return n.toLocaleString('pt-BR',{minimumFractionDigits:digits,maximumFractionDigits:digits});
+}
+
+function marketMoney(value){
+  const n=Number(value);
+  return Number.isFinite(n)?fmt.format(n):'--';
+}
+
+function marketReadCache(){
+  try{
+    const raw=localStorage.getItem(MARKET_CACHE_KEY);
+    if(!raw)return null;
+    const data=JSON.parse(raw);
+    if(!data||typeof data!=='object')return null;
+    return data;
+  }catch{
+    return null;
+  }
+}
+
+function marketWriteCache(data){
+  try{
+    localStorage.setItem(MARKET_CACHE_KEY,JSON.stringify({
+      savedAt:Date.now(),
+      market:data.market,
+      news:data.news
+    }));
+  }catch{}
+}
+
+function marketFormatReference(value){
+  if(!value)return 'sem referência';
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime()))return String(value);
+  return d.toLocaleString('pt-BR');
+}
+
+function marketScenario(data){
+  const selic=Number(data?.indicators?.selic?.value);
+  const ipca=Number(data?.indicators?.ipca12m?.value);
+
+  let tag='Cenário misto';
+  let text='Compare rentabilidade, liquidez, prazo e risco antes de escolher um produto.';
+
+  if(Number.isFinite(selic)){
+    if(selic>=10){
+      tag='Juros elevados';
+      text='Com juros em nível elevado, produtos pós-fixados e títulos ligados a taxas de curto prazo ficam especialmente relevantes para comparação.';
+    }else if(selic>=7){
+      tag='Juros intermediários';
+      text='O nível de juros ainda torna a renda fixa importante na comparação, mas prazo, inflação e liquidez ganham peso.';
+    }else{
+      tag='Juros mais baixos';
+      text='Com juros mais baixos, compare com atenção o retorno real acima da inflação, o prazo e o risco assumido.';
+    }
+  }
+
+  const facts=[];
+
+  if(Number.isFinite(selic)){
+    facts.push(`Selic de ${marketNumber(selic)}% a.a.`);
+  }
+
+  if(Number.isFinite(ipca)){
+    facts.push(`IPCA acumulado aproximado em 12 meses: ${marketNumber(ipca)}%`);
+  }
+
+  if(Number.isFinite(selic)&&Number.isFinite(ipca)){
+    const real=((1+selic/100)/(1+ipca/100)-1)*100;
+    facts.push(`Juro real simples de referência: ${marketNumber(real)}% a.a.`);
+  }
+
+  return {tag,text,facts};
+}
+
+function renderMarketData(data,fromCache=false){
+  if(!data)return;
+
+  marketData=data;
+
+  const selic=data.indicators?.selic;
+  const dollar=data.indicators?.dollar;
+  const ipca=data.indicators?.ipca12m;
+  const treasury=Array.isArray(data.treasury)?data.treasury:[];
+
+  const selicEl=document.querySelector('#marketSelic');
+  const dollarEl=document.querySelector('#marketDollar');
+  const ipcaEl=document.querySelector('#marketIpca');
+  const countEl=document.querySelector('#marketTreasuryCount');
+
+  if(selicEl)selicEl.textContent=Number.isFinite(Number(selic?.value))?`${marketNumber(selic.value)}% a.a.`:'--';
+  if(dollarEl)dollarEl.textContent=Number.isFinite(Number(dollar?.value))?marketMoney(dollar.value):'--';
+  if(ipcaEl)ipcaEl.textContent=Number.isFinite(Number(ipca?.value))?`${marketNumber(ipca.value)}%`:'--';
+  if(countEl)countEl.textContent=treasury.length?String(treasury.length):'--';
+
+  document.querySelector('#marketSelicDate').textContent=selic?.date?`Ref. ${selic.date}`:'Banco Central';
+  document.querySelector('#marketDollarDate').textContent=dollar?.date?`Ref. ${dollar.date}`:'Banco Central';
+  document.querySelector('#marketIpcaDate').textContent=ipca?.reference?`Até ${ipca.reference}`:'Últimos dados';
+  document.querySelector('#marketTreasuryDate').textContent=data.treasuryDate?`Ref. ${data.treasuryDate}`:'Última base disponível';
+
+  const generated=data.generatedAt?new Date(data.generatedAt):null;
+  const freshness=document.querySelector('#marketFreshness');
+
+  if(freshness){
+    freshness.textContent=generated&&!Number.isNaN(generated.getTime())
+      ?`${fromCache?'Último dado salvo':'Atualizado'} em ${generated.toLocaleString('pt-BR')}`
+      :(fromCache?'Exibindo último dado salvo':'Dados atualizados');
+  }
+
+  const scenario=marketScenario(data);
+  document.querySelector('#marketScenarioTag').textContent=scenario.tag;
+  document.querySelector('#marketScenarioText').textContent=scenario.text;
+  document.querySelector('#marketScenarioFacts').innerHTML=scenario.facts.length
+    ?scenario.facts.map(x=>`<span>${escapeHtml(x)}</span>`).join('')
+    :'<span>Aguardando indicadores.</span>';
+
+  const list=document.querySelector('#marketTreasuryList');
+
+  if(list){
+    list.innerHTML=treasury.length
+      ?treasury.map(t=>`
+        <article class="market-treasury-card">
+          <div>
+            <strong>${escapeHtml(t.name||'Título público')}</strong>
+            <span>Vencimento: ${escapeHtml(t.maturity||'--')}</span>
+          </div>
+          <div>
+            <strong>${Number.isFinite(Number(t.buyRate))?`${marketNumber(t.buyRate)}%`:'--'}</strong>
+            <span>${Number.isFinite(Number(t.buyPrice))?marketMoney(t.buyPrice):'Taxa de compra'}</span>
+          </div>
+        </article>
+      `).join('')
+      :'<div class="empty">A fonte do Tesouro não respondeu agora. Os demais indicadores continuam disponíveis.</div>';
+  }
+
+  const refInput=document.querySelector('#marketReferenceRate');
+
+  if(refInput && !refInput.dataset.userEdited && Number.isFinite(Number(selic?.value))){
+    refInput.value=Number(selic.value).toFixed(2).replace('.',',');
+  }
+
+  updateMarketComparison();
+}
+
+function marketCategoryLabel(category){
+  const labels={
+    'renda-fixa':'Renda fixa',
+    'juros':'Juros / inflação',
+    'tesouro':'Tesouro',
+    'bancos':'Bancos',
+    'bolsa':'Bolsa',
+    'regulacao':'CVM / regulação',
+    'mercado':'Mercado'
+  };
+
+  return labels[category]||'Mercado';
+}
+
+function renderMarketNews(){
+  const root=document.querySelector('#marketNewsList');
+  if(!root)return;
+
+  const filter=document.querySelector('#marketNewsFilter')?.value||'all';
+
+  const rows=marketNews.filter(n=>filter==='all'||n.category===filter);
+
+  root.innerHTML=rows.length
+    ?rows.slice(0,20).map(n=>`
+      <a class="market-news-item" href="${escapeHtml(n.url||'#')}" target="_blank" rel="noopener noreferrer">
+        <span class="market-news-meta">
+          <b>${escapeHtml(n.source||'Fonte')}</b>
+          <span>${escapeHtml(marketCategoryLabel(n.category))}</span>
+          <time>${escapeHtml(n.publishedLabel||'')}</time>
+        </span>
+        <strong>${escapeHtml(n.title||'Notícia')}</strong>
+      </a>
+    `).join('')
+    :'<div class="empty">Nenhuma notícia nessa categoria agora.</div>';
+}
+
+function updateMarketComparison(){
+  const amount=money(document.querySelector('#marketCompareAmount')?.value||0);
+  const months=Math.max(1,Math.min(600,Number(document.querySelector('#marketCompareMonths')?.value||12)));
+  const reference=decimal(document.querySelector('#marketReferenceRate')?.value||0);
+  const pct=decimal(document.querySelector('#marketOfferPct')?.value||0);
+
+  if(!(amount>0)||!(reference>=0)||!(pct>=0)){
+    return;
+  }
+
+  const years=months/12;
+  const offerAnnual=reference*(pct/100);
+
+  const referenceFinal=amount*Math.pow(1+reference/100,years);
+  const offerFinal=amount*Math.pow(1+offerAnnual/100,years);
+  const difference=offerFinal-referenceFinal;
+
+  document.querySelector('#marketReferenceResult').textContent=marketMoney(referenceFinal);
+  document.querySelector('#marketOfferResult').textContent=marketMoney(offerFinal);
+  document.querySelector('#marketDifferenceResult').textContent=`${difference>=0?'+ ':''}${marketMoney(difference)}`;
+}
+
+async function loadMarket(force=false){
+  if(marketLoading)return;
+  marketLoading=true;
+
+  const refresh=document.querySelector('#marketRefresh');
+  if(refresh){
+    refresh.disabled=true;
+    refresh.textContent='Atualizando...';
+  }
+
+  const cache=marketReadCache();
+
+  if(cache?.market){
+    renderMarketData(cache.market,true);
+    marketNews=Array.isArray(cache.news)?cache.news:[];
+    renderMarketNews();
+
+    if(!force && Date.now()-Number(cache.savedAt||0)<MARKET_CACHE_TTL){
+      marketLoading=false;
+      if(refresh){
+        refresh.disabled=false;
+        refresh.textContent='Atualizar';
+      }
+      return;
+    }
+  }
+
+  try{
+    const [marketResponse,newsResponse]=await Promise.all([
+      fetch('/api/market',{cache:'no-store'}),
+      fetch('/api/news',{cache:'no-store'})
+    ]);
+
+    if(!marketResponse.ok)throw new Error(`Mercado HTTP ${marketResponse.status}`);
+
+    const newMarket=await marketResponse.json();
+    const newNews=newsResponse.ok?await newsResponse.json():{items:[]};
+
+    renderMarketData(newMarket,false);
+    marketNews=Array.isArray(newNews.items)?newNews.items:[];
+    renderMarketNews();
+
+    marketWriteCache({
+      market:newMarket,
+      news:marketNews
+    });
+
+  }catch(err){
+    console.warn('Mercado indisponível:',err);
+
+    const freshness=document.querySelector('#marketFreshness');
+
+    if(freshness){
+      freshness.textContent=cache?.market
+        ?'Sem conexão com as fontes agora. Exibindo o último dado salvo.'
+        :'Não foi possível consultar as fontes agora.';
+    }
+  }finally{
+    marketLoading=false;
+
+    if(refresh){
+      refresh.disabled=false;
+      refresh.textContent='Atualizar';
+    }
+  }
+}
+
+function renderMarket(){
+  loadMarket(false);
+}
+
+document.querySelector('#marketRefresh')?.addEventListener('click',()=>loadMarket(true));
+document.querySelector('#marketNewsFilter')?.addEventListener('change',renderMarketNews);
+
+['marketCompareAmount','marketCompareMonths','marketReferenceRate','marketOfferPct'].forEach(id=>{
+  document.querySelector(`#${id}`)?.addEventListener('input',()=>{
+    if(id==='marketReferenceRate'){
+      document.querySelector(`#${id}`).dataset.userEdited='1';
+    }
+    updateMarketComparison();
+  });
+});
+
+setInterval(()=>{
+  if(document.querySelector('#view-market')?.classList.contains('active')){
+    loadMarket(true);
+  }
+},5*60*1000);
 function renderDashboard(){
   const m=metrics(),s=savingsMetrics();
   document.querySelector('#monthLabel').textContent=`${MONTHS[cursor.getMonth()]} ${cursor.getFullYear()}`;
@@ -801,7 +1101,7 @@ function applyTheme(){
   const theme=state.settings?.theme==='dark'?'dark':'light';document.body.dataset.theme=theme;document.documentElement.style.colorScheme=theme;document.querySelector('meta[name="theme-color"]').setAttribute('content',theme==='dark'?'#070a0f':'#111827');document.querySelector('#themeQuickBtn').textContent=theme==='dark'?'☀':'☾';
 }
 function toggleTheme(){state.settings.theme=state.settings.theme==='dark'?'light':'dark';save();applyTheme();renderData()}
-function go(view){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.querySelector(`#view-${view}`).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.nav===view));if(view==='transactions')renderTransactions();if(view==='cycles')renderCycles();if(view==='savings')renderSavings();if(view==='simulator')renderSimulator();if(view==='fixed')renderFixed();if(view==='data')renderData();window.scrollTo({top:0,behavior:'smooth'})}
+function go(view){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.querySelector(`#view-${view}`).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.nav===view));if(view==='transactions')renderTransactions();if(view==='cycles')renderCycles();if(view==='savings')renderSavings();if(view==='simulator')renderSimulator();if(view==='fixed')renderFixed();if(view==='market')renderMarket();if(view==='data')renderData();window.scrollTo({top:0,behavior:'smooth'})}
 
 // Navegação e atalhos
 addEventListener('click',e=>{
