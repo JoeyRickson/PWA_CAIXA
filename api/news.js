@@ -11,7 +11,7 @@ async function fetchText(url,ms=10000){
     const response=await fetch(url,{
       signal:t.signal,
       headers:{
-        'User-Agent':'SaldoPlan/2.9 (+https://saldoplan.vercel.app)',
+        'User-Agent':'SaldoPlan/2.9.1 (+https://saldoplan.vercel.app)',
         'Accept':'application/rss+xml,application/atom+xml,application/xml,text/xml,text/plain,*/*'
       }
     });
@@ -65,6 +65,20 @@ function category(title,source){
   return 'mercado';
 }
 
+function impactFor(category){
+  const impacts={
+    'renda-fixa':'Pode afetar renda fixa',
+    'juros':'Pode afetar juros e CDI',
+    'tesouro':'Pode afetar Tesouro',
+    'bancos':'Pode afetar produtos bancários',
+    'bolsa':'Pode afetar bolsa',
+    'regulacao':'Atenção regulatória',
+    'mercado':'Acompanhar contexto'
+  };
+
+  return impacts[category]||impacts.mercado;
+}
+
 function normalizeDate(value){
   const d=new Date(value);
   return Number.isNaN(d.getTime())?null:d;
@@ -81,12 +95,14 @@ function parseFeed(xml,source){
     const url=linkFrom(block);
     const dateText=tag(block,'pubDate')||tag(block,'published')||tag(block,'updated');
     const published=normalizeDate(dateText);
+    const itemCategory=category(title,source);
 
     return {
       title,
       url,
       source,
-      category:category(title,source),
+      category:itemCategory,
+      impact:impactFor(itemCategory),
       publishedAt:published?published.toISOString():null,
       publishedLabel:published
         ?published.toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})
@@ -140,9 +156,12 @@ module.exports=async function handler(req,res){
     return String(b.publishedAt||'').localeCompare(String(a.publishedAt||''));
   })){
     const key=item.title.toLowerCase().replace(/\s+/g,' ').trim();
+
     if(seen.has(key))continue;
+
     seen.add(key);
     unique.push(item);
+
     if(unique.length>=30)break;
   }
 

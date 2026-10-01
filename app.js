@@ -531,6 +531,160 @@ function marketFormatReference(value){
   return d.toLocaleString('pt-BR');
 }
 
+
+let marketChartMetric='selic';
+
+function marketHistoryConfig(metric){
+  const configs={
+    selic:{
+      key:'selic',
+      label:'Selic',
+      suffix:'% a.a.',
+      changeSuffix:' p.p.',
+      source:'Banco Central do Brasil · SGS 1178',
+      format:value=>`${marketNumber(value)}% a.a.`
+    },
+    dollar:{
+      key:'dollar',
+      label:'Dólar venda',
+      suffix:'',
+      changeSuffix:'',
+      source:'Banco Central do Brasil · SGS 1',
+      format:value=>marketMoney(value)
+    },
+    ipca:{
+      key:'ipca',
+      label:'IPCA mensal',
+      suffix:'%',
+      changeSuffix:' p.p.',
+      source:'Banco Central do Brasil / IBGE · SGS 433',
+      format:value=>`${marketNumber(value)}%`
+    }
+  };
+
+  return configs[metric]||configs.selic;
+}
+
+function marketHistoryRows(data,metric){
+  const config=marketHistoryConfig(metric);
+  const rows=Array.isArray(data?.history?.[config.key])
+    ?data.history[config.key]
+    :[];
+
+  return rows
+    .map(row=>({
+      date:String(row.date||''),
+      value:Number(row.value)
+    }))
+    .filter(row=>row.date&&Number.isFinite(row.value));
+}
+
+function marketChartValueChange(metric,first,last){
+  const diff=last-first;
+
+  if(metric==='dollar'){
+    const sign=diff>0?'+ ':diff<0?'- ':'';
+    return `${sign}${marketMoney(Math.abs(diff))}`;
+  }
+
+  const sign=diff>0?'+':diff<0?'':'';
+  return `${sign}${marketNumber(diff)} p.p.`;
+}
+
+function marketSvgPoint(value,min,max,index,count,width,height,padX,padY){
+  const x=count<=1
+    ?width/2
+    :padX+(index/(count-1))*(width-padX*2);
+
+  const range=max-min;
+  const normalized=range===0?0.5:(value-min)/range;
+  const y=height-padY-normalized*(height-padY*2);
+
+  return {x,y};
+}
+
+function renderMarketHistory(data){
+  const root=document.querySelector('#marketHistoryChart');
+  if(!root)return;
+
+  const config=marketHistoryConfig(marketChartMetric);
+  const rows=marketHistoryRows(data,marketChartMetric);
+
+  document.querySelectorAll('[data-market-chart]').forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.marketChart===marketChartMetric);
+  });
+
+  const source=document.querySelector('#marketChartSource');
+  if(source)source.textContent=`Fonte: ${config.source}.`;
+
+  if(rows.length<2){
+    root.innerHTML='<div class="empty">Histórico insuficiente para montar o gráfico agora.</div>';
+    document.querySelector('#marketChartCurrent').textContent='--';
+    document.querySelector('#marketChartChange').textContent='--';
+    return;
+  }
+
+  const values=rows.map(row=>row.value);
+  const min=Math.min(...values);
+  const max=Math.max(...values);
+  const first=rows[0];
+  const last=rows[rows.length-1];
+
+  document.querySelector('#marketChartCurrent').textContent=config.format(last.value);
+  document.querySelector('#marketChartChange').textContent=marketChartValueChange(
+    marketChartMetric,
+    first.value,
+    last.value
+  );
+
+  document.querySelector('#marketChartPeriod').textContent=
+    `${first.date} → ${last.date} · ${rows.length} observações`;
+
+  const width=760;
+  const height=230;
+  const padX=52;
+  const padY=30;
+
+  const points=rows.map((row,index)=>({
+    ...marketSvgPoint(row.value,min,max,index,rows.length,width,height,padX,padY),
+    ...row
+  }));
+
+  const path=points
+    .map((point,index)=>`${index===0?'M':'L'} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`)
+    .join(' ');
+
+  const area=`${path} L ${points[points.length-1].x.toFixed(2)} ${(height-padY).toFixed(2)} L ${points[0].x.toFixed(2)} ${(height-padY).toFixed(2)} Z`;
+
+  const mid=(min+max)/2;
+
+  root.innerHTML=`
+    <svg class="market-chart-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(config.label)} de ${escapeHtml(first.date)} até ${escapeHtml(last.date)}">
+      <line class="market-chart-grid" x1="${padX}" y1="${padY}" x2="${width-padX}" y2="${padY}"></line>
+      <line class="market-chart-grid" x1="${padX}" y1="${height/2}" x2="${width-padX}" y2="${height/2}"></line>
+      <line class="market-chart-grid" x1="${padX}" y1="${height-padY}" x2="${width-padX}" y2="${height-padY}"></line>
+
+      <text class="market-chart-label" x="6" y="${padY+4}">${escapeHtml(config.format(max))}</text>
+      <text class="market-chart-label" x="6" y="${height/2+4}">${escapeHtml(config.format(mid))}</text>
+      <text class="market-chart-label" x="6" y="${height-padY+4}">${escapeHtml(config.format(min))}</text>
+
+      <path class="market-chart-area" d="${area}"></path>
+      <path class="market-chart-line" d="${path}"></path>
+
+      <circle class="market-chart-dot" cx="${points[points.length-1].x}" cy="${points[points.length-1].y}" r="4"></circle>
+
+      <text class="market-chart-date" x="${padX}" y="${height-7}">${escapeHtml(first.date)}</text>
+      <text class="market-chart-date market-chart-date-end" x="${width-padX}" y="${height-7}">${escapeHtml(last.date)}</text>
+    </svg>
+  `;
+}
+
+document.querySelectorAll('[data-market-chart]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    marketChartMetric=btn.dataset.marketChart||'selic';
+    if(marketData)renderMarketHistory(marketData);
+  });
+});
 function marketScenario(data){
   const selic=Number(data?.indicators?.selic?.value);
   const ipca=Number(data?.indicators?.ipca12m?.value);
@@ -603,6 +757,8 @@ function renderMarketData(data,fromCache=false){
       :(fromCache?'Exibindo último dado salvo':'Dados atualizados');
   }
 
+  renderMarketHistory(data);
+
   const scenario=marketScenario(data);
   document.querySelector('#marketScenarioTag').textContent=scenario.tag;
   document.querySelector('#marketScenarioText').textContent=scenario.text;
@@ -666,6 +822,7 @@ function renderMarketNews(){
         <span class="market-news-meta">
           <b>${escapeHtml(n.source||'Fonte')}</b>
           <span>${escapeHtml(marketCategoryLabel(n.category))}</span>
+          <span class="market-news-impact">${escapeHtml(n.impact||'Acompanhar contexto')}</span>
           <time>${escapeHtml(n.publishedLabel||'')}</time>
         </span>
         <strong>${escapeHtml(n.title||'Notícia')}</strong>

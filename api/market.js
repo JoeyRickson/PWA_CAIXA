@@ -9,11 +9,12 @@ function timeoutSignal(ms){
 
 async function fetchText(url,ms=12000){
   const t=timeoutSignal(ms);
+
   try{
     const response=await fetch(url,{
       signal:t.signal,
       headers:{
-        'User-Agent':'SaldoPlan/2.9 (+https://saldoplan.vercel.app)',
+        'User-Agent':'SaldoPlan/2.9.1 (+https://saldoplan.vercel.app)',
         'Accept':'application/json,text/plain,text/csv,application/xml,text/xml,*/*'
       }
     });
@@ -41,6 +42,15 @@ async function bcbSeries(code,count=1){
 function numeric(value){
   const n=Number(String(value??'').trim().replace(',','.'));
   return Number.isFinite(n)?n:null;
+}
+
+function historyRows(rows){
+  return rows
+    .map(row=>({
+      date:String(row.data||''),
+      value:numeric(row.valor)
+    }))
+    .filter(row=>row.date&&Number.isFinite(row.value));
 }
 
 function compoundPercent(values){
@@ -165,8 +175,8 @@ module.exports=async function handler(req,res){
   res.setHeader('Cache-Control','s-maxage=300, stale-while-revalidate=900');
 
   const [selicResult,dollarResult,ipcaResult,treasuryResult]=await Promise.allSettled([
-    bcbSeries(1178,1),
-    bcbSeries(1,1),
+    bcbSeries(1178,31),
+    bcbSeries(1,31),
     bcbSeries(433,13),
     treasuryData()
   ]);
@@ -206,6 +216,11 @@ module.exports=async function handler(req,res){
         reference:lastIpcaRow?.data||null,
         source:'Banco Central do Brasil / IBGE - SGS 433'
       }
+    },
+    history:{
+      selic:historyRows(selicRows),
+      dollar:historyRows(dollarRows),
+      ipca:historyRows(ipcaRows)
     },
     treasuryDate:treasury.date,
     treasury:treasury.items,

@@ -20,7 +20,7 @@
   sizes="180x180"
   href="icons/apple-touch-icon.png"
 />
-  <link rel="stylesheet" href="styles.css?v=2.9.0" />
+  <link rel="stylesheet" href="styles.css?v=2.9.1" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -58,7 +58,7 @@
     <header class="topbar">
       <div>
         <p class="eyebrow">CONTROLE FINANCEIRO</p>
-        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.9.0</small></h1>
+        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.9.1</small></h1>
       </div>
       <div class="top-actions">
 
@@ -381,6 +381,41 @@
           </section>
         </div>
 
+
+        <section class="panel market-history-panel">
+          <div class="section-head">
+            <div>
+              <span class="muted">Evolução recente</span>
+              <h3>Histórico dos indicadores</h3>
+            </div>
+
+            <span class="status-pill">Atualização automática · 5 min</span>
+          </div>
+
+          <div class="market-chart-tabs" role="tablist" aria-label="Indicador do gráfico">
+            <button type="button" class="market-chart-tab active" data-market-chart="selic">Selic</button>
+            <button type="button" class="market-chart-tab" data-market-chart="dollar">Dólar</button>
+            <button type="button" class="market-chart-tab" data-market-chart="ipca">IPCA</button>
+          </div>
+
+          <div class="market-chart-summary">
+            <div>
+              <span id="marketChartPeriod" class="muted">Últimos dados disponíveis</span>
+              <strong id="marketChartCurrent">--</strong>
+            </div>
+
+            <div class="market-chart-change">
+              <span class="muted">Variação no período</span>
+              <strong id="marketChartChange">--</strong>
+            </div>
+          </div>
+
+          <div id="marketHistoryChart" class="market-history-chart" aria-live="polite">
+            <div class="empty">Carregando histórico...</div>
+          </div>
+
+          <p id="marketChartSource" class="helper">Fonte: Banco Central do Brasil.</p>
+        </section>
         <section class="panel market-scenario">
           <div class="section-head">
             <div>
@@ -786,7 +821,7 @@
 
     <div class="about-version">
       <span>SaldoPlan</span>
-      <strong>v2.9.0</strong>
+      <strong>v2.9.1</strong>
     </div>
   </section>
 </section>
@@ -941,8 +976,8 @@
     </form>
   </dialog>
 
-<script src="drive-config.js?v=2.9.0"></script>
-<script src="app.js?v=2.9.0"></script>
-  <script type="module" src="auth.js?v=2.9.0"></script>
+<script src="drive-config.js?v=2.9.1"></script>
+<script src="app.js?v=2.9.1"></script>
+  <script type="module" src="auth.js?v=2.9.1"></script>
 </body>
 </html>
