@@ -731,7 +731,6 @@ function renderMarketData(data,fromCache=false){
   const selic=data.indicators?.selic;
   const dollar=data.indicators?.dollar;
   const ipca=data.indicators?.ipca12m;
-  const treasury=Array.isArray(data.treasury)?data.treasury:[];
 
   const selicEl=document.querySelector('#marketSelic');
   const dollarEl=document.querySelector('#marketDollar');
@@ -741,12 +740,10 @@ function renderMarketData(data,fromCache=false){
   if(selicEl)selicEl.textContent=Number.isFinite(Number(selic?.value))?`${marketNumber(selic.value)}% a.a.`:'--';
   if(dollarEl)dollarEl.textContent=Number.isFinite(Number(dollar?.value))?marketMoney(dollar.value):'--';
   if(ipcaEl)ipcaEl.textContent=Number.isFinite(Number(ipca?.value))?`${marketNumber(ipca.value)}%`:'--';
-  if(countEl)countEl.textContent=treasury.length?String(treasury.length):'--';
 
   document.querySelector('#marketSelicDate').textContent=selic?.date?`Ref. ${selic.date}`:'Banco Central';
   document.querySelector('#marketDollarDate').textContent=dollar?.date?`Ref. ${dollar.date}`:'Banco Central';
   document.querySelector('#marketIpcaDate').textContent=ipca?.reference?`Até ${ipca.reference}`:'Últimos dados';
-  document.querySelector('#marketTreasuryDate').textContent=data.treasuryDate?`Ref. ${data.treasuryDate}`:'Última base disponível';
 
   const generated=data.generatedAt?new Date(data.generatedAt):null;
   const freshness=document.querySelector('#marketFreshness');
@@ -765,25 +762,6 @@ function renderMarketData(data,fromCache=false){
   document.querySelector('#marketScenarioFacts').innerHTML=scenario.facts.length
     ?scenario.facts.map(x=>`<span>${escapeHtml(x)}</span>`).join('')
     :'<span>Aguardando indicadores.</span>';
-
-  const list=document.querySelector('#marketTreasuryList');
-
-  if(list){
-    list.innerHTML=treasury.length
-      ?treasury.map(t=>`
-        <article class="market-treasury-card">
-          <div>
-            <strong>${escapeHtml(t.name||'Título público')}</strong>
-            <span>Vencimento: ${escapeHtml(t.maturity||'--')}</span>
-          </div>
-          <div>
-            <strong>${Number.isFinite(Number(t.buyRate))?`${marketNumber(t.buyRate)}%`:'--'}</strong>
-            <span>${Number.isFinite(Number(t.buyPrice))?marketMoney(t.buyPrice):'Taxa de compra'}</span>
-          </div>
-        </article>
-      `).join('')
-      :'<div class="empty">A fonte do Tesouro não respondeu agora. Os demais indicadores continuam disponíveis.</div>';
-  }
 
   const refInput=document.querySelector('#marketReferenceRate');
 
@@ -853,6 +831,122 @@ function updateMarketComparison(){
   document.querySelector('#marketDifferenceResult').textContent=`${difference>=0?'+ ':''}${marketMoney(difference)}`;
 }
 
+
+const TREASURY_CACHE_KEY='saldoplan.treasury.cache.v1';
+const TREASURY_CACHE_TTL=6*60*60*1000;
+let treasuryLoading=false;
+
+function treasuryReadCache(){
+  try{
+    const raw=localStorage.getItem(TREASURY_CACHE_KEY);
+    if(!raw)return null;
+
+    const data=JSON.parse(raw);
+    return data&&typeof data==='object'?data:null;
+  }catch{
+    return null;
+  }
+}
+
+function treasuryWriteCache(data){
+  try{
+    localStorage.setItem(
+      TREASURY_CACHE_KEY,
+      JSON.stringify({
+        savedAt:Date.now(),
+        data
+      })
+    );
+  }catch{}
+}
+
+function renderTreasury(data,fromCache=false){
+  const treasury=Array.isArray(data?.items)?data.items:[];
+
+  const countEl=document.querySelector('#marketTreasuryCount');
+  const dateEl=document.querySelector('#marketTreasuryDate');
+  const list=document.querySelector('#marketTreasuryList');
+
+  if(countEl){
+    countEl.textContent=treasury.length
+      ?String(treasury.length)
+      :'--';
+  }
+
+  if(dateEl){
+    dateEl.textContent=data?.referenceDate
+      ?`Ref. ${data.referenceDate}${fromCache?' · cache':''}`
+      :'Última base oficial disponível';
+  }
+
+  if(!list)return;
+
+  list.innerHTML=treasury.length
+    ?treasury.map(t=>`
+      <article class="market-treasury-card">
+        <div>
+          <strong>${escapeHtml(t.name||'Título público')}</strong>
+          <span>Vencimento: ${escapeHtml(t.maturity||'--')}</span>
+        </div>
+        <div>
+          <strong>${Number.isFinite(Number(t.buyRate))?`${marketNumber(t.buyRate)}%`:'--'}</strong>
+          <span>${Number.isFinite(Number(t.buyPrice))?marketMoney(t.buyPrice):'Taxa de compra'}</span>
+        </div>
+      </article>
+    `).join('')
+    :'<div class="empty">A base oficial do Tesouro não respondeu agora. Tente novamente mais tarde.</div>';
+}
+
+async function loadTreasury(force=false){
+  if(treasuryLoading)return;
+
+  const cache=treasuryReadCache();
+
+  if(cache?.data){
+    renderTreasury(cache.data,true);
+
+    if(
+      !force &&
+      Date.now()-Number(cache.savedAt||0)<TREASURY_CACHE_TTL
+    ){
+      return;
+    }
+  }else{
+    const list=document.querySelector('#marketTreasuryList');
+
+    if(list){
+      list.innerHTML='<div class="empty">Consultando a base oficial do Tesouro...</div>';
+    }
+  }
+
+  treasuryLoading=true;
+
+  try{
+    const response=await fetch('/api/treasury',{
+      cache:'no-store'
+    });
+
+    if(!response.ok){
+      throw new Error(`Tesouro HTTP ${response.status}`);
+    }
+
+    const data=await response.json();
+
+    renderTreasury(data,false);
+    treasuryWriteCache(data);
+  }catch(error){
+    console.warn('Tesouro indisponível:',error);
+
+    if(!cache?.data){
+      renderTreasury({
+        items:[],
+        referenceDate:null
+      },false);
+    }
+  }finally{
+    treasuryLoading=false;
+  }
+}
 async function loadMarket(force=false){
   if(marketLoading)return;
   marketLoading=true;
@@ -922,9 +1016,13 @@ async function loadMarket(force=false){
 
 function renderMarket(){
   loadMarket(false);
+  loadTreasury(false);
 }
 
-document.querySelector('#marketRefresh')?.addEventListener('click',()=>loadMarket(true));
+document.querySelector('#marketRefresh')?.addEventListener('click',()=>{
+  loadMarket(true);
+  loadTreasury(true);
+});
 document.querySelector('#marketNewsFilter')?.addEventListener('change',renderMarketNews);
 
 ['marketCompareAmount','marketCompareMonths','marketReferenceRate','marketOfferPct'].forEach(id=>{
@@ -939,6 +1037,7 @@ document.querySelector('#marketNewsFilter')?.addEventListener('change',renderMar
 setInterval(()=>{
   if(document.querySelector('#view-market')?.classList.contains('active')){
     loadMarket(true);
+    loadTreasury(false);
   }
 },5*60*1000);
 
