@@ -20,7 +20,7 @@
   sizes="180x180"
   href="icons/apple-touch-icon.png"
 />
-  <link rel="stylesheet" href="styles.css?v=2.10.2" />
+  <link rel="stylesheet" href="styles.css?v=2.11.2" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -55,10 +55,42 @@
   </div>
 
   <div class="app-shell">
+    <aside class="desktop-sidebar" aria-label="Navegação desktop">
+      <div class="desktop-brand">
+        <div class="desktop-brand-mark">S</div>
+        <div>
+          <span>CONTROLE FINANCEIRO</span>
+          <strong>SaldoPlan</strong>
+          <small>Desktop v2.11</small>
+        </div>
+      </div>
+
+      <nav class="desktop-nav" aria-label="Navegação principal desktop">
+        <button class="nav-item desktop-nav-item active" data-nav="dashboard" type="button"><span class="desktop-nav-icon">◫</span><span>Resumo</span></button>
+        <button class="nav-item desktop-nav-item" data-nav="transactions" type="button"><span class="desktop-nav-icon">≡</span><span>Lançamentos</span></button>
+        <button class="nav-item desktop-nav-item" data-nav="cycles" type="button"><span class="desktop-nav-icon">◷</span><span>Ciclos</span></button>
+        <button class="nav-item desktop-nav-item" data-nav="market" type="button"><span class="desktop-nav-icon">↗</span><span>Mercado</span></button>
+        <button class="nav-item desktop-nav-item" data-nav="portfolio" type="button"><span class="desktop-nav-icon">▥</span><span>Carteira</span></button>
+        <button class="nav-item desktop-nav-item" data-nav="savings" type="button"><span class="desktop-nav-icon">◆</span><span>Guardado</span></button>
+        <button class="nav-item desktop-nav-item" data-nav="simulator" type="button"><span class="desktop-nav-icon">⌁</span><span>Simulação</span></button>
+        <button class="nav-item desktop-nav-item" data-nav="fixed" type="button"><span class="desktop-nav-icon">↻</span><span>Fixos</span></button>
+      </nav>
+
+      <div class="desktop-sidebar-bottom">
+        <div class="desktop-sidebar-caption">
+          <span>Workspace</span>
+          <strong>Finanças pessoais</strong>
+          <small>Dados locais + backup da sua conta</small>
+        </div>
+        <button class="nav-item desktop-nav-item" data-nav="data" type="button"><span class="desktop-nav-icon">⚙</span><span>Dados e backup</span></button>
+        <button class="nav-item desktop-nav-item" data-nav="about" type="button"><span class="desktop-nav-icon">ⓘ</span><span>Sobre</span></button>
+      </div>
+    </aside>
+
     <header class="topbar">
       <div>
         <p class="eyebrow">CONTROLE FINANCEIRO</p>
-        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.10.2</small></h1>
+        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.11.2</small></h1>
       </div>
       <div class="top-actions">
 
@@ -106,7 +138,27 @@
           <span id="accountQuickName">Conta</span>
         </button>
 
-        <button id="themeQuickBtn" class="icon-btn" aria-label="Alternar tema" title="Alternar tema">☾</button>
+
+        <div class="desktop-mode-controls">
+          <label class="desktop-control">
+            <span>Layout</span>
+            <select id="layoutModeSelect" aria-label="Modo de layout">
+              <option value="auto">Automático</option>
+              <option value="desktop">Desktop</option>
+              <option value="compact">Compacto</option>
+            </select>
+          </label>
+
+          <label class="desktop-control">
+            <span>Tema PC</span>
+            <select id="desktopThemeSelect" aria-label="Tema do modo desktop">
+              <option value="graphite">Graphite</option>
+              <option value="midnight">Midnight</option>
+              <option value="current">Tema atual</option>
+            </select>
+          </label>
+        </div>
+<button id="themeQuickBtn" class="icon-btn" aria-label="Alternar tema" title="Alternar tema">☾</button>
         <button id="installBtn" class="btn ghost hidden">Instalar</button>
       </div>
     </header>
@@ -932,7 +984,7 @@
 
     <div class="about-version">
       <span>SaldoPlan</span>
-      <strong>v2.10.2</strong>
+      <strong>v2.11.2</strong>
     </div>
   </section>
 </section>
@@ -1202,8 +1254,8 @@
     </form>
   </dialog>
 
-<script src="drive-config.js?v=2.10.2"></script>
-<script src="app.js?v=2.10.2"></script>
-  <script type="module" src="auth.js?v=2.10.2"></script>
+<script src="drive-config.js?v=2.11.2"></script>
+<script src="app.js?v=2.11.2"></script>
+  <script type="module" src="auth.js?v=2.11.2"></script>
 </body>
 </html>

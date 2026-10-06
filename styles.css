@@ -1043,3 +1043,534 @@ dialog{border:0;padding:0;border-radius:22px;background:var(--surface);color:var
     width:100%;
   }
 }
+/* ===== Desktop Experience v2.11.0 ===== */
+.desktop-sidebar,
+.desktop-mode-controls{
+  display:none;
+}
+
+@media(min-width:900px){
+  .desktop-mode-controls{
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+
+  .desktop-control{
+    display:grid;
+    gap:2px;
+    margin:0;
+  }
+
+  .desktop-control>span{
+    padding-left:2px;
+    color:var(--muted);
+    font-size:.58rem;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+
+  .desktop-control select{
+    width:auto;
+    min-width:112px;
+    height:34px;
+    padding:0 28px 0 9px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    background:var(--surface);
+    color:var(--ink);
+    font-size:.72rem;
+    font-weight:700;
+  }
+}
+
+body[data-layout-effective="desktop"][data-desktop-theme="graphite"]{
+  --bg:#090d12;
+  --surface:#10161f;
+  --surface-2:#161e29;
+  --ink:#f4f7fb;
+  --muted:#8d9aab;
+  --line:#263141;
+  --brand:#17202c;
+  --brand-ink:#f8fafc;
+  --accent:#60a5fa;
+  --accent-soft:#132943;
+  --warning:#f6b84b;
+  --danger:#fb7185;
+  --flash:#a78bfa;
+  --saving:#38bdf8;
+  --shadow:0 18px 48px rgba(0,0,0,.24);
+  color-scheme:dark;
+}
+
+body[data-layout-effective="desktop"][data-desktop-theme="midnight"]{
+  --bg:#060813;
+  --surface:#0d1220;
+  --surface-2:#131a2c;
+  --ink:#f5f7ff;
+  --muted:#8e9ab7;
+  --line:#222d48;
+  --brand:#111a31;
+  --brand-ink:#f8fafc;
+  --accent:#8b8cff;
+  --accent-soft:#1b1d46;
+  --warning:#f7b955;
+  --danger:#fb7185;
+  --flash:#c084fc;
+  --saving:#67e8f9;
+  --shadow:0 18px 50px rgba(0,0,0,.3);
+  color-scheme:dark;
+}
+
+body[data-layout-effective="desktop"]{
+  background:
+    radial-gradient(circle at 82% 0%,color-mix(in srgb,var(--accent) 8%,transparent),transparent 28rem),
+    var(--bg);
+}
+
+body[data-layout-effective="desktop"] .app-shell{
+  width:min(calc(100% - 24px),1840px);
+  max-width:none;
+  margin:12px auto;
+  min-height:calc(100dvh - 24px);
+  padding-bottom:18px;
+  display:grid;
+  grid-template-columns:224px minmax(0,1fr);
+  grid-template-rows:auto minmax(0,1fr);
+  column-gap:14px;
+  align-items:start;
+}
+
+body[data-layout-effective="desktop"] .desktop-sidebar{
+  display:flex;
+  grid-column:1;
+  grid-row:1 / span 2;
+  position:sticky;
+  top:12px;
+  height:calc(100dvh - 24px);
+  min-height:620px;
+  padding:16px 12px 12px;
+  flex-direction:column;
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--surface) 96%,var(--accent) 4%),var(--surface));
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  z-index:16;
+}
+
+.desktop-brand{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:5px 7px 17px;
+  border-bottom:1px solid var(--line);
+}
+
+.desktop-brand-mark{
+  width:42px;
+  height:42px;
+  flex:0 0 42px;
+  display:grid;
+  place-items:center;
+  border-radius:13px;
+  background:var(--accent);
+  color:#fff;
+  font-size:1.05rem;
+  font-weight:950;
+  box-shadow:0 10px 25px color-mix(in srgb,var(--accent) 25%,transparent);
+}
+
+.desktop-brand>div:last-child{
+  min-width:0;
+  display:grid;
+  gap:1px;
+}
+
+.desktop-brand span{
+  color:var(--muted);
+  font-size:.52rem;
+  font-weight:900;
+  letter-spacing:.1em;
+}
+
+.desktop-brand strong{
+  font-size:1rem;
+  letter-spacing:-.02em;
+}
+
+.desktop-brand small{
+  color:var(--muted);
+  font-size:.64rem;
+}
+
+.desktop-nav{
+  display:grid;
+  gap:5px;
+  padding:15px 0;
+}
+
+body[data-layout-effective="desktop"] .desktop-sidebar .nav-item{
+  width:100%;
+  min-height:42px;
+  padding:8px 10px;
+  display:grid;
+  grid-template-columns:28px 1fr;
+  align-items:center;
+  gap:7px;
+  border:1px solid transparent;
+  border-radius:12px;
+  background:transparent;
+  color:var(--muted);
+  text-align:left;
+  font-size:.8rem;
+  font-weight:750;
+  cursor:pointer;
+}
+
+body[data-layout-effective="desktop"] .desktop-sidebar .nav-item:hover{
+  background:var(--surface-2);
+  color:var(--ink);
+}
+
+body[data-layout-effective="desktop"] .desktop-sidebar .nav-item.active{
+  border-color:color-mix(in srgb,var(--accent) 28%,var(--line));
+  background:color-mix(in srgb,var(--accent) 13%,var(--surface-2));
+  color:var(--ink);
+}
+
+.desktop-nav-icon{
+  width:28px;
+  height:28px;
+  display:grid;
+  place-items:center;
+  border-radius:9px;
+  background:var(--surface-2);
+  color:var(--muted);
+  font-size:.9rem;
+}
+
+body[data-layout-effective="desktop"] .desktop-sidebar .nav-item.active .desktop-nav-icon{
+  background:var(--accent);
+  color:#fff;
+}
+
+.desktop-sidebar-bottom{
+  margin-top:auto;
+  display:grid;
+  gap:5px;
+  padding-top:11px;
+  border-top:1px solid var(--line);
+}
+
+.desktop-sidebar-caption{
+  display:grid;
+  gap:2px;
+  margin-bottom:7px;
+  padding:10px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface-2);
+}
+
+.desktop-sidebar-caption span{
+  color:var(--muted);
+  font-size:.58rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-weight:850;
+}
+
+.desktop-sidebar-caption strong{
+  font-size:.76rem;
+}
+
+.desktop-sidebar-caption small{
+  color:var(--muted);
+  font-size:.63rem;
+  line-height:1.35;
+}
+
+body[data-layout-effective="desktop"] .topbar{
+  grid-column:2;
+  grid-row:1;
+  width:100%;
+  margin:0 0 14px;
+  padding:11px 14px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:color-mix(in srgb,var(--surface) 88%,transparent);
+  box-shadow:0 12px 32px rgba(0,0,0,.12);
+  backdrop-filter:blur(18px);
+  position:sticky;
+  top:12px;
+  z-index:15;
+}
+
+body[data-layout-effective="desktop"] .topbar h1{
+  font-size:1.28rem;
+}
+
+body[data-layout-effective="desktop"] .top-actions{
+  flex-wrap:nowrap;
+}
+
+body[data-layout-effective="desktop"] main{
+  grid-column:2;
+  grid-row:2;
+  width:100%;
+  max-width:none;
+  min-width:0;
+  padding:0;
+}
+
+body[data-layout-effective="desktop"] .view{
+  width:100%;
+  max-width:none;
+}
+
+body[data-layout-effective="desktop"] .bottom-nav{
+  display:none !important;
+}
+
+body[data-layout-effective="desktop"] .panel,
+body[data-layout-effective="desktop"] .card{
+  box-shadow:0 12px 32px rgba(0,0,0,.12);
+}
+
+body[data-layout-effective="desktop"] .kpis{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+
+body[data-layout-effective="desktop"] .cycle-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+
+body[data-layout-effective="desktop"] .cycle-total-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+
+body[data-layout-effective="desktop"] #view-market .market-kpis{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+
+body[data-layout-effective="desktop"] #view-market .market-treasury-list{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+
+body[data-layout-effective="desktop"] #view-portfolio .portfolio-kpis{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+
+body[data-layout-effective="desktop"] #view-portfolio .portfolio-list{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+
+body[data-layout-effective="desktop"] #view-savings .compact-kpis{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+
+
+body[data-layout-effective="desktop"] dialog{
+  max-width:min(680px,calc(100vw - 48px));
+}
+
+@media(min-width:900px) and (max-width:1180px){
+  body[data-layout-effective="desktop"] .app-shell{
+    grid-template-columns:205px minmax(0,1fr);
+    column-gap:12px;
+  }
+
+  .desktop-brand small{
+    display:none;
+  }
+
+  body[data-layout-effective="desktop"] .desktop-sidebar .nav-item{
+    font-size:.75rem;
+  }
+
+  body[data-layout-effective="desktop"] .desktop-control>span{
+    display:none;
+  }
+
+  body[data-layout-effective="desktop"] .desktop-control select{
+    min-width:100px;
+  }
+}
+
+@media(max-width:899px){
+  .desktop-sidebar,
+  .desktop-mode-controls{
+    display:none !important;
+  }
+}
+/* ===== Desktop Wide v2.11.1 ===== */
+@media(min-width:1500px){
+  body[data-layout-effective="desktop"] .app-shell{
+    width:calc(100% - 32px);
+    max-width:1880px;
+  }
+
+  body[data-layout-effective="desktop"] main{
+    padding-right:2px;
+  }
+
+  body[data-layout-effective="desktop"] .topbar{
+    padding-left:16px;
+    padding-right:16px;
+  }
+
+  body[data-layout-effective="desktop"] .desktop-sidebar{
+    padding-left:10px;
+    padding-right:10px;
+  }
+
+  body[data-layout-effective="desktop"] .cycle-grid{
+    gap:12px;
+  }
+
+  body[data-layout-effective="desktop"] #view-market .market-treasury-list{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+  }
+}
+/* ===== Dados Desktop v2.11.2 ===== */
+body[data-layout-effective="desktop"] #view-data.active{
+  display:grid;
+  grid-template-columns:repeat(12,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+}
+
+body[data-layout-effective="desktop"] #view-data>.page-head{
+  grid-column:1 / -1;
+  margin:0 0 2px;
+}
+
+/* Login ocupa a largura toda */
+body[data-layout-effective="desktop"] #view-data>section:nth-of-type(1){
+  grid-column:1 / -1;
+}
+
+/* Aparência, meta e bônus lado a lado */
+body[data-layout-effective="desktop"] #view-data>section:nth-of-type(2),
+body[data-layout-effective="desktop"] #view-data>section:nth-of-type(3),
+body[data-layout-effective="desktop"] #view-data>section:nth-of-type(4){
+  grid-column:span 4;
+  height:100%;
+}
+
+/* Nuvem fica como painel principal à esquerda */
+body[data-layout-effective="desktop"] #view-data>section:nth-of-type(5){
+  grid-column:span 7;
+  grid-row:span 2;
+}
+
+/* Local + backup manual ficam empilhados à direita */
+body[data-layout-effective="desktop"] #view-data>section:nth-of-type(6),
+body[data-layout-effective="desktop"] #view-data>section:nth-of-type(7){
+  grid-column:span 5;
+}
+
+/* Zona de perigo fecha a página sem desperdiçar coluna */
+body[data-layout-effective="desktop"] #view-data>section:nth-of-type(8){
+  grid-column:1 / -1;
+}
+
+/* Login mais horizontal em PC */
+body[data-layout-effective="desktop"] #view-data .account-panel{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(280px,360px);
+  gap:12px 18px;
+  align-items:start;
+}
+
+body[data-layout-effective="desktop"] #view-data .account-panel>.section-head{
+  grid-column:1 / -1;
+}
+
+body[data-layout-effective="desktop"] #view-data .account-panel>.account-summary{
+  margin:0;
+  min-height:100%;
+}
+
+body[data-layout-effective="desktop"] #view-data .account-panel>.account-actions{
+  margin:0;
+  align-self:stretch;
+}
+
+body[data-layout-effective="desktop"] #view-data .account-panel>.helper{
+  grid-column:1 / -1;
+  margin-bottom:0;
+}
+
+/* Backup em nuvem aproveita a largura do painel */
+body[data-layout-effective="desktop"] #view-data .cloud-panel .drive-folder-actions{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+
+body[data-layout-effective="desktop"] #view-data .cloud-panel>.button-stack{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;
+}
+
+body[data-layout-effective="desktop"] #view-data .cloud-panel>.button-stack .full{
+  width:100%;
+}
+
+/* Backup manual também vira grade */
+body[data-layout-effective="desktop"] #view-data>section:nth-of-type(7) .button-stack{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;
+}
+
+/* Zona de perigo compacta */
+body[data-layout-effective="desktop"] #view-data .danger-zone{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:8px 18px;
+  align-items:center;
+}
+
+body[data-layout-effective="desktop"] #view-data .danger-zone h3,
+body[data-layout-effective="desktop"] #view-data .danger-zone p{
+  grid-column:1;
+}
+
+body[data-layout-effective="desktop"] #view-data .danger-zone .btn{
+  grid-column:2;
+  grid-row:1 / span 2;
+  width:auto;
+  min-width:180px;
+}
+
+/* Notebook: duas colunas mais conservadoras */
+@media(min-width:900px) and (max-width:1180px){
+  body[data-layout-effective="desktop"] #view-data>section:nth-of-type(2),
+  body[data-layout-effective="desktop"] #view-data>section:nth-of-type(3){
+    grid-column:span 6;
+  }
+
+  body[data-layout-effective="desktop"] #view-data>section:nth-of-type(4){
+    grid-column:1 / -1;
+  }
+
+  body[data-layout-effective="desktop"] #view-data>section:nth-of-type(5),
+  body[data-layout-effective="desktop"] #view-data>section:nth-of-type(6),
+  body[data-layout-effective="desktop"] #view-data>section:nth-of-type(7){
+    grid-column:1 / -1;
+    grid-row:auto;
+  }
+
+  body[data-layout-effective="desktop"] #view-data .account-panel{
+    grid-template-columns:1fr;
+  }
+
+  body[data-layout-effective="desktop"] #view-data .account-panel>.section-head,
+  body[data-layout-effective="desktop"] #view-data .account-panel>.helper{
+    grid-column:1;
+  }
+}

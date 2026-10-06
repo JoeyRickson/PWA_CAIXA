@@ -1368,6 +1368,24 @@ document.querySelector('#deletePortfolio')?.addEventListener('click',()=>{
   portfolioDlg.close();
   renderAll();
 });
+
+function placePortfolioDashboardPanel(){
+  const panel=document.querySelector('.portfolio-dashboard-panel');
+  const dashboard=document.querySelector('#view-dashboard');
+
+  if(!panel||!dashboard||panel.parentElement===dashboard)return;
+
+  const pendingList=dashboard.querySelector('#pendingList');
+  const pendingPanel=pendingList?.closest('.panel');
+
+  if(pendingPanel){
+    dashboard.insertBefore(panel,pendingPanel);
+  }else{
+    dashboard.appendChild(panel);
+  }
+}
+
+placePortfolioDashboardPanel();
 function renderDashboard(){
   const m=metrics(),s=savingsMetrics();
   document.querySelector('#monthLabel').textContent=`${MONTHS[cursor.getMonth()]} ${cursor.getFullYear()}`;
@@ -1681,6 +1699,71 @@ function initLiveClock(){
 
   setInterval(updateLiveClock,1000);
 }
+
+const LAYOUT_MODE_KEY='saldoplan.layoutMode';
+const DESKTOP_THEME_KEY='saldoplan.desktopTheme';
+
+function readLayoutMode(){
+  try{
+    const value=localStorage.getItem(LAYOUT_MODE_KEY);
+    return ['auto','desktop','compact'].includes(value)?value:'auto';
+  }catch{
+    return 'auto';
+  }
+}
+
+function readDesktopTheme(){
+  try{
+    const value=localStorage.getItem(DESKTOP_THEME_KEY);
+    return ['graphite','midnight','current'].includes(value)?value:'graphite';
+  }catch{
+    return 'graphite';
+  }
+}
+
+function effectiveLayoutMode(){
+  const selected=readLayoutMode();
+  const width=window.innerWidth||document.documentElement.clientWidth||0;
+
+  if(width<900)return 'compact';
+  if(selected==='compact')return 'compact';
+  if(selected==='desktop')return 'desktop';
+
+  return width>=1100?'desktop':'compact';
+}
+
+function applyLayoutExperience(){
+  const selected=readLayoutMode();
+  const effective=effectiveLayoutMode();
+  const desktopTheme=readDesktopTheme();
+
+  document.body.dataset.layoutMode=selected;
+  document.body.dataset.layoutEffective=effective;
+  document.body.dataset.desktopTheme=desktopTheme;
+
+  const layoutSelect=document.querySelector('#layoutModeSelect');
+  const themeSelect=document.querySelector('#desktopThemeSelect');
+
+  if(layoutSelect && layoutSelect.value!==selected){
+    layoutSelect.value=selected;
+  }
+
+  if(themeSelect && themeSelect.value!==desktopTheme){
+    themeSelect.value=desktopTheme;
+  }
+}
+
+function saveLayoutMode(value){
+  const safe=['auto','desktop','compact'].includes(value)?value:'auto';
+  try{localStorage.setItem(LAYOUT_MODE_KEY,safe)}catch{}
+  applyLayoutExperience();
+}
+
+function saveDesktopTheme(value){
+  const safe=['graphite','midnight','current'].includes(value)?value:'graphite';
+  try{localStorage.setItem(DESKTOP_THEME_KEY,safe)}catch{}
+  applyLayoutExperience();
+}
 function applyTheme(){
   const theme=state.settings?.theme==='dark'?'dark':'light';document.body.dataset.theme=theme;document.documentElement.style.colorScheme=theme;document.querySelector('meta[name="theme-color"]').setAttribute('content',theme==='dark'?'#070a0f':'#111827');document.querySelector('#themeQuickBtn').textContent=theme==='dark'?'☀':'☾';
 }
@@ -1698,6 +1781,23 @@ addEventListener('click',e=>{
   const xedit=e.target.closest('[data-extra-edit]');if(xedit){openExtra(state.overtimeLogs.find(x=>x.id===xedit.dataset.extraEdit));return}
 });
 document.querySelector('#themeQuickBtn').onclick=toggleTheme;
+
+document.querySelector('#layoutModeSelect')?.addEventListener('change',e=>{
+  saveLayoutMode(e.target.value);
+});
+
+document.querySelector('#desktopThemeSelect')?.addEventListener('change',e=>{
+  saveDesktopTheme(e.target.value);
+});
+
+let layoutResizeTimer=null;
+
+addEventListener('resize',()=>{
+  clearTimeout(layoutResizeTimer);
+  layoutResizeTimer=setTimeout(applyLayoutExperience,120);
+});
+
+applyLayoutExperience();
 document.querySelector('#prevMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);rememberViewMonth();renderAll()};
 document.querySelector('#nextMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);rememberViewMonth();renderAll()};
 document.querySelector('#prevCycleMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);rememberViewMonth();renderAll()};
