@@ -1631,11 +1631,12 @@ function loadPayrollScript(src,globalName){
     document.head.appendChild(script);
   });
 }
-async function createPayrollOcrWorker(){
+async function createPayrollOcrWorker(statusId='#payrollImportStatus'){
   const Tesseract=await loadPayrollScript('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js','Tesseract');
   return Tesseract.createWorker('por',1,{
     logger:message=>{
-      const status=document.querySelector('#payrollImportStatus');
+      const status=document.querySelector(statusId);
+      if(!status)return;
       if(message.status==='recognizing text'){
         status.textContent=`Lendo imagem da folha no aparelho: ${Math.round((message.progress||0)*100)}%.`;
       }else if(message.status==='loading language traineddata'){
@@ -1649,7 +1650,7 @@ async function createPayrollOcrWorker(){
     langPath:'https://tessdata.projectnaptha.com/4.0.0'
   });
 }
-async function loadPdfText(file){
+async function loadPdfText(file,statusId='#payrollImportStatus'){
   const pdfjs=await loadPayrollScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','pdfjsLib');
   pdfjs.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
   const pdf=await pdfjs.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
@@ -1667,8 +1668,8 @@ async function loadPdfText(file){
   }
   let text=pages.join('\n');
   if(text.replace(/\s/g,'').length<60){
-    document.querySelector('#payrollImportStatus').textContent='Preparando leitura local do holerite...';
-    const worker=await createPayrollOcrWorker();
+    document.querySelector(statusId).textContent='Preparando leitura local do documento...';
+    const worker=await createPayrollOcrWorker(statusId);
     try{
       const ocrPages=[];
       for(let pageNumber=1;pageNumber<=Math.min(pdf.numPages,3);pageNumber++){
@@ -1690,8 +1691,8 @@ async function loadPdfText(file){
   }
   return text;
 }
-async function loadImageText(file){
-  const worker=await createPayrollOcrWorker();
+async function loadImageText(file,statusId='#payrollImportStatus'){
+  const worker=await createPayrollOcrWorker(statusId);
   try{
     const result=await worker.recognize(file);
     return result.data.text;
@@ -1739,6 +1740,195 @@ function parsePayrollDocument(text){
     if(fields.finalPay!==null&&(fields.finalPay<=0||fields.finalPay>fields.gross))fields.finalPay=null;
   }
   return fields;
+}
+function fgtsStatementCompetence(text){
+  const monthNames={jan:1,fev:2,mar:3,abr:4,mai:5,jun:6,jul:7,ago:8,set:9,out:10,nov:11,dez:12};
+  const named=text.match(/\b(jan(?:eiro)?|fev(?:ereiro)?|mar(?:co|ço)?|abr(?:il)?|mai(?:o)?|jun(?:ho)?|jul(?:ho)?|ago(?:sto)?|set(?:embro)?|out(?:ubro)?|nov(?:embro)?|dez(?:embro)?)\s*[/-]?\s*(20\d{2})\b/i);
+  if(named){
+    const month=monthNames[normalizePayrollText(named[1]).slice(0,3)];
+    if(month)return `${named[2]}-${String(month).padStart(2,'0')}`;
+  }
+  const explicit=text.match(/(?:competencia|referencia|ref\.?|mes)\s*:?\s*(0?[1-9]|1[0-2])[\s/-]+(20\d{2})/i);
+  if(explicit)return `${explicit[2]}-${String(Number(explicit[1])).padStart(2,'0')}`;
+  const withoutDates=text.replace(/\b[0-3]?\d[./-][01]?\d[./-]20\d{2}\b/g,' ');
+  const numeric=withoutDates.match(/\b(0?[1-9]|1[0-2])[\s/-]+(20\d{2})\b/);
+  if(numeric)return `${numeric[2]}-${String(Number(numeric[1])).padStart(2,'0')}`;
+  return '';
+}
+function parseFgtsStatement(text){
+  const rows=[];
+  const amountPattern=/-?\d{1,3}(?:\.\d{3})*,\d{2}(?!\d)|-?\d+,\d{2}(?!\d)|-?\d{1,3}(?:,\d{3})*\.\d{2}(?!\d)|-?\d+\.\d{2}(?!\d)/g;
+  for(const rawLine of String(text||'').split(/\r?\n/)){
+    const line=rawLine.trim();
+    if(!line)continue;
+    const normalized=normalizePayrollText(line);
+    const type=/\bsaques?\s+(?:dep(?:osito)?|fgts)\b|\bsaques?\s+dep\b|\bsaque\s+dep[oó]sito\b/.test(normalized)
+      ?'withdrawal'
+      :/\bdep(?:osito)?\s+(?:de\s+)?verbas?\s+ind(?:emnizatorias?)?\b|\bverbas?\s+ind(?:emnizatorias?)?\b/.test(normalized)
+        ?'indemnity'
+      :/\bdep(?:osito)?\s+(?:de\s+)?multa\s+rescis[oó]ria\b|\bmulta\s+rescis[oó]ria\b/.test(normalized)
+        ?'terminationPenalty'
+      :/\b(?:credito\s+(?:de\s+)?jam|cr\s+jam|jam|atualizacao\s+monetaria)\b/.test(normalized)
+        ?'jam'
+      :/\b(?:deposito|recolhimento)\b/.test(normalized)&&/\b(?:13\s*[ºo°]|decimo\s+terceiro|13\s+salario)\b/.test(normalized)
+        ?'thirteenth'
+        :/\b(?:deposito|recolhimento)\b/.test(normalized)?'deposit':null;
+    if(!type)continue;
+    const dateMatch=line.match(/\b([0-3]?\d)[./-]([01]?\d)[./-](20\d{2})\b/);
+    const date=dateMatch?`${dateMatch[3]}-${String(Number(dateMatch[2])).padStart(2,'0')}-${String(Number(dateMatch[1])).padStart(2,'0')}`:'';
+    const moneyMatches=[...line.matchAll(new RegExp(`R\\\\$\\\\s*(${amountPattern.source})`, 'gi'))];
+    const amounts=[...line.matchAll(amountPattern)];
+    const amountText=moneyMatches.length?moneyMatches[moneyMatches.length-1][1]:amounts.length?amounts[amounts.length-1][0]:'';
+    const competence=fgtsStatementCompetence(line)||(type==='thirteenth'&&date?`${date.slice(0,4)}-12`:date?date.slice(0,7):'');
+    rows.push({
+      type,
+      competence,
+      date,
+      amount:amountText?(type==='withdrawal'?Math.abs(money(amountText)):Math.max(0,money(amountText))):null
+    });
+  }
+  return rows;
+}
+let fgtsImportDraft=[];
+function addFgtsImportDraftRow(row={type:'deposit',competence:'',date:'',amount:null}){
+  fgtsImportDraft.push({...row});
+  renderFgtsImportDraft();
+}
+function renderFgtsImportDraft(){
+  const list=document.querySelector('#fgtsImportRows');
+  if(!list)return;
+  list.replaceChildren();
+  fgtsImportDraft.forEach((row,index)=>{
+    const line=document.createElement('div');
+    line.className='fgts-import-row';
+    const competence=document.createElement('input');
+    competence.type='month';
+    competence.value=row.competence||'';
+    competence.setAttribute('aria-label',`Competência do item ${index+1}`);
+    competence.addEventListener('input',()=>{row.competence=competence.value});
+    const type=document.createElement('select');
+    type.setAttribute('aria-label',`Tipo do item ${index+1}`);
+    [['deposit','Depósito mensal'],['thirteenth','Depósito do 13º'],['jam','Crédito JAM'],['withdrawal','Saque DEP'],['indemnity','DEP VERBAS IND'],['terminationPenalty','DEP MULTA RESCISÓRIA']].forEach(([value,label])=>{
+      const option=document.createElement('option');option.value=value;option.textContent=label;type.append(option);
+    });
+    type.value=row.type;
+    type.addEventListener('change',()=>{row.type=type.value});
+    const amount=document.createElement('input');
+    amount.type='text';amount.inputMode='decimal';amount.placeholder='0,00';
+    amount.value=row.amount===null||row.amount===undefined?'':Number(row.amount).toFixed(2).replace('.',',');
+    amount.setAttribute('aria-label',`Valor do item ${index+1}`);
+    amount.addEventListener('input',()=>{row.amount=money(amount.value)});
+    const date=document.createElement('input');
+    date.type='date';date.value=row.date||'';
+    date.setAttribute('aria-label',`Data do item ${index+1}`);
+    date.addEventListener('input',()=>{row.date=date.value});
+    const remove=document.createElement('button');
+    remove.type='button';remove.className='btn ghost small';remove.textContent='Remover';
+    remove.addEventListener('click',()=>{fgtsImportDraft.splice(index,1);renderFgtsImportDraft()});
+    line.append(competence,type,amount,date,remove);
+    list.append(line);
+  });
+  document.querySelector('#fgtsImportReview').classList.toggle('hidden',!fgtsImportDraft.length);
+}
+async function importFgtsStatement(file){
+  const status=document.querySelector('#fgtsImportStatus');
+  const review=document.querySelector('#fgtsImportReview');
+  review.classList.add('hidden');fgtsImportDraft=[];
+  if(!file)return;
+  if(file.size>20*1024*1024){
+    status.textContent='O arquivo excede o limite de 20 MB. Reduza a imagem ou exporte o extrato em PDF.';
+    document.querySelector('#fgtsImportFile').value='';return;
+  }
+  const isPdf=file.type==='application/pdf'||/\.pdf$/i.test(file.name);
+  if(!file.type.startsWith('image/')&&!isPdf){
+    status.textContent='Formato não suportado. Escolha um extrato em PDF ou imagem.';
+    document.querySelector('#fgtsImportFile').value='';return;
+  }
+  status.textContent='Lendo extrato neste aparelho...';
+  try{
+    const text=isPdf?await loadPdfText(file,'#fgtsImportStatus'):await loadImageText(file,'#fgtsImportStatus');
+    fgtsImportDraft=parseFgtsStatement(text);
+    renderFgtsImportDraft();
+    status.textContent=fgtsImportDraft.length
+      ?`Encontrei ${fgtsImportDraft.length} lançamento(s) no extrato. Confira tipo, competência e valor antes de aplicar.`
+      :'Não encontrei movimentações FGTS identificáveis. Adicione as linhas manualmente e confira antes de aplicar.';
+  }catch(error){
+    console.error('Falha ao importar extrato FGTS:',error);
+    status.textContent=error instanceof Error?error.message:'Não foi possível ler o extrato. Tente novamente ou preencha os lançamentos manualmente.';
+  }finally{
+    document.querySelector('#fgtsImportFile').value='';
+  }
+}
+function applyFgtsImport(){
+  const byCompetence=new Map();
+  for(const row of fgtsImportDraft){
+    const match=/^(20\d{2})-(0[1-9]|1[0-2])$/.exec(row.competence||'');
+    if(!match){alert('Escolha a competência de cada depósito/crédito antes de aplicar.');return}
+    if(row.amount===null||!Number.isFinite(Number(row.amount))||Number(row.amount)<0){alert('Confira o valor de cada lançamento antes de aplicar.');return}
+    const key=row.competence,year=Number(match[1]),month=Number(match[2]);
+    const item=byCompetence.get(key)||{year,month,deposits:[],jam:[],thirteenth:[],withdrawals:[],indemnities:[],terminationPenalties:[]};
+    const group={
+      jam:'jam',
+      thirteenth:'thirteenth',
+      withdrawal:'withdrawals',
+      indemnity:'indemnities',
+      terminationPenalty:'terminationPenalties'
+    }[row.type]||'deposits';
+    item[group].push(row);
+    byCompetence.set(key,item);
+  }
+  if(!byCompetence.size){alert('Adicione pelo menos um lançamento do extrato.');return}
+  for(const {year,month,deposits,jam,thirteenth,withdrawals,indemnities,terminationPenalties} of byCompetence.values()){
+    const record=fgtsYearRecord(year);
+    record.deposits=record.deposits||{};
+    const current=record.deposits[String(month)]||{};
+    const next={...current};
+    if(deposits.length){
+      next.paid=true;
+      next.amount=round2(deposits.reduce((sum,row)=>sum+Number(row.amount),0));
+      const depositDates=deposits.map(row=>row.date).filter(Boolean).sort();
+      next.date=depositDates[depositDates.length-1]||current.date||'';
+      next.imported=true;
+    }
+    if(jam.length){
+      next.jam=round2(jam.reduce((sum,row)=>sum+Number(row.amount),0));
+      const jamDates=jam.map(row=>row.date).filter(Boolean).sort();
+      next.jamDate=jamDates[jamDates.length-1]||current.jamDate||'';
+      next.jamImported=true;
+    }
+    if(withdrawals.length){
+      next.withdrawal=round2(withdrawals.reduce((sum,row)=>sum+Number(row.amount),0));
+      const withdrawalDates=withdrawals.map(row=>row.date).filter(Boolean).sort();
+      next.withdrawalDate=withdrawalDates[withdrawalDates.length-1]||current.withdrawalDate||'';
+      next.withdrawalImported=true;
+    }
+    if(indemnities.length){
+      next.indemnity=round2(indemnities.reduce((sum,row)=>sum+Number(row.amount),0));
+      const dates=indemnities.map(row=>row.date).filter(Boolean).sort();
+      next.indemnityDate=dates[dates.length-1]||current.indemnityDate||'';
+      next.indemnityImported=true;
+    }
+    if(terminationPenalties.length){
+      next.terminationPenalty=round2(terminationPenalties.reduce((sum,row)=>sum+Number(row.amount),0));
+      const dates=terminationPenalties.map(row=>row.date).filter(Boolean).sort();
+      next.terminationPenaltyDate=dates[dates.length-1]||current.terminationPenaltyDate||'';
+      next.terminationPenaltyImported=true;
+    }
+    if(deposits.length||jam.length||withdrawals.length||indemnities.length||terminationPenalties.length)record.deposits[String(month)]=next;
+    if(thirteenth.length){
+      const currentThirteenth=record.deposits.thirteenth||{};
+      const dates=thirteenth.map(row=>row.date).filter(Boolean).sort();
+      record.deposits.thirteenth={
+        ...currentThirteenth,
+        paid:true,
+        amount:round2(thirteenth.reduce((sum,row)=>sum+Number(row.amount),0)),
+        date:dates[dates.length-1]||currentThirteenth.date||'',
+        imported:true
+      };
+    }
+  }
+  save();renderAll();fgtsImportDraft=[];renderFgtsImportDraft();
+  document.querySelector('#fgtsImportStatus').textContent='Extrato aplicado. Depósitos e saques DEP foram registrados nas competências confirmadas; os demais meses continuam estimados, e saques futuros ficam opcionais.';
 }
 function payrollImportField(id,value){
   const input=document.querySelector(`#${id}`);
@@ -1993,27 +2183,45 @@ function renderFgts(){
       monthly.push({month,amount,deposit});
     }
   }
-  const total=round2(monthly.reduce((sum,item)=>sum+item.amount,0));
+  const total=round2(monthly.reduce((sum,item)=>sum+(item.deposit.paid?Number(item.deposit.amount??item.amount):item.amount),0));
   const thirteenthRecord=thirteenthYearRecord(year);
   const thirteenth=thirteenthCalculation(year,thirteenthRecord.startMonth,thirteenthRecord.endMonth);
   const thirteenthFgts=startMonth<=endMonth?round2(thirteenth.gross*0.08):0;
   const thirteenthDeposit=record.deposits?.thirteenth||{};
-  const annualTotal=round2(total+thirteenthFgts);
-  const paid=round2(monthly.reduce((sum,item)=>sum+(item.deposit.paid?Number(item.deposit.amount??item.amount):0),0)+(thirteenthDeposit.paid?Number(thirteenthDeposit.amount??thirteenthFgts):0));
+  const projectedThirteenth=thirteenthDeposit.paid?Number(thirteenthDeposit.amount??thirteenthFgts):thirteenthFgts;
+  const indemnityTotal=round2(monthly.reduce((sum,item)=>sum+Number(item.deposit.indemnity||0),0));
+  const terminationPenaltyTotal=round2(monthly.reduce((sum,item)=>sum+Number(item.deposit.terminationPenalty||0),0));
+  const annualTotal=round2(total+projectedThirteenth+indemnityTotal+terminationPenaltyTotal);
+  const paid=round2(
+    monthly.reduce((sum,item)=>sum+(item.deposit.paid?Number(item.deposit.amount??item.amount):0)+Number(item.deposit.indemnity||0)+Number(item.deposit.terminationPenalty||0),0)
+    +(thirteenthDeposit.paid?Number(thirteenthDeposit.amount??thirteenthFgts):0)
+  );
+  const jamTotal=round2(monthly.reduce((sum,item)=>sum+Number(item.deposit.jam||0),0)+Number(thirteenthDeposit.jam||0));
+  const withdrawalsTotal=round2(monthly.reduce((sum,item)=>sum+Number(item.deposit.withdrawal||0),0));
+  const netPeriod=round2(annualTotal+jamTotal+indemnityTotal+terminationPenaltyTotal-withdrawalsTotal);
   document.querySelector('#fgtsYearTotal').textContent=fmt.format(annualTotal);
   document.querySelector('#fgtsPaidTotal').textContent=fmt.format(paid);
   document.querySelector('#fgtsPendingTotal').textContent=fmt.format(Math.max(0,annualTotal-paid));
   document.querySelector('#fgtsThirteenthTotal').textContent=fmt.format(thirteenthFgts);
+  document.querySelector('#fgtsJamTotal').textContent=fmt.format(jamTotal);
+  document.querySelector('#fgtsWithdrawalsTotal').textContent=fmt.format(withdrawalsTotal);
+  document.querySelector('#fgtsIndemnityTotal').textContent=fmt.format(indemnityTotal);
+  document.querySelector('#fgtsTerminationPenaltyTotal').textContent=fmt.format(terminationPenaltyTotal);
+  document.querySelector('#fgtsNetPeriod').textContent=fmt.format(netPeriod);
   const monthlyRows=monthly.map(({month,amount,deposit})=>{
     const lastDay=new Date(year,month,0).getDate();
     const defaultDate=`${year}-${String(month).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
     return `<div class="item fgts-month-row">
       <span class="item-icon">▣</span>
-      <span class="item-main"><strong>${MONTHS[month-1]}</strong><span>Estimativa: ${fmt.format(amount)}</span></span>
+      <span class="item-main"><strong>${MONTHS[month-1]}</strong><span>${deposit.paid?'Depositado:':'Estimativa:'} ${fmt.format(deposit.paid?Number(deposit.amount??amount):amount)}${Number(deposit.jam||0)?` · JAM: ${fmt.format(deposit.jam)}`:''}${Number(deposit.withdrawal||0)?` · Saque DEP: ${fmt.format(deposit.withdrawal)}`:''}${Number(deposit.indemnity||0)?` · Verbas IND: ${fmt.format(deposit.indemnity)}`:''}${Number(deposit.terminationPenalty||0)?` · Multa rescisória: ${fmt.format(deposit.terminationPenalty)}`:''}</span></span>
       <span class="item-side fgts-deposit-controls">
         <label class="check-row"><input type="checkbox" data-fgts-paid="${month}" ${deposit.paid?'checked':''}> Depositado</label>
         <input type="text" inputmode="decimal" aria-label="Valor do FGTS de ${MONTHS[month-1]}" data-fgts-amount="${month}" value="${Number(deposit.amount??amount).toFixed(2).replace('.',',')}">
         <input type="date" aria-label="Data do depósito ${MONTHS[month-1]}" data-fgts-date="${month}" value="${deposit.date||defaultDate}">
+        <label class="fgts-jam-field">Crédito JAM<input type="text" inputmode="decimal" aria-label="Crédito JAM de ${MONTHS[month-1]}" data-fgts-jam="${month}" value="${Number(deposit.jam||0)?Number(deposit.jam).toFixed(2).replace('.',','):''}" placeholder="0,00"></label>
+        <label class="fgts-jam-field">Saque DEP (opcional)<input type="text" inputmode="decimal" aria-label="Saque DEP de ${MONTHS[month-1]}" data-fgts-withdrawal="${month}" value="${Number(deposit.withdrawal||0)?Number(deposit.withdrawal).toFixed(2).replace('.',','):''}" placeholder="0,00"></label>
+        <label class="fgts-jam-field">DEP VERBAS IND<input type="text" inputmode="decimal" aria-label="DEP VERBAS IND de ${MONTHS[month-1]}" data-fgts-indemnity="${month}" value="${Number(deposit.indemnity||0)?Number(deposit.indemnity).toFixed(2).replace('.',','):''}" placeholder="0,00"></label>
+        <label class="fgts-jam-field">DEP MULTA RESCISÓRIA<input type="text" inputmode="decimal" aria-label="DEP MULTA RESCISÓRIA de ${MONTHS[month-1]}" data-fgts-termination-penalty="${month}" value="${Number(deposit.terminationPenalty||0)?Number(deposit.terminationPenalty).toFixed(2).replace('.',','):''}" placeholder="0,00"></label>
       </span>
     </div>`;
   });
@@ -2025,6 +2233,7 @@ function renderFgts(){
         <label class="check-row"><input type="checkbox" data-fgts-thirteenth-paid ${thirteenthDeposit.paid?'checked':''}> Depositado</label>
         <input type="text" inputmode="decimal" aria-label="Valor do FGTS sobre o 13º" data-fgts-thirteenth-amount value="${Number(thirteenthDeposit.amount??thirteenthFgts).toFixed(2).replace('.',',')}">
         <input type="date" aria-label="Data do depósito do FGTS sobre o 13º" data-fgts-thirteenth-date value="${thirteenthDeposit.date||`${year}-12-18`}">
+        <label class="fgts-jam-field">Crédito JAM<input type="text" inputmode="decimal" aria-label="Crédito JAM sobre o 13º" data-fgts-thirteenth-jam value="${Number(thirteenthDeposit.jam||0)?Number(thirteenthDeposit.jam).toFixed(2).replace('.',','):''}" placeholder="0,00"></label>
       </span>
     </div>`);
   }
@@ -2367,6 +2576,14 @@ document.querySelector('#saveFgtsPeriod').onclick=()=>{
   save();
   renderFgts();
 };
+document.querySelector('#fgtsImportFile').addEventListener('change',e=>importFgtsStatement(e.target.files?.[0]));
+document.querySelector('#addFgtsDepositRow').onclick=()=>addFgtsImportDraftRow({type:'deposit',competence:'',date:'',amount:null});
+document.querySelector('#addFgtsThirteenthRow').onclick=()=>addFgtsImportDraftRow({type:'thirteenth',competence:'',date:'',amount:null});
+document.querySelector('#addFgtsJamRow').onclick=()=>addFgtsImportDraftRow({type:'jam',competence:'',date:'',amount:null});
+document.querySelector('#addFgtsWithdrawalRow').onclick=()=>addFgtsImportDraftRow({type:'withdrawal',competence:'',date:'',amount:null});
+document.querySelector('#addFgtsIndemnityRow').onclick=()=>addFgtsImportDraftRow({type:'indemnity',competence:'',date:'',amount:null});
+document.querySelector('#addFgtsTerminationPenaltyRow').onclick=()=>addFgtsImportDraftRow({type:'terminationPenalty',competence:'',date:'',amount:null});
+document.querySelector('#applyFgtsImport').onclick=applyFgtsImport;
 addEventListener('change',e=>{
   const thirteenthPaid=e.target.closest('[data-fgts-thirteenth-paid]');
   if(thirteenthPaid){
@@ -2403,6 +2620,13 @@ addEventListener('change',e=>{
     save();
     renderFgts();
     return;
+  }
+  const thirteenthJam=e.target.closest('[data-fgts-thirteenth-jam]');
+  if(thirteenthJam){
+    const record=fgtsYearRecord(fgtsViewYear);
+    record.deposits=record.deposits||{};
+    record.deposits.thirteenth={...(record.deposits.thirteenth||{}),jam:Math.max(0,money(thirteenthJam.value))};
+    save();renderFgts();return;
   }
   const paidToggle=e.target.closest('[data-fgts-paid]');
   if(paidToggle){
@@ -2441,6 +2665,50 @@ addEventListener('change',e=>{
     record.deposits=record.deposits||{};
     const deposit=record.deposits[String(month)]||{};
     record.deposits[String(month)]={...deposit,amount:Math.max(0,money(amountInput.value))};
+    save();
+    renderFgts();
+    return;
+  }
+  const jamInput=e.target.closest('[data-fgts-jam]');
+  if(jamInput){
+    const month=Number(jamInput.dataset.fgtsJam);
+    const record=fgtsYearRecord(fgtsViewYear);
+    record.deposits=record.deposits||{};
+    const deposit=record.deposits[String(month)]||{};
+    record.deposits[String(month)]={...deposit,jam:Math.max(0,money(jamInput.value))};
+    save();
+    renderFgts();
+    return;
+  }
+  const withdrawalInput=e.target.closest('[data-fgts-withdrawal]');
+  if(withdrawalInput){
+    const month=Number(withdrawalInput.dataset.fgtsWithdrawal);
+    const record=fgtsYearRecord(fgtsViewYear);
+    record.deposits=record.deposits||{};
+    const deposit=record.deposits[String(month)]||{};
+    record.deposits[String(month)]={...deposit,withdrawal:Math.max(0,money(withdrawalInput.value))};
+    save();
+    renderFgts();
+    return;
+  }
+  const indemnityInput=e.target.closest('[data-fgts-indemnity]');
+  if(indemnityInput){
+    const month=Number(indemnityInput.dataset.fgtsIndemnity);
+    const record=fgtsYearRecord(fgtsViewYear);
+    record.deposits=record.deposits||{};
+    const deposit=record.deposits[String(month)]||{};
+    record.deposits[String(month)]={...deposit,indemnity:Math.max(0,money(indemnityInput.value))};
+    save();
+    renderFgts();
+    return;
+  }
+  const terminationPenaltyInput=e.target.closest('[data-fgts-termination-penalty]');
+  if(terminationPenaltyInput){
+    const month=Number(terminationPenaltyInput.dataset.fgtsTerminationPenalty);
+    const record=fgtsYearRecord(fgtsViewYear);
+    record.deposits=record.deposits||{};
+    const deposit=record.deposits[String(month)]||{};
+    record.deposits[String(month)]={...deposit,terminationPenalty:Math.max(0,money(terminationPenaltyInput.value))};
     save();
     renderFgts();
   }

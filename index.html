@@ -20,7 +20,7 @@
   sizes="180x180"
   href="icons/apple-touch-icon.png"
 />
-  <link rel="stylesheet" href="styles.css?v=2.12.1" />
+  <link rel="stylesheet" href="styles.css?v=2.12.5" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -92,7 +92,7 @@
     <header class="topbar">
       <div>
         <p class="eyebrow">CONTROLE FINANCEIRO</p>
-        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.12.1</small></h1>
+        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.12.5</small></h1>
       </div>
       <div class="top-actions">
 
@@ -576,7 +576,7 @@
         <div class="section-head page-head">
           <div><span class="muted">Depósitos do empregador</span><h2>FGTS</h2></div>
         </div>
-        <p class="helper">Estimativa mensal de 8% sobre a remuneração bruta calculada na Simulação, incluindo adicionais e DSR da competência. Não usa líquido nem valor após adiantamento. Marcar um depósito como realizado atualiza esta aba, mas não altera o saldo disponível nem cria entrada em dinheiro nos Lançamentos.</p>
+        <p class="helper">Estimativa mensal de 8% sobre a remuneração bruta calculada na Simulação, incluindo adicionais e DSR da competência. Não usa líquido nem valor após adiantamento. Depósitos confirmados substituem a estimativa daquele mês; meses sem depósito continuam projetados. Créditos JAM são informados separadamente e não contam como depósito mensal.</p>
         <div class="month-row slim">
           <button class="icon-btn" id="prevFgtsYear" aria-label="Ano anterior">‹</button>
           <div><span class="muted">Ano de referência</span><h3 id="fgtsYearLabel">—</h3></div>
@@ -588,12 +588,38 @@
             <label>Mês final de trabalho<select id="fgtsEndMonth"></select></label>
           </div>
           <div class="grid kpis compact-kpis">
-            <article class="card"><span>FGTS estimado</span><strong id="fgtsYearTotal">R$ 0,00</strong><small>Período selecionado</small></article>
+            <article class="card"><span>FGTS projetado</span><strong id="fgtsYearTotal">R$ 0,00</strong><small>Depósitos importados + meses estimados</small></article>
             <article class="card"><span>Depósitos confirmados</span><strong id="fgtsPaidTotal">R$ 0,00</strong><small>Marcados como realizados</small></article>
             <article class="card"><span>A depositar</span><strong id="fgtsPendingTotal">R$ 0,00</strong><small>Estimado − confirmado</small></article>
             <article class="card"><span>FGTS sobre 13º</span><strong id="fgtsThirteenthTotal">R$ 0,00</strong><small>Incluído no total anual</small></article>
+            <article class="card"><span>Créditos JAM</span><strong id="fgtsJamTotal">R$ 0,00</strong><small>Atualização informada no extrato</small></article>
+            <article class="card"><span>Saques DEP</span><strong id="fgtsWithdrawalsTotal">R$ 0,00</strong><small>Retiradas informadas/importadas</small></article>
+            <article class="card"><span>DEP VERBAS IND</span><strong id="fgtsIndemnityTotal">R$ 0,00</strong><small>Opcional · somente se houver no extrato</small></article>
+            <article class="card"><span>DEP MULTA RESCISÓRIA</span><strong id="fgtsTerminationPenaltyTotal">R$ 0,00</strong><small>Opcional · somente se houver no extrato</small></article>
+            <article class="card"><span>Movimentação líquida</span><strong id="fgtsNetPeriod">R$ 0,00</strong><small>Projeção + créditos − saques, neste período</small></article>
           </div>
           <button id="saveFgtsPeriod" class="btn secondary full">Salvar período de trabalho</button>
+        </section>
+        <section class="panel form-panel fgts-import">
+          <div class="section-head"><div><span class="muted">Preenchimento opcional</span><h3>Importar extrato do FGTS</h3></div></div>
+          <p class="helper">Importe um extrato em PDF ou imagem. A leitura é feita neste aparelho. Confira cada competência, tipo e valor antes de aplicar; depósitos e saques identificados são registrados após sua confirmação. DEP VERBAS IND e DEP MULTA RESCISÓRIA são opcionais: só informe ou mantenha essas linhas se aparecerem no seu extrato. Os meses sem depósito continuam sendo simulados; movimentações futuras são opcionais e podem ser preenchidas manualmente.</p>
+          <label class="btn secondary full file-label">Selecionar extrato (PDF ou imagem)
+            <input id="fgtsImportFile" type="file" accept="application/pdf,image/png,image/jpeg,image/webp,image/bmp,image/gif">
+          </label>
+          <p id="fgtsImportStatus" class="helper small-text" role="status" aria-live="polite">Nenhum extrato importado.</p>
+          <div id="fgtsImportReview" class="hidden">
+            <div class="fgts-import-header"><span>Competência</span><span>Tipo</span><span>Valor (R$)</span><span>Data</span><span></span></div>
+            <div id="fgtsImportRows"></div>
+            <div class="two-col">
+              <button id="addFgtsDepositRow" type="button" class="btn ghost">+ Depósito</button>
+              <button id="addFgtsThirteenthRow" type="button" class="btn ghost">+ Depósito 13º</button>
+              <button id="addFgtsJamRow" type="button" class="btn ghost">+ Crédito JAM</button>
+              <button id="addFgtsWithdrawalRow" type="button" class="btn ghost">+ Saque DEP</button>
+              <button id="addFgtsIndemnityRow" type="button" class="btn ghost">+ DEP VERBAS IND (opcional)</button>
+              <button id="addFgtsTerminationPenaltyRow" type="button" class="btn ghost">+ DEP MULTA RESCISÓRIA (opcional)</button>
+            </div>
+            <button id="applyFgtsImport" type="button" class="btn full">Conferir e aplicar extrato</button>
+          </div>
         </section>
         <section class="panel">
           <div class="section-head"><div><span class="muted">Competências</span><h3>Depósitos mensais</h3></div></div>
@@ -1090,7 +1116,7 @@
 
     <div class="about-version">
       <span>SaldoPlan</span>
-      <strong>v2.12.1</strong>
+      <strong>v2.12.5</strong>
     </div>
   </section>
 </section>
@@ -1362,8 +1388,8 @@
     </form>
   </dialog>
 
-<script src="drive-config.js?v=2.12.1"></script>
-<script src="app.js?v=2.12.1"></script>
-  <script type="module" src="auth.js?v=2.12.1"></script>
+<script src="drive-config.js?v=2.12.5"></script>
+<script src="app.js?v=2.12.5"></script>
+  <script type="module" src="auth.js?v=2.12.5"></script>
 </body>
 </html>
