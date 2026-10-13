@@ -1631,6 +1631,24 @@ function loadPayrollScript(src,globalName){
     document.head.appendChild(script);
   });
 }
+async function createPayrollOcrWorker(){
+  const Tesseract=await loadPayrollScript('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js','Tesseract');
+  return Tesseract.createWorker('por',1,{
+    logger:message=>{
+      const status=document.querySelector('#payrollImportStatus');
+      if(message.status==='recognizing text'){
+        status.textContent=`Lendo imagem da folha no aparelho: ${Math.round((message.progress||0)*100)}%.`;
+      }else if(message.status==='loading language traineddata'){
+        status.textContent='Preparando idioma português para leitura local...';
+      }else if(message.status==='loading tesseract core'||message.status==='initializing tesseract'){
+        status.textContent='Preparando leitura local do holerite...';
+      }
+    },
+    workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js',
+    corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1/tesseract-core.wasm.js',
+    langPath:'https://tessdata.projectnaptha.com/4.0.0'
+  });
+}
 async function loadPdfText(file){
   const pdfjs=await loadPayrollScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','pdfjsLib');
   pdfjs.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -1649,23 +1667,13 @@ async function loadPdfText(file){
   }
   let text=pages.join('\n');
   if(text.replace(/\s/g,'').length<60){
-    const Tesseract=await loadPayrollScript('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js','Tesseract');
-    const worker=await Tesseract.createWorker('por',1,{
-      logger:message=>{
-        if(message.status==='recognizing text'){
-          const percent=Math.round((message.progress||0)*100);
-          document.querySelector('#payrollImportStatus').textContent=`Lendo imagem da folha no aparelho: ${percent}%.`;
-        }
-      },
-      workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js',
-      corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1/tesseract-core.wasm.js',
-      langPath:'https://tessdata.projectnaptha.com/4.0.0'
-    });
+    document.querySelector('#payrollImportStatus').textContent='Preparando leitura local do holerite...';
+    const worker=await createPayrollOcrWorker();
     try{
       const ocrPages=[];
       for(let pageNumber=1;pageNumber<=Math.min(pdf.numPages,3);pageNumber++){
         const page=await pdf.getPage(pageNumber);
-        const viewport=page.getViewport({scale:1.7});
+        const viewport=page.getViewport({scale:2});
         const canvas=document.createElement('canvas');
         canvas.width=Math.ceil(viewport.width);
         canvas.height=Math.ceil(viewport.height);
@@ -1683,18 +1691,7 @@ async function loadPdfText(file){
   return text;
 }
 async function loadImageText(file){
-  const Tesseract=await loadPayrollScript('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js','Tesseract');
-  const worker=await Tesseract.createWorker('por',1,{
-    logger:message=>{
-      if(message.status==='recognizing text'){
-        const percent=Math.round((message.progress||0)*100);
-        document.querySelector('#payrollImportStatus').textContent=`Lendo imagem da folha no aparelho: ${percent}%.`;
-      }
-    },
-    workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js',
-    corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1/tesseract-core.wasm.js',
-    langPath:'https://tessdata.projectnaptha.com/4.0.0'
-  });
+  const worker=await createPayrollOcrWorker();
   try{
     const result=await worker.recognize(file);
     return result.data.text;
@@ -1708,25 +1705,39 @@ function normalizePayrollText(value){
 function parsePayrollAmount(text,labels){
   const lines=normalizePayrollText(text).split(/\r?\n/).map(line=>line.trim()).filter(Boolean);
   const amountPattern=/-?\d{1,3}(?:\.\d{3})*,\d{2}|-?\d+,\d{2}|-?\d+\.\d{2}/g;
+  const nextPayrollLabel=/\b(?:salario|vencimento|proventos?|rendimentos?|vantagens?|descontos?|adiant\w*|antecip\w*|inss|previdencia|contribuicao|irrf|dirf|imposto|liquido|valor)\b/i;
   for(let index=0;index<lines.length;index++){
-    if(!labels.some(label=>label.test(lines[index])))continue;
-    const candidate=lines.slice(index,index+3).join(' ');
-    const match=candidate.match(amountPattern);
-    if(match)return money(match[0]);
+    const label=labels.map(pattern=>({pattern,match:pattern.exec(lines[index])})).find(item=>item.match);
+    if(!label)continue;
+    const tail=lines[index].slice(label.match.index+label.match[0].length);
+    const nextLabel=nextPayrollLabel.exec(tail);
+    const fieldText=nextLabel?tail.slice(0,nextLabel.index):tail;
+    const sameLine=fieldText.match(amountPattern);
+    if(sameLine)return money(sameLine[sameLine.length-1]);
+    const nextLine=lines[index+1];
+    if(nextLine&&!nextPayrollLabel.test(nextLine)){
+      const nextAmounts=nextLine.match(amountPattern);
+      if(nextAmounts)return money(nextAmounts[nextAmounts.length-1]);
+    }
   }
   return null;
 }
 function parsePayrollDocument(text){
   const fields={
-    baseSalary:parsePayrollAmount(text,[/salario\s+base\b/,/vencimento\s+base\b/,/salario\s+contratual\b/]),
-    gross:parsePayrollAmount(text,[/total\s+bruto\b/,/proventos\s+totais\b/,/total\s+(?:de\s+)?proventos\b/,/total\s+de\s+vencimentos\b/,/remuneracao\s+bruta\b/,/valor\s+bruto\b/]),
-    advance:parsePayrollAmount(text,[/adiantamento(?:\s+salarial)?\b/,/antecipacao\s+salarial\b/]),
-    inss:parsePayrollAmount(text,[/\binss\b/]),
-    irrf:parsePayrollAmount(text,[/\birrf\b/,/imposto\s+de\s+renda\b/]),
-    finalPay:parsePayrollAmount(text,[/liquido\s+a\s+receber\b/,/valor\s+liquido\b/,/liquido\s+receber\b/])
+    baseSalary:parsePayrollAmount(text,[/salario\s+base\b/,/vencimento\s+base\b/,/salario\s+contratual\b/,/^salario\b/,/^vencimento\b/]),
+    gross:parsePayrollAmount(text,[/total\s+bruto\b/,/proventos\s+totais\b/,/total\s+(?:(?:de|dos|das)\s+)?proventos\b/,/total\s+(?:(?:de|dos|das)\s+)?vencimentos\b/,/total\s+(?:(?:de|dos|das)\s+)?vantagens\b/,/remuneracao\s+bruta\b/,/valor\s+bruto\b/,/total\s+de\s+rendimentos\b/]),
+    advance:parsePayrollAmount(text,[/adiant(?:amento|\.)?(?:\s+salarial)?\b/,/antecipacao\s+salarial\b/]),
+    inss:parsePayrollAmount(text,[/\binss\b/,/previdencia\s+social\b/,/contribuicao\s+previdenciaria\b/]),
+    irrf:parsePayrollAmount(text,[/\birrf\b/,/\bdirf\b/,/imposto\s+de\s+renda\b/]),
+    finalPay:parsePayrollAmount(text,[/liquido\s+a\s+receber\b/,/valor\s+liquido\b/,/liquido\s+receber\b/,/total\s+liquido\b/,/^liquido\b/])
   };
-  const found=Object.entries(fields).filter(([,value])=>value!==null);
-  if(!found.length)throw new Error('Não reconheci valores financeiros. Confira se a folha está legível ou preencha manualmente.');
+  if(fields.gross!==null){
+    if(fields.baseSalary!==null&&fields.baseSalary>fields.gross)fields.baseSalary=null;
+    if(fields.advance!==null&&(fields.advance<0||fields.advance>fields.gross))fields.advance=null;
+    if(fields.inss!==null&&(fields.inss<0||fields.inss>fields.gross))fields.inss=null;
+    if(fields.irrf!==null&&(fields.irrf<0||fields.irrf>fields.gross))fields.irrf=null;
+    if(fields.finalPay!==null&&(fields.finalPay<=0||fields.finalPay>fields.gross))fields.finalPay=null;
+  }
   return fields;
 }
 function payrollImportField(id,value){
@@ -1762,7 +1773,9 @@ async function importPayrollFile(file){
     review.classList.remove('hidden');
     const labels={baseSalary:'salário-base',gross:'remuneração bruta',advance:'adiantamento',inss:'INSS',irrf:'IRRF',finalPay:'líquido a receber'};
     const recognized=Object.entries(values).filter(([,value])=>value!==null).map(([key])=>labels[key]);
-    status.textContent=`Reconheci: ${recognized.join(', ')}. Competência selecionada: ${MONTHS[simCursor.getMonth()]} de ${simCursor.getFullYear()}. Revise os valores antes de aplicar.`;
+    status.textContent=recognized.length
+      ?`Reconheci: ${recognized.join(', ')}. Competência selecionada: ${MONTHS[simCursor.getMonth()]} de ${simCursor.getFullYear()}. Revise os valores antes de aplicar.`
+      :'Não encontrei os valores automaticamente. Os campos de revisão estão abertos para você preencher e conferir antes de aplicar.';
   }catch(error){
     console.error('Falha ao importar folha:',error);
     status.textContent=error instanceof Error?error.message:'Não foi possível ler a folha. Tente novamente ou preencha os valores manualmente.';
