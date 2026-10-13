@@ -522,10 +522,10 @@
           <div class="pay-grid">
             <div><span>Meses considerados</span><strong id="thirteenthMonthsCount">0</strong></div>
             <div><span>Salário proporcional</span><strong id="thirteenthBaseShare">R$ 0,00</strong></div>
-            <div><span>Média estimada de extras</span><strong id="thirteenthExtraShare">R$ 0,00</strong></div>
+            <div><span>Média mensal de extras · parcela proporcional no 13º</span><strong id="thirteenthExtraShare">R$ 0,00</strong></div>
             <div><span>13º bruto estimado</span><strong id="thirteenthGross">R$ 0,00</strong></div>
-            <div><span>Adiantamento bruto (50%)</span><strong id="thirteenthFirstEstimate">R$ 0,00</strong></div>
-            <div><span>Parcela final líquida estimada</span><strong id="thirteenthSecondEstimate">R$ 0,00</strong></div>
+            <div><span>1ª parcela (50% do salário proporcional)</span><strong id="thirteenthFirstEstimate">R$ 0,00</strong></div>
+            <div><span>2ª parcela após extras, abatimento e descontos</span><strong id="thirteenthSecondEstimate">R$ 0,00</strong></div>
             <div><span>Descontos estimados no 13º</span><strong id="thirteenthDeductions">R$ 0,00</strong></div>
           </div>
           <p id="thirteenthExtrasNote" class="helper"></p>
@@ -543,7 +543,7 @@
           </div>
           <label class="check-row"><input id="thirteenthSecondPaid" type="checkbox"> 2ª parcela recebida</label>
           <button id="saveThirteenth" class="btn full">Salvar cálculo e atualizar Lançamentos</button>
-          <p id="thirteenthStatus" class="helper" aria-live="polite"></p>
+          <p id="thirteenthStatus" class="helper" aria-live="polite">Os meses e o 13º bruto representam o direito estimado e não mudam ao registrar um pagamento. O valor recebido é abatido da estimativa da 2ª parcela.</p>
         </section>
       </section>
 
@@ -551,7 +551,7 @@
         <div class="section-head page-head">
           <div><span class="muted">Depósitos do empregador</span><h2>FGTS</h2></div>
         </div>
-        <p class="helper">Estimativa mensal de 8% sobre salário e adicionais registrados. Marcar um depósito como realizado atualiza esta aba, mas não altera o saldo disponível nem cria entrada em dinheiro nos Lançamentos.</p>
+        <p class="helper">Estimativa mensal de 8% sobre a remuneração bruta calculada na Simulação, incluindo adicionais e DSR da competência. Não usa líquido nem valor após adiantamento. Marcar um depósito como realizado atualiza esta aba, mas não altera o saldo disponível nem cria entrada em dinheiro nos Lançamentos.</p>
         <div class="month-row slim">
           <button class="icon-btn" id="prevFgtsYear" aria-label="Ano anterior">‹</button>
           <div><span class="muted">Ano de referência</span><h3 id="fgtsYearLabel">—</h3></div>

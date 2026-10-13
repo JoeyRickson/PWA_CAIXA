@@ -1612,7 +1612,12 @@ function irrf2026(gross,inss){
   if(gross<=5000)reduction=Math.min(before,312.89);else if(gross<=7350)reduction=Math.max(0,round2(978.62-0.133145*gross));
   reduction=Math.min(before,reduction);return {base:round2(base),before,reduction:round2(reduction),value:round2(Math.max(0,before-reduction)),deductionUsed:round2(deduction)};
 }
-function payrollMonthConfig(k=simKey()){if(!state.payrollMonths[k])state.payrollMonths[k]={holidayCount:0,referenceHours:null};return state.payrollMonths[k]}
+function payrollMonthConfig(k=simKey(),create=true){
+  if(state.payrollMonths[k])return state.payrollMonths[k];
+  if(!create)return {holidayCount:0,referenceHours:null};
+  state.payrollMonths[k]={holidayCount:0,referenceHours:null};
+  return state.payrollMonths[k];
+}
 function payrollTaxEstimate(base){
   const gross=Number(base||0);
   const inss=inss2026(gross);
@@ -1645,18 +1650,7 @@ function fgtsYearRecord(year){
 }
 function extraCompensationForMonth(year,month){
   const monthValue=`${year}-${String(month).padStart(2,'0')}`;
-  const baseSalary=Number(state.payrollConfig.baseSalary||0);
-  const hourBase=baseSalary/Math.max(1,Number(state.payrollConfig.monthlyHours||220));
-  const extras=state.overtimeLogs
-    .filter(r=>r.date?.slice(0,7)===monthValue)
-    .reduce((sum,r)=>{
-      const c=calculateExtraRecord(r);
-      return sum+(c.hours50*hourBase*1.5)+(c.hours100*hourBase*2)+(c.nightHours*hourBase*(Number(state.payrollConfig.nightPct||20)/100));
-    },0);
-  if(!extras)return 0;
-  const totalDays=new Date(year,month,0).getDate();
-  const sundays=getDSRCalendar(monthValue).sundays;
-  return round2(extras+round2(extras/Math.max(1,totalDays-sundays)*sundays));
+  return payrollSimulation(monthValue,false).extras;
 }
 function thirteenthCalculation(year,startMonth,endMonth){
   const monthsWorked=Math.max(0,endMonth-startMonth+1);
@@ -1666,13 +1660,15 @@ function thirteenthCalculation(year,startMonth,endMonth){
   for(let month=startMonth;month<=endMonth;month++){
     extraTotal=round2(extraTotal+extraCompensationForMonth(year,month));
   }
+  const extraAverage=monthsWorked?round2(extraTotal/monthsWorked):0;
   const extraShare=round2(extraTotal/12);
   const gross=round2(baseShare+extraShare);
   const tax=payrollTaxEstimate(gross);
-  const first=round2(gross/2);
+  const first=round2(baseShare/2);
   return {
     monthsWorked,
     baseShare,
+    extraAverage,
     extraShare,
     gross,
     first,
@@ -1681,10 +1677,9 @@ function thirteenthCalculation(year,startMonth,endMonth){
     net:tax.net
   };
 }
-function payrollSimulation(){
+function payrollSimulation(k=simKey(),createMonthConfig=true){
   const cfg = state.payrollConfig,
-      k = simKey(),
-      monthCfg = payrollMonthConfig(k);
+      monthCfg = payrollMonthConfig(k,createMonthConfig);
 
 const logs = state.overtimeLogs.filter(
   x => payrollCompetenceKey(x.date) === k
@@ -1731,16 +1726,18 @@ function renderThirteenth(preserveSelection=false){
   const secondTx=thirteenthTransaction(year,'second');
   const firstAmount=firstTx?.amount??record.firstAmount??calc.first;
   const defaultSecond=round2(Math.max(0,calc.net-Number(firstAmount||0)));
-  const secondAmount=secondTx?.amount??record.secondAmount??defaultSecond;
+  const secondAmount=secondTx?.status==='realized'
+    ?secondTx.amount
+    :defaultSecond;
   const firstDate=firstTx?.date||record.firstDate;
   const secondDate=secondTx?.date||record.secondDate;
-  document.querySelector('#thirteenthSalaryBase').textContent=`Salário-base atual: ${fmt.format(Number(state.payrollConfig.baseSalary||0))}. As horas extras e o adicional noturno registrados no período entram como média estimada.`;
+  document.querySelector('#thirteenthSalaryBase').textContent=`Base mensal bruta da simulação: ${fmt.format(Number(state.payrollConfig.baseSalary||0))}, acrescida dos adicionais e DSR brutos de cada competência. Líquido e valor após adiantamento não compõem o 13º bruto.`;
   document.querySelector('#thirteenthMonthsCount').textContent=String(calc.monthsWorked);
   document.querySelector('#thirteenthBaseShare').textContent=fmt.format(calc.baseShare);
-  document.querySelector('#thirteenthExtraShare').textContent=fmt.format(calc.extraShare);
+  document.querySelector('#thirteenthExtraShare').textContent=`${fmt.format(calc.extraAverage)} / mês · ${fmt.format(calc.extraShare)} no 13º`;
   document.querySelector('#thirteenthGross').textContent=fmt.format(calc.gross);
-  document.querySelector('#thirteenthFirstEstimate').textContent=fmt.format(calc.first);
-  document.querySelector('#thirteenthSecondEstimate').textContent=fmt.format(calc.second);
+  document.querySelector('#thirteenthFirstEstimate').textContent=fmt.format(firstAmount);
+  document.querySelector('#thirteenthSecondEstimate').textContent=fmt.format(Math.max(0,calc.net-Number(firstAmount||0)));
   document.querySelector('#thirteenthDeductions').textContent=fmt.format(calc.deductions);
   document.querySelector('#thirteenthExtrasNote').textContent=`Parcela variável estimada pelas horas extras registradas entre ${MONTHS[startMonth-1]} e ${MONTHS[endMonth-1]}, incluindo DSR aproximado. Os descontos usam as tabelas 2026 disponíveis no simulador e são apenas estimativas; confira a folha oficial.`;
   document.querySelector('#thirteenthFirstAmount').value=Number(firstAmount).toFixed(2).replace('.',',');
@@ -1749,7 +1746,9 @@ function renderThirteenth(preserveSelection=false){
   document.querySelector('#thirteenthSecondDate').value=secondDate||'';
   document.querySelector('#thirteenthFirstPaid').checked=firstTx?firstTx.status==='realized':!!record.firstPaid;
   document.querySelector('#thirteenthSecondPaid').checked=secondTx?secondTx.status==='realized':!!record.secondPaid;
-  document.querySelector('#thirteenthStatus').textContent=firstTx||secondTx?'As parcelas vinculadas aos Lançamentos refletem os status atuais de recebimento.':'Salve para incluir as parcelas nos Lançamentos.';
+  document.querySelector('#thirteenthStatus').textContent=secondTx?.status==='realized'
+    ?'A 1ª parcela é estimada em 50% do salário proporcional, sem descontos. As horas extras aumentam o 13º bruto e entram no ajuste da 2ª parcela, junto com os descontos. Como a 2ª parcela já está marcada como recebida, o valor do lançamento é preservado.'
+    :'A 1ª parcela é estimada em 50% do salário proporcional, sem extras ou descontos. A média de extras aumenta o 13º bruto e é considerada no ajuste da 2ª parcela, que desconta o valor já recebido e os tributos estimados.';
 }
 function renderFgts(){
   const year=fgtsViewYear,record=fgtsYearRecord(year),startMonth=Number(record.startMonth||1),endMonth=Number(record.endMonth||12);
@@ -1759,8 +1758,9 @@ function renderFgts(){
   const monthly=[];
   if(startMonth<=endMonth){
     for(let month=startMonth;month<=endMonth;month++){
-      const extra=extraCompensationForMonth(year,month);
-      const amount=round2((Number(state.payrollConfig.baseSalary||0)+extra)*0.08);
+      const monthValue=`${year}-${String(month).padStart(2,'0')}`;
+      const monthPayroll=payrollSimulation(monthValue,false);
+      const amount=round2(monthPayroll.gross*0.08);
       const deposit=record.deposits?.[String(month)]||{};
       monthly.push({month,amount,deposit});
     }
@@ -2115,7 +2115,15 @@ document.querySelector('#thirteenthFirstAmount').addEventListener('input',()=>{
     Number(document.querySelector('#thirteenthEndMonth').value)
   );
   const firstAmount=money(document.querySelector('#thirteenthFirstAmount').value);
-  document.querySelector('#thirteenthSecondAmount').value=round2(Math.max(0,calc.net-firstAmount)).toFixed(2).replace('.',',');
+  const secondAmount=round2(Math.max(0,calc.net-firstAmount));
+  document.querySelector('#thirteenthSecondAmount').value=secondAmount.toFixed(2).replace('.',',');
+  document.querySelector('#thirteenthFirstEstimate').textContent=fmt.format(firstAmount);
+  document.querySelector('#thirteenthSecondEstimate').textContent=fmt.format(secondAmount);
+});
+document.querySelector('#thirteenthSecondAmount').addEventListener('input',()=>{
+  document.querySelector('#thirteenthSecondEstimate').textContent=fmt.format(
+    Math.max(0,money(document.querySelector('#thirteenthSecondAmount').value))
+  );
 });
 document.querySelector('#saveThirteenth').onclick=saveThirteenth;
 document.querySelector('#saveFgtsPeriod').onclick=()=>{
