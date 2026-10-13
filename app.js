@@ -130,7 +130,7 @@ function migrateState(raw){
   if(!migrated.fgtsAccounts.length&&Object.keys(migrated.fgtsByYear).length){
     migrated.fgtsAccounts.push({
       id:'fgts-legacy',
-      employer:'Conta anterior · dados anuais',
+      employer:'Histórico anual antigo · contas não separadas',
       accountNumber:'',
       currentBalance:null,
       balanceDate:'',
@@ -1980,7 +1980,10 @@ function applyFgtsImport(){
       account.currentBalance=fgtsImportAccount.currentBalance;
       account.balanceDate=fgtsImportAccount.balanceDate||account.balanceDate;
     }
-    state.activeFgtsAccountId=account.id;
+    const selectedAccount=activeFgtsAccount();
+    if(!selectedAccount||selectedAccount.isLegacy||(selectedAccount.terminationDate&&!account.terminationDate)){
+      state.activeFgtsAccountId=account.id;
+    }
   }
   for(const {year,month,deposits,jam,thirteenth,withdrawals,jamWithdrawals,indemnities,terminationPenalties} of byCompetence.values()){
     const record=fgtsYearRecord(year,account);
@@ -2186,13 +2189,17 @@ function renderFgtsAccounts(){
     ?`${withBalance.length} saldo(s) importado(s) · atualizado(s) conforme a data de cada extrato`
     :'Importe os extratos de cada empregador para compor o saldo total da Caixa.';
   list.innerHTML=accounts.length?accounts.map(account=>{
-    const details=[
+    const details=account.isLegacy
+      ?'Histórico anterior preservado; reimporte cada extrato para separar empregadores.'
+      :[
       account.accountNumber?`Conta ${escapeHtml(account.accountNumber)}`:'',
       account.admissionDate?`Admissão ${formatDate(account.admissionDate)}`:'',
-      account.terminationDate?`Afastamento ${formatDate(account.terminationDate)}`:''
+      account.terminationDate?`Afastamento ${formatDate(account.terminationDate)}`:'Vínculo ativo'
     ].filter(Boolean).join(' · ');
-    const balance=account.currentBalance===null||account.currentBalance===undefined
-      ?'<strong>Saldo não importado</strong>'
+    const balance=account.isLegacy
+      ?'<strong>Fora do saldo consolidado</strong><span>Sem identificação individual</span>'
+      :account.currentBalance===null||account.currentBalance===undefined
+        ?'<strong>Saldo não importado</strong>'
       :`<strong>${fmt.format(Number(account.currentBalance))}</strong><span>${account.balanceDate?`Em ${formatDate(account.balanceDate)}`:'Data não identificada'}</span>`;
     return `<div class="item"><span class="item-icon">▣</span><span class="item-main"><strong>${escapeHtml(account.employer||'Empregador não identificado')}</strong><span>${details||'Conta importada'}</span></span><span class="item-side">${balance}</span></div>`;
   }).join(''):'<div class="empty">Ainda não há contas importadas. Importe um extrato completo por empregador para registrar seu saldo real.</div>';
