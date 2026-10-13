@@ -2176,6 +2176,41 @@ function fgtsYearRecord(year,account=activeFgtsAccount()){
   const endMonth=termination&&Number(termination.slice(0,4))===Number(year)?Number(termination.slice(5,7)):12;
   return annualRecord(records,year,{startMonth,endMonth,deposits:{}});
 }
+function fgtsAccountBalance(account){
+  if(account.isLegacy)return null;
+  let balance=Number(account.currentBalance)||0;
+  const snapshotDate=account.balanceDate||'';
+  const addMovement=(amount,date)=>{
+    const value=Number(amount)||0;
+    if(value&&(!snapshotDate||!date||date>snapshotDate))balance+=value;
+  };
+  const subtractMovement=(amount,date)=>{
+    const value=Number(amount)||0;
+    if(value&&(!snapshotDate||!date||date>snapshotDate))balance-=value;
+  };
+  for(const [yearKey,record] of Object.entries(account.years||{})){
+    const year=Number(yearKey);
+    if(!Number.isInteger(year)||!record?.deposits)continue;
+    for(const [monthKeyValue,deposit] of Object.entries(record.deposits)){
+      if(monthKeyValue==='thirteenth'||!(/^(0?[1-9]|1[0-2])$/.test(monthKeyValue)))continue;
+      const month=Number(monthKeyValue);
+      const date=deposit.date||`${year}-${String(month).padStart(2,'0')}-${String(new Date(year,month,0).getDate()).padStart(2,'0')}`;
+      if(deposit.paid)addMovement(deposit.amount,date);
+      addMovement(deposit.indemnity,deposit.indemnityDate||date);
+      addMovement(deposit.terminationPenalty,deposit.terminationPenaltyDate||date);
+      addMovement(deposit.jam,deposit.jamDate||date);
+      subtractMovement(deposit.withdrawal,deposit.withdrawalDate||date);
+      subtractMovement(deposit.jamWithdrawal,deposit.jamWithdrawalDate||date);
+    }
+    const thirteenth=record.deposits.thirteenth;
+    if(thirteenth){
+      const date=thirteenth.date||`${year}-12-31`;
+      if(thirteenth.paid)addMovement(thirteenth.amount,date);
+      addMovement(thirteenth.jam,thirteenth.jamDate||date);
+    }
+  }
+  return round2(balance);
+}
 function renderFgtsAccounts(){
   const totalEl=document.querySelector('#fgtsAccountsTotal');
   const countEl=document.querySelector('#fgtsAccountsCount');
@@ -2183,10 +2218,12 @@ function renderFgtsAccounts(){
   const selectorWrap=document.querySelector('#fgtsAccountSelectorWrap');
   const selector=document.querySelector('#fgtsAccountSelect');
   const accounts=state.fgtsAccounts;
-  const withBalance=accounts.filter(account=>account.currentBalance!==null&&account.currentBalance!==undefined&&Number.isFinite(Number(account.currentBalance)));
-  totalEl.textContent=fmt.format(round2(withBalance.reduce((sum,account)=>sum+Number(account.currentBalance),0)));
+  const activeAccounts=accounts.filter(account=>!account.isLegacy);
+  const withBalance=activeAccounts.filter(account=>account.currentBalance!==null&&account.currentBalance!==undefined);
+  const totalBalance=round2(activeAccounts.reduce((sum,account)=>sum+fgtsAccountBalance(account),0));
+  totalEl.textContent=fmt.format(totalBalance);
   countEl.textContent=withBalance.length
-    ?`${withBalance.length} saldo(s) importado(s) · atualizado(s) conforme a data de cada extrato`
+    ?`${withBalance.length} saldo(s) de extrato + movimentações posteriores confirmadas`
     :'Importe os extratos de cada empregador para compor o saldo total da Caixa.';
   list.innerHTML=accounts.length?accounts.map(account=>{
     const details=account.isLegacy
@@ -2199,8 +2236,8 @@ function renderFgtsAccounts(){
     const balance=account.isLegacy
       ?'<strong>Fora do saldo consolidado</strong><span>Sem identificação individual</span>'
       :account.currentBalance===null||account.currentBalance===undefined
-        ?'<strong>Saldo não importado</strong>'
-      :`<strong>${fmt.format(Number(account.currentBalance))}</strong><span>${account.balanceDate?`Em ${formatDate(account.balanceDate)}`:'Data não identificada'}</span>`;
+        ?`<strong>${fmt.format(fgtsAccountBalance(account))}</strong><span>Depósitos confirmados lançados manualmente</span>`
+      :`<strong>${fmt.format(fgtsAccountBalance(account))}</strong><span>${account.balanceDate?`Saldo do extrato em ${formatDate(account.balanceDate)}`:'Saldo do extrato'}${fgtsAccountBalance(account)!==Number(account.currentBalance)?` · atualizado com lançamentos posteriores`:''}</span>`;
     return `<div class="item"><span class="item-icon">▣</span><span class="item-main"><strong>${escapeHtml(account.employer||'Empregador não identificado')}</strong><span>${details||'Conta importada'}</span></span><span class="item-side">${balance}</span></div>`;
   }).join(''):'<div class="empty">Ainda não há contas importadas. Importe um extrato completo por empregador para registrar seu saldo real.</div>';
   selectorWrap.classList.toggle('hidden',!accounts.length);

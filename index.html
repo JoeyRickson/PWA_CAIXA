@@ -20,7 +20,7 @@
   sizes="180x180"
   href="icons/apple-touch-icon.png"
 />
-  <link rel="stylesheet" href="styles.css?v=2.13.1" />
+  <link rel="stylesheet" href="styles.css?v=2.13.2" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -92,7 +92,7 @@
     <header class="topbar">
       <div>
         <p class="eyebrow">CONTROLE FINANCEIRO</p>
-        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.13.1</small></h1>
+        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.13.2</small></h1>
       </div>
       <div class="top-actions">
 
@@ -576,11 +576,11 @@
         <div class="section-head page-head">
           <div><span class="muted">Depósitos do empregador</span><h2>FGTS</h2></div>
         </div>
-        <p class="helper">Os saldos reais importados de cada conta são somados independentemente do ano e separados por empregador. A projeção anual continua isolada por conta: estima 8% da remuneração bruta apenas para o vínculo ativo e não mistura saldo acumulado com valores projetados. Créditos JAM e saques aparecem separadamente.</p>
+        <p class="helper">O saldo consolidado soma o último saldo importado de cada empregador com as movimentações registradas depois da data daquele extrato: depósitos marcados como confirmados, verbas rescisórias, JAM e saques (abatidos). Isso atualiza o saldo mesmo quando você registra o depósito manualmente. A projeção anual fica separada e não é somada ao saldo real.</p>
         <section class="panel fgts-accounts-panel">
           <div class="section-head"><div><span class="muted">Saldos reais dos extratos</span><h3>Contas FGTS</h3></div></div>
           <div class="grid kpis compact-kpis">
-            <article class="card"><span>Saldo atual consolidado</span><strong id="fgtsAccountsTotal">R$ 0,00</strong><small id="fgtsAccountsCount">Importe os extratos de cada empregador</small></article>
+            <article class="card"><span>Saldo consolidado atualizado</span><strong id="fgtsAccountsTotal">R$ 0,00</strong><small id="fgtsAccountsCount">Saldo dos extratos + movimentações posteriores confirmadas</small></article>
           </div>
           <div id="fgtsAccountList" class="list"></div>
           <label id="fgtsAccountSelectorWrap" class="hidden">Conta para ver o histórico e a projeção anual<select id="fgtsAccountSelect"></select></label>
@@ -1126,7 +1126,7 @@
 
     <div class="about-version">
       <span>SaldoPlan</span>
-      <strong>v2.13.1</strong>
+      <strong>v2.13.2</strong>
     </div>
   </section>
 </section>
@@ -1398,8 +1398,8 @@
     </form>
   </dialog>
 
-<script src="drive-config.js?v=2.13.1"></script>
-<script src="app.js?v=2.13.1"></script>
-  <script type="module" src="auth.js?v=2.13.1"></script>
+<script src="drive-config.js?v=2.13.2"></script>
+<script src="app.js?v=2.13.2"></script>
+  <script type="module" src="auth.js?v=2.13.2"></script>
 </body>
 </html>
