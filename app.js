@@ -1612,6 +1612,203 @@ function irrf2026(gross,inss){
   if(gross<=5000)reduction=Math.min(before,312.89);else if(gross<=7350)reduction=Math.max(0,round2(978.62-0.133145*gross));
   reduction=Math.min(before,reduction);return {base:round2(base),before,reduction:round2(reduction),value:round2(Math.max(0,before-reduction)),deductionUsed:round2(deduction)};
 }
+function loadPayrollScript(src,globalName){
+  if(window[globalName])return Promise.resolve(window[globalName]);
+  const existing=document.querySelector(`script[data-payroll-lib="${globalName}"]`);
+  if(existing){
+    return new Promise((resolve,reject)=>{
+      existing.addEventListener('load',()=>window[globalName]?resolve(window[globalName]):reject(new Error(`Biblioteca ${globalName} indisponível.`)),{once:true});
+      existing.addEventListener('error',()=>reject(new Error(`Não foi possível carregar a biblioteca ${globalName}.`)),{once:true});
+    });
+  }
+  return new Promise((resolve,reject)=>{
+    const script=document.createElement('script');
+    script.src=src;
+    script.async=true;
+    script.dataset.payrollLib=globalName;
+    script.onload=()=>window[globalName]?resolve(window[globalName]):reject(new Error(`Biblioteca ${globalName} indisponível.`));
+    script.onerror=()=>reject(new Error(`Não foi possível carregar a biblioteca ${globalName}. Confira sua conexão e tente novamente.`));
+    document.head.appendChild(script);
+  });
+}
+async function loadPdfText(file){
+  const pdfjs=await loadPayrollScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','pdfjsLib');
+  pdfjs.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const pdf=await pdfjs.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
+  const pages=[];
+  for(let pageNumber=1;pageNumber<=Math.min(pdf.numPages,8);pageNumber++){
+    const page=await pdf.getPage(pageNumber);
+    const content=await page.getTextContent();
+    const rows=new Map();
+    content.items.forEach(item=>{
+      if(!item.str?.trim())return;
+      const y=Math.round(item.transform?.[5]||0);
+      rows.set(y,`${rows.get(y)||''} ${item.str}`);
+    });
+    pages.push([...rows.entries()].sort((a,b)=>b[0]-a[0]).map(([,line])=>line.trim()).join('\n'));
+  }
+  let text=pages.join('\n');
+  if(text.replace(/\s/g,'').length<60){
+    const Tesseract=await loadPayrollScript('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js','Tesseract');
+    const worker=await Tesseract.createWorker('por',1,{
+      logger:message=>{
+        if(message.status==='recognizing text'){
+          const percent=Math.round((message.progress||0)*100);
+          document.querySelector('#payrollImportStatus').textContent=`Lendo imagem da folha no aparelho: ${percent}%.`;
+        }
+      },
+      workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js',
+      corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1/tesseract-core.wasm.js',
+      langPath:'https://tessdata.projectnaptha.com/4.0.0'
+    });
+    try{
+      const ocrPages=[];
+      for(let pageNumber=1;pageNumber<=Math.min(pdf.numPages,3);pageNumber++){
+        const page=await pdf.getPage(pageNumber);
+        const viewport=page.getViewport({scale:1.7});
+        const canvas=document.createElement('canvas');
+        canvas.width=Math.ceil(viewport.width);
+        canvas.height=Math.ceil(viewport.height);
+        await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;
+        const result=await worker.recognize(canvas);
+        ocrPages.push(result.data.text);
+        canvas.width=0;
+        canvas.height=0;
+      }
+      text=ocrPages.join('\n');
+    }finally{
+      await worker.terminate();
+    }
+  }
+  return text;
+}
+async function loadImageText(file){
+  const Tesseract=await loadPayrollScript('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js','Tesseract');
+  const worker=await Tesseract.createWorker('por',1,{
+    logger:message=>{
+      if(message.status==='recognizing text'){
+        const percent=Math.round((message.progress||0)*100);
+        document.querySelector('#payrollImportStatus').textContent=`Lendo imagem da folha no aparelho: ${percent}%.`;
+      }
+    },
+    workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js',
+    corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1/tesseract-core.wasm.js',
+    langPath:'https://tessdata.projectnaptha.com/4.0.0'
+  });
+  try{
+    const result=await worker.recognize(file);
+    return result.data.text;
+  }finally{
+    await worker.terminate();
+  }
+}
+function normalizePayrollText(value){
+  return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+}
+function parsePayrollAmount(text,labels){
+  const lines=normalizePayrollText(text).split(/\r?\n/).map(line=>line.trim()).filter(Boolean);
+  const amountPattern=/-?\d{1,3}(?:\.\d{3})*,\d{2}|-?\d+,\d{2}|-?\d+\.\d{2}/g;
+  for(let index=0;index<lines.length;index++){
+    if(!labels.some(label=>label.test(lines[index])))continue;
+    const candidate=lines.slice(index,index+3).join(' ');
+    const match=candidate.match(amountPattern);
+    if(match)return money(match[0]);
+  }
+  return null;
+}
+function parsePayrollDocument(text){
+  const fields={
+    baseSalary:parsePayrollAmount(text,[/salario\s+base\b/,/vencimento\s+base\b/,/salario\s+contratual\b/]),
+    gross:parsePayrollAmount(text,[/total\s+bruto\b/,/proventos\s+totais\b/,/total\s+(?:de\s+)?proventos\b/,/total\s+de\s+vencimentos\b/,/remuneracao\s+bruta\b/,/valor\s+bruto\b/]),
+    advance:parsePayrollAmount(text,[/adiantamento(?:\s+salarial)?\b/,/antecipacao\s+salarial\b/]),
+    inss:parsePayrollAmount(text,[/\binss\b/]),
+    irrf:parsePayrollAmount(text,[/\birrf\b/,/imposto\s+de\s+renda\b/]),
+    finalPay:parsePayrollAmount(text,[/liquido\s+a\s+receber\b/,/valor\s+liquido\b/,/liquido\s+receber\b/])
+  };
+  const found=Object.entries(fields).filter(([,value])=>value!==null);
+  if(!found.length)throw new Error('Não reconheci valores financeiros. Confira se a folha está legível ou preencha manualmente.');
+  return fields;
+}
+function payrollImportField(id,value){
+  const input=document.querySelector(`#${id}`);
+  input.value=value===null||value===undefined?'':Number(value).toFixed(2).replace('.',',');
+}
+async function importPayrollFile(file){
+  const status=document.querySelector('#payrollImportStatus');
+  const review=document.querySelector('#payrollImportReview');
+  review.classList.add('hidden');
+  if(!file)return;
+  if(file.size>20*1024*1024){
+    status.textContent='O arquivo excede o limite de 20 MB. Reduza a imagem ou exporte a folha em PDF.';
+    document.querySelector('#payrollImportFile').value='';
+    return;
+  }
+  const isPdf=file.type==='application/pdf'||/\.pdf$/i.test(file.name);
+  if(!file.type.startsWith('image/')&&!isPdf){
+    status.textContent='Formato não suportado. Escolha um PDF ou uma imagem.';
+    document.querySelector('#payrollImportFile').value='';
+    return;
+  }
+  status.textContent='Lendo arquivo neste aparelho...';
+  try{
+    const text=isPdf?await loadPdfText(file):await loadImageText(file);
+    const values=parsePayrollDocument(text);
+    payrollImportField('payrollImportBase',values.baseSalary);
+    payrollImportField('payrollImportGross',values.gross);
+    payrollImportField('payrollImportAdvance',values.advance);
+    payrollImportField('payrollImportInss',values.inss);
+    payrollImportField('payrollImportIrrf',values.irrf);
+    payrollImportField('payrollImportNet',values.finalPay);
+    review.classList.remove('hidden');
+    const labels={baseSalary:'salário-base',gross:'remuneração bruta',advance:'adiantamento',inss:'INSS',irrf:'IRRF',finalPay:'líquido a receber'};
+    const recognized=Object.entries(values).filter(([,value])=>value!==null).map(([key])=>labels[key]);
+    status.textContent=`Reconheci: ${recognized.join(', ')}. Competência selecionada: ${MONTHS[simCursor.getMonth()]} de ${simCursor.getFullYear()}. Revise os valores antes de aplicar.`;
+  }catch(error){
+    console.error('Falha ao importar folha:',error);
+    status.textContent=error instanceof Error?error.message:'Não foi possível ler a folha. Tente novamente ou preencha os valores manualmente.';
+  }finally{
+    document.querySelector('#payrollImportFile').value='';
+  }
+}
+function applyPayrollImport(){
+  const grossText=document.querySelector('#payrollImportGross').value.trim();
+  const baseText=document.querySelector('#payrollImportBase').value.trim();
+  if(!grossText||money(grossText)<=0){
+    alert('Informe e confira a remuneração bruta reconhecida na folha.');
+    document.querySelector('#payrollImportGross').focus();
+    return;
+  }
+  if(baseText&&money(baseText)>0)state.payrollConfig.baseSalary=money(baseText);
+  const monthCfg=payrollMonthConfig();
+  const advanceText=document.querySelector('#payrollImportAdvance').value.trim();
+  const inssText=document.querySelector('#payrollImportInss').value.trim();
+  const irrfText=document.querySelector('#payrollImportIrrf').value.trim();
+  const finalPayText=document.querySelector('#payrollImportNet').value.trim();
+  const baseSalary=baseText?money(baseText):Number(state.payrollConfig.baseSalary||0);
+  monthCfg.importedPayroll={
+    baseSalary,
+    gross:money(grossText),
+    advance:advanceText?money(advanceText):null,
+    inss:inssText?money(inssText):null,
+    irrf:irrfText?money(irrfText):null,
+    finalPay:finalPayText?money(finalPayText):null,
+    importedAt:new Date().toISOString()
+  };
+  save();
+  renderAll();
+  document.querySelector('#payrollImportReview').classList.add('hidden');
+  document.querySelector('#payrollImportStatus').textContent=`Folha aplicada à competência ${MONTHS[simCursor.getMonth()]} de ${simCursor.getFullYear()}. O bruto importado será usado no 13º e no FGTS.`;
+  document.querySelector('#clearPayrollImport').classList.remove('hidden');
+}
+function clearPayrollImport(){
+  const monthCfg=payrollMonthConfig(simKey(),false);
+  if(!monthCfg.importedPayroll)return;
+  delete monthCfg.importedPayroll;
+  save();
+  renderAll();
+  document.querySelector('#payrollImportStatus').textContent=`Importação removida de ${MONTHS[simCursor.getMonth()]} de ${simCursor.getFullYear()}; a competência voltou ao cálculo manual.`;
+  document.querySelector('#clearPayrollImport').classList.add('hidden');
+}
 function payrollMonthConfig(k=simKey(),create=true){
   if(state.payrollMonths[k])return state.payrollMonths[k];
   if(!create)return {holidayCount:0,referenceHours:null};
@@ -1654,11 +1851,12 @@ function extraCompensationForMonth(year,month){
 }
 function thirteenthCalculation(year,startMonth,endMonth){
   const monthsWorked=Math.max(0,endMonth-startMonth+1);
-  const baseSalary=Number(state.payrollConfig.baseSalary||0);
-  const baseShare=round2(baseSalary*monthsWorked/12);
+  const baseShare=round2(Number(state.payrollConfig.baseSalary||0)*monthsWorked/12);
   let extraTotal=0;
   for(let month=startMonth;month<=endMonth;month++){
-    extraTotal=round2(extraTotal+extraCompensationForMonth(year,month));
+    const key=`${year}-${String(month).padStart(2,'0')}`;
+    const payroll=payrollSimulation(key,false);
+    extraTotal=round2(extraTotal+payroll.extras);
   }
   const extraAverage=monthsWorked?round2(extraTotal/monthsWorked):0;
   const extraShare=round2(extraTotal/12);
@@ -1680,6 +1878,7 @@ function thirteenthCalculation(year,startMonth,endMonth){
 function payrollSimulation(k=simKey(),createMonthConfig=true){
   const cfg = state.payrollConfig,
       monthCfg = payrollMonthConfig(k,createMonthConfig);
+  const imported=monthCfg.importedPayroll||null;
 
 const logs = state.overtimeLogs.filter(
   x => payrollCompetenceKey(x.date) === k
@@ -1687,17 +1886,33 @@ const logs = state.overtimeLogs.filter(
   let h50=0,h100=0,night=0;
   logs.forEach(r=>{const c=calculateExtraRecord(r);h50+=c.hours50;h100+=c.hours100;night+=c.nightHours});
   if(monthCfg.referenceHours&&logs.length===0){h50=Number(monthCfg.referenceHours.h50||0);h100=Number(monthCfg.referenceHours.h100||0);night=Number(monthCfg.referenceHours.night||0)}
-  const hourBase=Number(cfg.baseSalary||0)/Math.max(1,Number(cfg.monthlyHours||220));
+  const baseSalary=Number(imported?.baseSalary??cfg.baseSalary??0);
+  const hourBase=baseSalary/Math.max(1,Number(cfg.monthlyHours||220));
   const v50=round2(h50*hourBase*1.5),v100=round2(h100*hourBase*2),nightValue=round2(night*hourBase*(Number(cfg.nightPct||20)/100));
   const extraBase=round2(v50+v100+nightValue),calendar=getDSRCalendar(k),restDays=calendar.sundays,workDays=Math.max(1,calendar.totalDays-calendar.sundays),dsr=round2(extraBase/workDays*restDays);
-  const extras=round2(extraBase+dsr),gross=round2(Number(cfg.baseSalary||0)+extras),inss=inss2026(gross),ir=irrf2026(gross,inss),netMonth=round2(gross-inss-ir.value),advance=round2(Number(cfg.advance||0)),finalPay=round2(netMonth-advance);
-  return {k,h50,h100,night,hourBase,v50,v100,nightValue,extraBase,sundays:calendar.sundays,holidays:0,automaticHolidays:0,manualHolidays:0,restDays,workDays,dsr,extras,gross,inss,ir,netMonth,advance,finalPay,logs,reference:monthCfg.referenceHours&&logs.length===0};
+  let extras=round2(extraBase+dsr),gross=round2(baseSalary+extras),inss=inss2026(gross),ir=irrf2026(gross,inss),netMonth=round2(gross-inss-ir.value),advance=Number(cfg.advance||0),finalPay=round2(netMonth-advance);
+  if(imported){
+    gross=round2(Number(imported.gross));
+    extras=round2(gross-baseSalary);
+    inss=imported.inss===null?inss2026(gross):Number(imported.inss);
+    ir=irrf2026(gross,inss);
+    if(imported.irrf!==null)ir.value=Number(imported.irrf);
+    advance=imported.advance===null?advance:Number(imported.advance);
+    netMonth=round2(gross-inss-ir.value);
+    finalPay=imported.finalPay===null?round2(netMonth-advance):Number(imported.finalPay);
+  }
+  return {k,baseSalary,h50,h100,night,hourBase,v50,v100,nightValue,extraBase,sundays:calendar.sundays,holidays:0,automaticHolidays:0,manualHolidays:0,restDays,workDays,dsr,extras,gross,inss,ir,netMonth,advance,finalPay,logs,reference:monthCfg.referenceHours&&logs.length===0,imported:!!imported};
 }
 function renderSimulator(){
   const referenceButton=document.querySelector('#loadJulyReference');if(referenceButton)referenceButton.textContent='Referência set/26';
   document.querySelector('#simMonthLabel').textContent=`${MONTHS[simCursor.getMonth()]} ${simCursor.getFullYear()}`;
-  const cfg=state.payrollConfig,monthCfg=payrollMonthConfig();document.querySelector('#simBaseSalary').value=Number(cfg.baseSalary).toFixed(2).replace('.',',');document.querySelector('#simMonthlyHours').value=cfg.monthlyHours;document.querySelector('#simAdvance').value=Number(cfg.advance).toFixed(2).replace('.',',');document.querySelector('#simHolidayCount').value=monthCfg.holidayCount||0;document.querySelector('#simNightPct').value=cfg.nightPct;document.querySelector('#simExtraGoal').value=cfg.extraGoal||0;
+  const cfg=state.payrollConfig,monthCfg=payrollMonthConfig();document.querySelector('#simBaseSalary').value=Number(cfg.baseSalary).toFixed(2).replace('.',',');document.querySelector('#simMonthlyHours').value=cfg.monthlyHours;document.querySelector('#simAdvance').value=Number(monthCfg.importedPayroll?.advance??cfg.advance).toFixed(2).replace('.',',');document.querySelector('#simHolidayCount').value=monthCfg.holidayCount||0;document.querySelector('#simNightPct').value=cfg.nightPct;document.querySelector('#simExtraGoal').value=cfg.extraGoal||0;
   const p=payrollSimulation();
+  const importStatus=document.querySelector('#payrollImportStatus');
+  const clearImportButton=document.querySelector('#clearPayrollImport');
+  if(importStatus&&p.imported)importStatus.textContent=`Folha importada e aplicada para ${MONTHS[simCursor.getMonth()]} de ${simCursor.getFullYear()}. Valores anuais usam o bruto reconhecido.`;
+  else if(importStatus)importStatus.textContent='Nenhuma folha importada para esta competência.';
+  if(clearImportButton)clearImportButton.classList.toggle('hidden',!p.imported);
   document.querySelector('#simHours50').textContent=hoursLabel(p.h50);document.querySelector('#simValue50').textContent=fmt.format(p.v50);document.querySelector('#simHours100').textContent=hoursLabel(p.h100);document.querySelector('#simValue100').textContent=fmt.format(p.v100);document.querySelector('#simNightHours').textContent=hoursLabel(p.night);document.querySelector('#simNightValue').textContent=fmt.format(p.nightValue);setMoney('simDsrValue',p.dsr);document.querySelector('#simDsrDetail').textContent=`${p.restDays} DSR / ${p.workDays} dias no divisor`;
   setMoney('payBase',state.payrollConfig.baseSalary);setMoney('payExtras',p.extras);setMoney('payGross',p.gross);document.querySelector('#payInss').textContent=`− ${fmt.format(p.inss)}`;document.querySelector('#payIrrf').textContent=`− ${fmt.format(p.ir.value)}`;setMoney('payNetMonth',p.netMonth);document.querySelector('#payAdvance').textContent=`− ${fmt.format(p.advance)}`;setMoney('payFinal',p.finalPay);
   document.querySelector('#payrollReferenceNote').textContent=p.reference?'Referência de setembro/2026 carregada: 60h00 de HE 50%, 0h00 de HE 100% e 6h00 de adicional noturno. A calibração reproduz o holerite de setembro.':'INSS e IRRF usam as tabelas de 2026; o DSR da simulação segue o padrão observado no holerite de setembro, usando os domingos do mês.';
@@ -2878,6 +3093,9 @@ extraForm.addEventListener('submit',e=>{e.preventDefault();const id=document.que
 document.querySelector('#deleteExtra').onclick=()=>{const id=document.querySelector('#extraId').value;if(!id||!confirm('Excluir este registro de hora extra?'))return;state.overtimeLogs=state.overtimeLogs.filter(x=>x.id!==id);save();extraDlg.close();renderAll()};
 
 document.querySelector('#savePayrollConfig').onclick=()=>{state.payrollConfig.baseSalary=money(document.querySelector('#simBaseSalary').value);state.payrollConfig.monthlyHours=Math.max(1,decimal(document.querySelector('#simMonthlyHours').value));state.payrollConfig.advance=money(document.querySelector('#simAdvance').value);state.payrollConfig.nightPct=Math.max(0,decimal(document.querySelector('#simNightPct').value));state.payrollConfig.extraGoal=Math.max(0,decimal(document.querySelector('#simExtraGoal').value));payrollMonthConfig().holidayCount=Math.max(0,Number(document.querySelector('#simHolidayCount').value||0));save();renderAll();alert('Parâmetros da simulação salvos.')};
+document.querySelector('#payrollImportFile').addEventListener('change',e=>importPayrollFile(e.target.files?.[0]));
+document.querySelector('#applyPayrollImport').addEventListener('click',applyPayrollImport);
+document.querySelector('#clearPayrollImport').addEventListener('click',clearPayrollImport);
 document.querySelector('#loadJulyReference').onclick=()=>{simCursor=new Date(2026,8,1);const m=payrollMonthConfig('2026-09');m.holidayCount=0;m.referenceHours={h50:60,h100:0,night:6};state.payrollConfig.baseSalary=5000;state.payrollConfig.monthlyHours=220;state.payrollConfig.advance=2000;state.payrollConfig.nightPct=20;save();renderSimulator()};
 document.querySelector('#useSimulationIncome').onclick=()=>{const p=payrollSimulation(),[y,m]=p.k.split('-').map(Number),last=new Date(y,m,0).getDate(),date=`${y}-${String(m).padStart(2,'0')}-${String(last).padStart(2,'0')}`;let x=state.transactions.find(t=>t.source==='payroll-simulation'&&t.date?.slice(0,7)===p.k);const obj={id:x?.id||uid(),kind:'income',incomeType:'second',description:'Salário - final do mês (simulação)',amount:Math.max(0,p.finalPay),date,status:'planned',source:'payroll-simulation'};if(x)Object.assign(x,obj);else state.transactions.push(obj);cursor=new Date(y,m-1,1);save();renderAll();alert('Entrada prevista atualizada em Lançamentos.')};
 

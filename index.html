@@ -470,6 +470,31 @@
             <label>Meta de HE mensal (h)<input id="simExtraGoal" inputmode="decimal"></label>
           </div>
           <button id="savePayrollConfig" class="btn full">Salvar parâmetros</button>
+          <section class="payroll-import">
+            <div class="section-head"><div><span class="muted">Preenchimento opcional</span><h3>Importar folha</h3></div></div>
+            <p class="helper">Escolha a competência acima e importe o demonstrativo em PDF ou como imagem. A leitura é feita neste navegador; o arquivo não é enviado. Confira os campos reconhecidos antes de aplicar. Você também pode continuar preenchendo tudo manualmente.</p>
+            <label class="btn secondary full file-label">Selecionar folha (PDF ou imagem)
+              <input id="payrollImportFile" type="file" accept="application/pdf,image/png,image/jpeg,image/webp,image/bmp,image/gif">
+            </label>
+            <p id="payrollImportStatus" class="helper small-text" role="status" aria-live="polite">Nenhuma folha importada para esta competência.</p>
+            <div id="payrollImportReview" class="hidden">
+              <div class="two-col">
+                <label>Salário-base reconhecido<div class="money-input"><span>R$</span><input id="payrollImportBase" inputmode="decimal"></div></label>
+                <label>Remuneração bruta<div class="money-input"><span>R$</span><input id="payrollImportGross" inputmode="decimal"></div></label>
+              </div>
+              <div class="two-col">
+                <label>Adiantamento<div class="money-input"><span>R$</span><input id="payrollImportAdvance" inputmode="decimal"></div></label>
+                <label>INSS<div class="money-input"><span>R$</span><input id="payrollImportInss" inputmode="decimal"></div></label>
+              </div>
+              <div class="two-col">
+                <label>IRRF<div class="money-input"><span>R$</span><input id="payrollImportIrrf" inputmode="decimal"></div></label>
+                <label>Líquido a receber<div class="money-input"><span>R$</span><input id="payrollImportNet" inputmode="decimal"></div></label>
+              </div>
+              <p class="helper small-text">Os valores importados serão usados na competência selecionada. Salário-base e bruto alimentam os cálculos anuais de 13º/FGTS; líquido e adiantamento ficam apenas na estimativa e nos lançamentos.</p>
+              <button id="applyPayrollImport" type="button" class="btn full">Conferir e aplicar valores</button>
+            </div>
+            <button id="clearPayrollImport" type="button" class="btn ghost full hidden">Remover importação desta competência e voltar ao cálculo manual</button>
+          </section>
         </section>
 
         <div class="grid kpis compact-kpis">
