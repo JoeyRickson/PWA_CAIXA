@@ -20,7 +20,7 @@
   sizes="180x180"
   href="icons/apple-touch-icon.png"
 />
-  <link rel="stylesheet" href="styles.css?v=2.12.5" />
+  <link rel="stylesheet" href="styles.css?v=2.12.6" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -92,7 +92,7 @@
     <header class="topbar">
       <div>
         <p class="eyebrow">CONTROLE FINANCEIRO</p>
-        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.12.5</small></h1>
+        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.12.6</small></h1>
       </div>
       <div class="top-actions">
 
@@ -594,6 +594,7 @@
             <article class="card"><span>FGTS sobre 13º</span><strong id="fgtsThirteenthTotal">R$ 0,00</strong><small>Incluído no total anual</small></article>
             <article class="card"><span>Créditos JAM</span><strong id="fgtsJamTotal">R$ 0,00</strong><small>Atualização informada no extrato</small></article>
             <article class="card"><span>Saques DEP</span><strong id="fgtsWithdrawalsTotal">R$ 0,00</strong><small>Retiradas informadas/importadas</small></article>
+            <article class="card"><span>Saques JAM</span><strong id="fgtsJamWithdrawalsTotal">R$ 0,00</strong><small>Retiradas da conta JAM</small></article>
             <article class="card"><span>DEP VERBAS IND</span><strong id="fgtsIndemnityTotal">R$ 0,00</strong><small>Opcional · somente se houver no extrato</small></article>
             <article class="card"><span>DEP MULTA RESCISÓRIA</span><strong id="fgtsTerminationPenaltyTotal">R$ 0,00</strong><small>Opcional · somente se houver no extrato</small></article>
             <article class="card"><span>Movimentação líquida</span><strong id="fgtsNetPeriod">R$ 0,00</strong><small>Projeção + créditos − saques, neste período</small></article>
@@ -602,7 +603,7 @@
         </section>
         <section class="panel form-panel fgts-import">
           <div class="section-head"><div><span class="muted">Preenchimento opcional</span><h3>Importar extrato do FGTS</h3></div></div>
-          <p class="helper">Importe um extrato em PDF ou imagem. A leitura é feita neste aparelho. Confira cada competência, tipo e valor antes de aplicar; depósitos e saques identificados são registrados após sua confirmação. DEP VERBAS IND e DEP MULTA RESCISÓRIA são opcionais: só informe ou mantenha essas linhas se aparecerem no seu extrato. Os meses sem depósito continuam sendo simulados; movimentações futuras são opcionais e podem ser preenchidas manualmente.</p>
+          <p class="helper">Importe um extrato em PDF ou imagem. A leitura é feita neste aparelho. Confira cada competência, tipo e valor da movimentação antes de aplicar; o saldo acumulado mostrado ao lado não é o valor do lançamento. Depósitos, créditos JAM, saques DEP e saques JAM são registrados após sua confirmação. DEP VERBAS IND e DEP MULTA RESCISÓRIA são opcionais: só informe ou mantenha essas linhas se aparecerem no seu extrato. Os meses sem depósito continuam sendo simulados; movimentações futuras são opcionais e podem ser preenchidas manualmente.</p>
           <label class="btn secondary full file-label">Selecionar extrato (PDF ou imagem)
             <input id="fgtsImportFile" type="file" accept="application/pdf,image/png,image/jpeg,image/webp,image/bmp,image/gif">
           </label>
@@ -615,6 +616,7 @@
               <button id="addFgtsThirteenthRow" type="button" class="btn ghost">+ Depósito 13º</button>
               <button id="addFgtsJamRow" type="button" class="btn ghost">+ Crédito JAM</button>
               <button id="addFgtsWithdrawalRow" type="button" class="btn ghost">+ Saque DEP</button>
+              <button id="addFgtsJamWithdrawalRow" type="button" class="btn ghost">+ Saque JAM</button>
               <button id="addFgtsIndemnityRow" type="button" class="btn ghost">+ DEP VERBAS IND (opcional)</button>
               <button id="addFgtsTerminationPenaltyRow" type="button" class="btn ghost">+ DEP MULTA RESCISÓRIA (opcional)</button>
             </div>
@@ -1116,7 +1118,7 @@
 
     <div class="about-version">
       <span>SaldoPlan</span>
-      <strong>v2.12.5</strong>
+      <strong>v2.12.6</strong>
     </div>
   </section>
 </section>
@@ -1388,8 +1390,8 @@
     </form>
   </dialog>
 
-<script src="drive-config.js?v=2.12.5"></script>
-<script src="app.js?v=2.12.5"></script>
-  <script type="module" src="auth.js?v=2.12.5"></script>
+<script src="drive-config.js?v=2.12.6"></script>
+<script src="app.js?v=2.12.6"></script>
+  <script type="module" src="auth.js?v=2.12.6"></script>
 </body>
 </html>
