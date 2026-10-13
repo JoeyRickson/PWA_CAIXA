@@ -20,7 +20,7 @@
   sizes="180x180"
   href="icons/apple-touch-icon.png"
 />
-  <link rel="stylesheet" href="styles.css?v=2.12.6" />
+  <link rel="stylesheet" href="styles.css?v=2.13.0" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -92,7 +92,7 @@
     <header class="topbar">
       <div>
         <p class="eyebrow">CONTROLE FINANCEIRO</p>
-        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.12.6</small></h1>
+        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.13.0</small></h1>
       </div>
       <div class="top-actions">
 
@@ -576,10 +576,18 @@
         <div class="section-head page-head">
           <div><span class="muted">Depósitos do empregador</span><h2>FGTS</h2></div>
         </div>
-        <p class="helper">Estimativa mensal de 8% sobre a remuneração bruta calculada na Simulação, incluindo adicionais e DSR da competência. Não usa líquido nem valor após adiantamento. Depósitos confirmados substituem a estimativa daquele mês; meses sem depósito continuam projetados. Créditos JAM são informados separadamente e não contam como depósito mensal.</p>
+        <p class="helper">Os saldos reais importados de cada conta são somados independentemente do ano e separados por empregador. A projeção anual continua isolada por conta: estima 8% da remuneração bruta apenas para o vínculo ativo e não mistura saldo acumulado com valores projetados. Créditos JAM e saques aparecem separadamente.</p>
+        <section class="panel fgts-accounts-panel">
+          <div class="section-head"><div><span class="muted">Saldos reais dos extratos</span><h3>Contas FGTS</h3></div></div>
+          <div class="grid kpis compact-kpis">
+            <article class="card"><span>Saldo atual consolidado</span><strong id="fgtsAccountsTotal">R$ 0,00</strong><small id="fgtsAccountsCount">Importe os extratos de cada empregador</small></article>
+          </div>
+          <div id="fgtsAccountList" class="list"></div>
+          <label id="fgtsAccountSelectorWrap" class="hidden">Conta para ver o histórico e a projeção anual<select id="fgtsAccountSelect"></select></label>
+        </section>
         <div class="month-row slim">
           <button class="icon-btn" id="prevFgtsYear" aria-label="Ano anterior">‹</button>
-          <div><span class="muted">Ano de referência</span><h3 id="fgtsYearLabel">—</h3></div>
+          <div><span class="muted" id="fgtsYearContext">Projeção anual da conta selecionada</span><h3 id="fgtsYearLabel">—</h3></div>
           <button class="icon-btn" id="nextFgtsYear" aria-label="Próximo ano">›</button>
         </div>
         <section class="panel form-panel">
@@ -1118,7 +1126,7 @@
 
     <div class="about-version">
       <span>SaldoPlan</span>
-      <strong>v2.12.6</strong>
+      <strong>v2.13.0</strong>
     </div>
   </section>
 </section>
@@ -1390,8 +1398,8 @@
     </form>
   </dialog>
 
-<script src="drive-config.js?v=2.12.6"></script>
-<script src="app.js?v=2.12.6"></script>
-  <script type="module" src="auth.js?v=2.12.6"></script>
+<script src="drive-config.js?v=2.13.0"></script>
+<script src="app.js?v=2.13.0"></script>
+  <script type="module" src="auth.js?v=2.13.0"></script>
 </body>
 </html>

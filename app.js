@@ -86,6 +86,8 @@ const seed={
   payrollMonths:{},
   thirteenthByYear:{},
   fgtsByYear:{},
+  fgtsAccounts:[],
+  activeFgtsAccountId:'',
   fixedTemplates:[],
   savingTemplates:[],
   savings:[],
@@ -121,6 +123,25 @@ function migrateState(raw){
   migrated.payrollMonths=(raw.payrollMonths&&typeof raw.payrollMonths==='object')?raw.payrollMonths:{};
   migrated.thirteenthByYear=(raw.thirteenthByYear&&typeof raw.thirteenthByYear==='object')?raw.thirteenthByYear:{};
   migrated.fgtsByYear=(raw.fgtsByYear&&typeof raw.fgtsByYear==='object')?raw.fgtsByYear:{};
+  migrated.fgtsAccounts=Array.isArray(raw.fgtsAccounts)?raw.fgtsAccounts.filter(account=>account&&typeof account==='object').map(account=>({
+    ...account,
+    years:account.years&&typeof account.years==='object'?account.years:{}
+  })):[];
+  if(!migrated.fgtsAccounts.length&&Object.keys(migrated.fgtsByYear).length){
+    migrated.fgtsAccounts.push({
+      id:'fgts-legacy',
+      employer:'Conta anterior · dados anuais',
+      accountNumber:'',
+      currentBalance:null,
+      balanceDate:'',
+      isLegacy:true,
+      years:migrated.fgtsByYear
+    });
+    migrated.fgtsByYear={};
+  }
+  migrated.activeFgtsAccountId=migrated.fgtsAccounts.some(account=>account.id===raw.activeFgtsAccountId)
+    ?raw.activeFgtsAccountId
+    :migrated.fgtsAccounts[0]?.id||'';
   migrated.transactions=Array.isArray(raw.transactions)?raw.transactions:base.transactions;
   migrated.transactions=migrated.transactions.map(x=>x.description==='Crédito Flash'?{...x,description:migrated.settings.bonusName||'Bônus'}:x);
   migrated.fixedTemplates=Array.isArray(raw.fixedTemplates)?raw.fixedTemplates:[];
@@ -1755,6 +1776,51 @@ function fgtsStatementCompetence(text){
   if(numeric)return `${numeric[2]}-${String(Number(numeric[1])).padStart(2,'0')}`;
   return '';
 }
+function parseFgtsAccountMetadata(text){
+  const lines=String(text||'').split(/\r?\n/).map(line=>line.trim()).filter(Boolean);
+  const employmentLine=lines.find(line=>/\d{2}\/\d{2}\/20\d{2}\s+\d{3}\.\d{5}\.\d{2}-\d/.test(line));
+  const employmentMatch=employmentLine?.match(/^(.+?)\s+(\d{2}\/\d{2}\/20\d{2})\s+\d{3}\.\d{5}\.\d{2}-\d/);
+  const admissionMatch=employmentMatch?.[2].match(/^(\d{2})\/(\d{2})\/(20\d{2})$/);
+  let employer=employmentMatch?.[1].replace(/\s+/g,' ').trim()||'';
+  const employmentIndex=employmentLine?lines.indexOf(employmentLine):-1;
+  const wrappedName=employmentIndex>=0?lines[employmentIndex+1]||'':'';
+  if(!/\b(?:LTDA|EIRELI|S\/A|ME)\b/i.test(employer)&&/^(?:[\p{L}\d.&/-]+\s+)+(?:LTDA|EIRELI|S\/A|ME)$/iu.test(wrappedName)){
+    employer=`${employer} ${wrappedName}`.trim();
+  }
+  const admissionDate=admissionMatch?`${admissionMatch[3]}-${admissionMatch[2]}-${admissionMatch[1]}`:'';
+  let terminationDate='';
+  const awayHeader=lines.findIndex(line=>{
+    const normalized=normalizePayrollText(line);
+    return normalized.includes('data de op')&&normalized.includes('afastamento');
+  });
+  const awayLine=awayHeader>=0?lines[awayHeader+1]:'';
+  const awayMatch=awayLine?.match(/^\d{2}\/\d{2}\/20\d{2}\s+(\d{2})\/(\d{2})\/(20\d{2})\s+\d+\s*$/);
+  if(awayMatch)terminationDate=`${awayMatch[3]}-${awayMatch[2]}-${awayMatch[1]}`;
+  const accountLine=lines.find(line=>/\b\d{8,}\s*\/\s*\d+\s*-\s*FGC\b/i.test(line));
+  const accountMatch=accountLine?.match(/\b(\d{8,})\s*\/\s*(\d+)\s*-\s*FGC\b/i);
+  const accountNumber=accountMatch?`${accountMatch[1]}/${accountMatch[2]}`:'';
+  const balanceRows=[];
+  const currencyPattern=/R\$\s*(-\s*)?((?:\d{1,3}(?:\.\d{3})*,\d{2}|\d+,\d{2}|\d{1,3}(?:,\d{3})*\.\d{2}|\d+\.\d{2}))/gi;
+  for(const line of lines){
+    const date=line.match(/^([0-3]?\d)[./-]([01]?\d)[./-](20\d{2})\b/);
+    const amounts=[...line.matchAll(currencyPattern)];
+    if(!date||amounts.length<2)continue;
+    balanceRows.push({
+      date:`${date[3]}-${String(Number(date[2])).padStart(2,'0')}-${String(Number(date[1])).padStart(2,'0')}`,
+      balance:money(amounts[amounts.length-1][2])
+    });
+  }
+  balanceRows.sort((a,b)=>a.date.localeCompare(b.date));
+  const latestBalance=balanceRows[balanceRows.length-1]||null;
+  return {
+    employer,
+    admissionDate,
+    terminationDate,
+    accountNumber,
+    currentBalance:latestBalance?.balance??null,
+    balanceDate:latestBalance?.date||''
+  };
+}
 function parseFgtsStatement(text){
   const rows=[];
   const amountPattern=/-?\d{1,3}(?:\.\d{3})*,\d{2}(?!\d)|-?\d+,\d{2}(?!\d)|-?\d{1,3}(?:,\d{3})*\.\d{2}(?!\d)|-?\d+\.\d{2}(?!\d)/g;
@@ -1790,8 +1856,9 @@ function parseFgtsStatement(text){
       amount:amountText?(['withdrawal','jamWithdrawal'].includes(type)?Math.abs(money(amountText)):Math.max(0,money(amountText))):null
     });
   }
-  return rows;
+  return {rows,account:parseFgtsAccountMetadata(text)};
 }
+let fgtsImportAccount=null;
 let fgtsImportDraft=[];
 function addFgtsImportDraftRow(row={type:'deposit',competence:'',date:'',amount:null}){
   fgtsImportDraft.push({...row});
@@ -1836,7 +1903,7 @@ function renderFgtsImportDraft(){
 async function importFgtsStatement(file){
   const status=document.querySelector('#fgtsImportStatus');
   const review=document.querySelector('#fgtsImportReview');
-  review.classList.add('hidden');fgtsImportDraft=[];
+  review.classList.add('hidden');fgtsImportDraft=[];fgtsImportAccount=null;
   if(!file)return;
   if(file.size>20*1024*1024){
     status.textContent='O arquivo excede o limite de 20 MB. Reduza a imagem ou exporte o extrato em PDF.';
@@ -1850,10 +1917,13 @@ async function importFgtsStatement(file){
   status.textContent='Lendo extrato neste aparelho...';
   try{
     const text=isPdf?await loadPdfText(file,'#fgtsImportStatus'):await loadImageText(file,'#fgtsImportStatus');
-    fgtsImportDraft=parseFgtsStatement(text);
+    const parsed=parseFgtsStatement(text);
+    fgtsImportDraft=parsed.rows;
+    fgtsImportAccount=parsed.account;
     renderFgtsImportDraft();
+    const balance=fgtsImportAccount.currentBalance===null?'':` Saldo final detectado: ${fmt.format(fgtsImportAccount.currentBalance)}${fgtsImportAccount.balanceDate?` em ${formatDate(fgtsImportAccount.balanceDate)}`:''}.`;
     status.textContent=fgtsImportDraft.length
-      ?`Encontrei ${fgtsImportDraft.length} lançamento(s) no extrato. Confira tipo, competência e valor antes de aplicar.`
+      ?`Extrato de ${fgtsImportAccount.employer||'empregador não identificado'}${fgtsImportAccount.accountNumber?` · conta ${fgtsImportAccount.accountNumber}`:''}.${balance} Confira os lançamentos antes de aplicar.`
       :'Não encontrei movimentações FGTS identificáveis. Adicione as linhas manualmente e confira antes de aplicar.';
   }catch(error){
     console.error('Falha ao importar extrato FGTS:',error);
@@ -1863,6 +1933,7 @@ async function importFgtsStatement(file){
   }
 }
 function applyFgtsImport(){
+  let account=activeFgtsAccount();
   const byCompetence=new Map();
   for(const row of fgtsImportDraft){
     const match=/^(20\d{2})-(0[1-9]|1[0-2])$/.exec(row.competence||'');
@@ -1882,8 +1953,44 @@ function applyFgtsImport(){
     byCompetence.set(key,item);
   }
   if(!byCompetence.size){alert('Adicione pelo menos um lançamento do extrato.');return}
+  if(fgtsImportAccount?.employer){
+    const employerKey=normalizePayrollText(fgtsImportAccount.employer).replace(/\s+/g,' ').trim();
+    account=state.fgtsAccounts.find(item=>
+      (fgtsImportAccount.accountNumber&&item.accountNumber===fgtsImportAccount.accountNumber)
+      ||(normalizePayrollText(item.employer||'').replace(/\s+/g,' ').trim()===employerKey&&item.admissionDate===fgtsImportAccount.admissionDate)
+    )||null;
+    if(!account){
+      account={
+        id:uid(),
+        employer:fgtsImportAccount.employer,
+        accountNumber:fgtsImportAccount.accountNumber,
+        admissionDate:fgtsImportAccount.admissionDate,
+        terminationDate:fgtsImportAccount.terminationDate,
+        currentBalance:null,
+        balanceDate:'',
+        years:{}
+      };
+      state.fgtsAccounts.push(account);
+    }
+    account.employer=fgtsImportAccount.employer||account.employer;
+    account.accountNumber=fgtsImportAccount.accountNumber||account.accountNumber;
+    account.admissionDate=fgtsImportAccount.admissionDate||account.admissionDate;
+    account.terminationDate=fgtsImportAccount.terminationDate||account.terminationDate;
+    if(fgtsImportAccount.currentBalance!==null){
+      account.currentBalance=fgtsImportAccount.currentBalance;
+      account.balanceDate=fgtsImportAccount.balanceDate||account.balanceDate;
+    }
+    state.activeFgtsAccountId=account.id;
+  }
   for(const {year,month,deposits,jam,thirteenth,withdrawals,jamWithdrawals,indemnities,terminationPenalties} of byCompetence.values()){
-    const record=fgtsYearRecord(year);
+    const record=fgtsYearRecord(year,account);
+    if(account?.admissionDate&&Number(account.admissionDate.slice(0,4))===year){
+      record.startMonth=Math.max(Number(record.startMonth||1),Number(account.admissionDate.slice(5,7)));
+    }
+    if(account?.terminationDate&&Number(account.terminationDate.slice(0,4))===year){
+      record.endMonth=Math.min(Number(record.endMonth||12),Number(account.terminationDate.slice(5,7)));
+    }
+    if(record.startMonth>record.endMonth)record.startMonth=record.endMonth;
     record.deposits=record.deposits||{};
     const current=record.deposits[String(month)]||{};
     const next={...current};
@@ -1937,8 +2044,10 @@ function applyFgtsImport(){
       };
     }
   }
-  save();renderAll();fgtsImportDraft=[];renderFgtsImportDraft();
-  document.querySelector('#fgtsImportStatus').textContent='Extrato aplicado. Depósitos, créditos JAM, saques DEP/JAM e demais lançamentos foram registrados nas competências confirmadas; os demais meses continuam estimados, e saques futuros ficam opcionais.';
+  save();renderAll();fgtsImportDraft=[];fgtsImportAccount=null;renderFgtsImportDraft();
+  document.querySelector('#fgtsImportStatus').textContent=account?.employer
+    ?`Extrato aplicado à conta ${account.employer}. O saldo atual consolidado considera um saldo por empregador, e os lançamentos/projeções anuais permanecem isolados por conta.`
+    :'Lançamentos aplicados à projeção anual geral. Para incluir saldo real no total consolidado, importe o extrato completo com identificação do empregador.';
 }
 function payrollImportField(id,value){
   const input=document.querySelector(`#${id}`);
@@ -2051,12 +2160,50 @@ function thirteenthYearRecord(year){
     secondPaid:false
   });
 }
-function fgtsYearRecord(year){
-  return annualRecord(state.fgtsByYear,year,{
-    startMonth:year===2026?5:1,
-    endMonth:12,
-    deposits:{}
-  });
+function activeFgtsAccount(){
+  return state.fgtsAccounts.find(account=>account.id===state.activeFgtsAccountId)||null;
+}
+function fgtsYearRecord(year,account=activeFgtsAccount()){
+  const records=account?account.years:state.fgtsByYear;
+  const admission=account?.admissionDate;
+  const termination=account?.terminationDate;
+  const startMonth=admission
+    ?Number(admission.slice(0,4))===Number(year)?Number(admission.slice(5,7)):Number(admission.slice(0,4))<Number(year)?1:12
+    :year===2026?5:1;
+  const endMonth=termination&&Number(termination.slice(0,4))===Number(year)?Number(termination.slice(5,7)):12;
+  return annualRecord(records,year,{startMonth,endMonth,deposits:{}});
+}
+function renderFgtsAccounts(){
+  const totalEl=document.querySelector('#fgtsAccountsTotal');
+  const countEl=document.querySelector('#fgtsAccountsCount');
+  const list=document.querySelector('#fgtsAccountList');
+  const selectorWrap=document.querySelector('#fgtsAccountSelectorWrap');
+  const selector=document.querySelector('#fgtsAccountSelect');
+  const accounts=state.fgtsAccounts;
+  const withBalance=accounts.filter(account=>account.currentBalance!==null&&account.currentBalance!==undefined&&Number.isFinite(Number(account.currentBalance)));
+  totalEl.textContent=fmt.format(round2(withBalance.reduce((sum,account)=>sum+Number(account.currentBalance),0)));
+  countEl.textContent=withBalance.length
+    ?`${withBalance.length} saldo(s) importado(s) · atualizado(s) conforme a data de cada extrato`
+    :'Importe os extratos de cada empregador para compor o saldo total da Caixa.';
+  list.innerHTML=accounts.length?accounts.map(account=>{
+    const details=[
+      account.accountNumber?`Conta ${escapeHtml(account.accountNumber)}`:'',
+      account.admissionDate?`Admissão ${formatDate(account.admissionDate)}`:'',
+      account.terminationDate?`Afastamento ${formatDate(account.terminationDate)}`:''
+    ].filter(Boolean).join(' · ');
+    const balance=account.currentBalance===null||account.currentBalance===undefined
+      ?'<strong>Saldo não importado</strong>'
+      :`<strong>${fmt.format(Number(account.currentBalance))}</strong><span>${account.balanceDate?`Em ${formatDate(account.balanceDate)}`:'Data não identificada'}</span>`;
+    return `<div class="item"><span class="item-icon">▣</span><span class="item-main"><strong>${escapeHtml(account.employer||'Empregador não identificado')}</strong><span>${details||'Conta importada'}</span></span><span class="item-side">${balance}</span></div>`;
+  }).join(''):'<div class="empty">Ainda não há contas importadas. Importe um extrato completo por empregador para registrar seu saldo real.</div>';
+  selectorWrap.classList.toggle('hidden',!accounts.length);
+  selector.innerHTML=accounts.map(account=>`<option value="${escapeHtml(account.id)}">${escapeHtml(account.employer||'Empregador não identificado')}${account.accountNumber?` · ${escapeHtml(account.accountNumber)}`:''}</option>`).join('');
+  selector.value=state.activeFgtsAccountId;
+  selector.onchange=()=>{
+    state.activeFgtsAccountId=selector.value;
+    save();
+    renderFgts();
+  };
 }
 function extraCompensationForMonth(year,month){
   const monthValue=`${year}-${String(month).padStart(2,'0')}`;
@@ -2179,16 +2326,23 @@ function renderThirteenth(preserveSelection=false){
     :'A 1ª parcela é estimada em 50% do salário proporcional, sem extras ou descontos. A média de extras aumenta o 13º bruto e é considerada no ajuste da 2ª parcela, que desconta o valor já recebido e os tributos estimados.';
 }
 function renderFgts(){
-  const year=fgtsViewYear,record=fgtsYearRecord(year),startMonth=Number(record.startMonth||1),endMonth=Number(record.endMonth||12);
+  renderFgtsAccounts();
+  const account=activeFgtsAccount();
+  const year=fgtsViewYear,record=fgtsYearRecord(year,account),startMonth=Number(record.startMonth||1),endMonth=Number(record.endMonth||12);
   document.querySelector('#fgtsYearLabel').textContent=String(year);
+  document.querySelector('#fgtsYearContext').textContent=account?.employer||'Projeção anual geral';
   populateMonthSelect(document.querySelector('#fgtsStartMonth'),startMonth);
   populateMonthSelect(document.querySelector('#fgtsEndMonth'),endMonth);
+  const beforeAdmission=account&&!account.isLegacy&&account.admissionDate&&year<Number(account.admissionDate.slice(0,4));
+  const afterTermination=account&&!account.isLegacy&&account.terminationDate&&year>Number(account.terminationDate.slice(0,4));
+  const outsideEmployment=!!(beforeAdmission||afterTermination);
+  const canEstimate=!outsideEmployment&&(!account||account.isLegacy===true||(!account.terminationDate&&year>=today.getFullYear()));
   const monthly=[];
-  if(startMonth<=endMonth){
+  if(!outsideEmployment&&startMonth<=endMonth){
     for(let month=startMonth;month<=endMonth;month++){
       const monthValue=`${year}-${String(month).padStart(2,'0')}`;
       const monthPayroll=payrollSimulation(monthValue,false);
-      const amount=round2(monthPayroll.gross*0.08);
+      const amount=canEstimate?round2(monthPayroll.gross*0.08):0;
       const deposit=record.deposits?.[String(month)]||{};
       monthly.push({month,amount,deposit});
     }
@@ -2196,7 +2350,7 @@ function renderFgts(){
   const total=round2(monthly.reduce((sum,item)=>sum+(item.deposit.paid?Number(item.deposit.amount??item.amount):item.amount),0));
   const thirteenthRecord=thirteenthYearRecord(year);
   const thirteenth=thirteenthCalculation(year,thirteenthRecord.startMonth,thirteenthRecord.endMonth);
-  const thirteenthFgts=startMonth<=endMonth?round2(thirteenth.gross*0.08):0;
+  const thirteenthFgts=canEstimate&&startMonth<=endMonth?round2(thirteenth.gross*0.08):0;
   const thirteenthDeposit=record.deposits?.thirteenth||{};
   const projectedThirteenth=thirteenthDeposit.paid?Number(thirteenthDeposit.amount??thirteenthFgts):thirteenthFgts;
   const indemnityTotal=round2(monthly.reduce((sum,item)=>sum+Number(item.deposit.indemnity||0),0));
@@ -2225,7 +2379,7 @@ function renderFgts(){
     const defaultDate=`${year}-${String(month).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
     return `<div class="item fgts-month-row">
       <span class="item-icon">▣</span>
-      <span class="item-main"><strong>${MONTHS[month-1]}</strong><span>${deposit.paid?'Depositado:':'Estimativa:'} ${fmt.format(deposit.paid?Number(deposit.amount??amount):amount)}${Number(deposit.jam||0)?` · JAM: ${fmt.format(deposit.jam)}`:''}${Number(deposit.withdrawal||0)?` · Saque DEP: ${fmt.format(deposit.withdrawal)}`:''}${Number(deposit.jamWithdrawal||0)?` · Saque JAM: ${fmt.format(deposit.jamWithdrawal)}`:''}${Number(deposit.indemnity||0)?` · Verbas IND: ${fmt.format(deposit.indemnity)}`:''}${Number(deposit.terminationPenalty||0)?` · Multa rescisória: ${fmt.format(deposit.terminationPenalty)}`:''}</span></span>
+      <span class="item-main"><strong>${MONTHS[month-1]}</strong><span>${deposit.paid?'Depositado:':canEstimate?'Estimativa:':'Sem depósito importado'} ${fmt.format(deposit.paid?Number(deposit.amount??amount):amount)}${Number(deposit.jam||0)?` · JAM: ${fmt.format(deposit.jam)}`:''}${Number(deposit.withdrawal||0)?` · Saque DEP: ${fmt.format(deposit.withdrawal)}`:''}${Number(deposit.jamWithdrawal||0)?` · Saque JAM: ${fmt.format(deposit.jamWithdrawal)}`:''}${Number(deposit.indemnity||0)?` · Verbas IND: ${fmt.format(deposit.indemnity)}`:''}${Number(deposit.terminationPenalty||0)?` · Multa rescisória: ${fmt.format(deposit.terminationPenalty)}`:''}</span></span>
       <span class="item-side fgts-deposit-controls">
         <label class="check-row"><input type="checkbox" data-fgts-paid="${month}" ${deposit.paid?'checked':''}> Depositado</label>
         <input type="text" inputmode="decimal" aria-label="Valor do FGTS de ${MONTHS[month-1]}" data-fgts-amount="${month}" value="${Number(deposit.amount??amount).toFixed(2).replace('.',',')}">
@@ -2238,7 +2392,7 @@ function renderFgts(){
       </span>
     </div>`;
   });
-  if(startMonth<=endMonth){
+  if(!outsideEmployment&&startMonth<=endMonth){
     monthlyRows.push(`<div class="item fgts-month-row">
       <span class="item-icon">13</span>
       <span class="item-main"><strong>13º salário</strong><span>Estimativa: ${fmt.format(thirteenthFgts)}</span></span>
@@ -2250,7 +2404,9 @@ function renderFgts(){
       </span>
     </div>`);
   }
-  document.querySelector('#fgtsMonthList').innerHTML=monthlyRows.length?monthlyRows.join(''):'<div class="empty">O mês inicial deve ser anterior ou igual ao mês final.</div>';
+  document.querySelector('#fgtsMonthList').innerHTML=monthlyRows.length
+    ?monthlyRows.join('')
+    :`<div class="empty">${outsideEmployment?'Este vínculo ainda não existia ou já havia terminado neste ano.':'O mês inicial deve ser anterior ou igual ao mês final.'}</div>`;
 }
 function syncThirteenthTransaction(year,part,record){
   const suffix=part==='first'?'1ª':'2ª';
