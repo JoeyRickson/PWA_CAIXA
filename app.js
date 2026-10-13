@@ -2211,8 +2211,41 @@ function fgtsAccountBalance(account){
   }
   return round2(balance);
 }
+function fgtsAccountProjectedBalance(account){
+  if(account.isLegacy)return null;
+  let projected=fgtsAccountBalance(account);
+  if(account.terminationDate)return projected;
+  const year=today.getFullYear();
+  if(account.admissionDate&&Number(account.admissionDate.slice(0,4))>year)return projected;
+  const record=fgtsYearRecord(year,account);
+  const firstMonth=Math.max(
+    Number(record.startMonth||1),
+    today.getMonth()+1,
+    account.admissionDate&&Number(account.admissionDate.slice(0,4))===year?Number(account.admissionDate.slice(5,7)):1
+  );
+  const lastMonth=Number(record.endMonth||12);
+  const todayKey=`${year}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  for(let month=firstMonth;month<=lastMonth;month++){
+    const deposit=record.deposits?.[String(month)]||{};
+    if(deposit.paid)continue;
+    const defaultDate=`${year}-${String(month).padStart(2,'0')}-${String(new Date(year,month,0).getDate()).padStart(2,'0')}`;
+    const date=deposit.date||defaultDate;
+    if(date<=todayKey||account.balanceDate&&date<=account.balanceDate)continue;
+    const payroll=payrollSimulation(`${year}-${String(month).padStart(2,'0')}`,false);
+    projected+=Number(deposit.amount??round2(payroll.gross*0.08));
+  }
+  const thirteenthDeposit=record.deposits?.thirteenth||{};
+  const thirteenthDate=thirteenthDeposit.date||`${year}-12-18`;
+  if(!thirteenthDeposit.paid&&thirteenthDate>todayKey&&(!account.balanceDate||thirteenthDate>account.balanceDate)){
+    const annual=thirteenthYearRecord(year);
+    const thirteenth=thirteenthCalculation(year,annual.startMonth,annual.endMonth);
+    projected+=Number(thirteenthDeposit.amount??round2(thirteenth.gross*0.08));
+  }
+  return round2(projected);
+}
 function renderFgtsAccounts(){
   const totalEl=document.querySelector('#fgtsAccountsTotal');
+  const projectedTotalEl=document.querySelector('#fgtsProjectedBalance');
   const countEl=document.querySelector('#fgtsAccountsCount');
   const list=document.querySelector('#fgtsAccountList');
   const selectorWrap=document.querySelector('#fgtsAccountSelectorWrap');
@@ -2221,7 +2254,9 @@ function renderFgtsAccounts(){
   const activeAccounts=accounts.filter(account=>!account.isLegacy);
   const withBalance=activeAccounts.filter(account=>account.currentBalance!==null&&account.currentBalance!==undefined);
   const totalBalance=round2(activeAccounts.reduce((sum,account)=>sum+fgtsAccountBalance(account),0));
+  const projectedTotal=round2(activeAccounts.reduce((sum,account)=>sum+fgtsAccountProjectedBalance(account),0));
   totalEl.textContent=fmt.format(totalBalance);
+  projectedTotalEl.textContent=fmt.format(projectedTotal);
   countEl.textContent=withBalance.length
     ?`${withBalance.length} saldo(s) de extrato + movimentações posteriores confirmadas`
     :'Importe os extratos de cada empregador para compor o saldo total da Caixa.';
