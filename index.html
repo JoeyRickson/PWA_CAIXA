@@ -73,6 +73,8 @@
         <button class="nav-item desktop-nav-item" data-nav="portfolio" type="button"><span class="desktop-nav-icon">▥</span><span>Carteira</span></button>
         <button class="nav-item desktop-nav-item" data-nav="savings" type="button"><span class="desktop-nav-icon">◆</span><span>Guardado</span></button>
         <button class="nav-item desktop-nav-item" data-nav="simulator" type="button"><span class="desktop-nav-icon">⌁</span><span>Simulação</span></button>
+        <button class="nav-item desktop-nav-item" data-nav="thirteenth" type="button"><span class="desktop-nav-icon">13</span><span>13º salário</span></button>
+        <button class="nav-item desktop-nav-item" data-nav="fgts" type="button"><span class="desktop-nav-icon">▣</span><span>FGTS</span></button>
         <button class="nav-item desktop-nav-item" data-nav="fixed" type="button"><span class="desktop-nav-icon">↻</span><span>Fixos</span></button>
       </nav>
 
@@ -159,7 +161,8 @@
           </label>
         </div>
 <button id="themeQuickBtn" class="icon-btn" aria-label="Alternar tema" title="Alternar tema">☾</button>
-        <button id="installBtn" class="btn ghost hidden">Instalar</button>
+<button id="undoQuickBtn" class="btn ghost small" type="button" aria-label="Desfazer última alteração" title="Desfazer última alteração">↶ Desfazer</button>
+<button id="installBtn" class="btn ghost hidden">Instalar</button>
       </div>
     </header>
 
@@ -453,6 +456,7 @@
 
         <section class="panel form-panel">
           <div class="section-head"><div><span class="muted">Parâmetros</span><h3>Sua folha</h3></div><button id="loadJulyReference" class="btn ghost small">Referência jul/26</button></div>
+          <p class="helper">O salário bruto é uma configuração única, usada nas simulações da folha, do 13º e do FGTS. Para simular outra pessoa, informe o salário dela e salve; depois, restaure o seu salário. Ainda não há perfis separados.</p>
           <div class="two-col">
             <label>Salário base<div class="money-input"><span>R$</span><input id="simBaseSalary" inputmode="decimal"></div></label>
             <label>Carga mensal (h)<input id="simMonthlyHours" inputmode="decimal"></label>
@@ -494,6 +498,81 @@
         <section class="panel">
           <div class="section-head"><div><span class="muted">Meus extras</span><h3>Registros do mês</h3></div><button class="btn small" data-action="new-extra">+ Adicionar</button></div>
           <div id="extraList" class="list large"></div>
+        </section>
+      </section>
+
+      <section id="view-thirteenth" class="view">
+        <div class="section-head page-head">
+          <div><span class="muted">Projeção anual</span><h2>13º salário</h2></div>
+        </div>
+        <p class="helper">Ajuste o período trabalhado no ano e confira as parcelas. Ao salvar, elas aparecem nos Lançamentos como previstas ou realizadas; somente parcelas realizadas afetam o saldo disponível.</p>
+        <div class="month-row slim">
+          <button class="icon-btn" id="prevThirteenthYear" aria-label="Ano anterior">‹</button>
+          <div><span class="muted">Ano de referência</span><h3 id="thirteenthYearLabel">—</h3></div>
+          <button class="icon-btn" id="nextThirteenthYear" aria-label="Próximo ano">›</button>
+        </div>
+        <section class="panel form-panel">
+          <div class="section-head"><div><span class="muted">Base do cálculo</span><h3>Meses considerados</h3></div></div>
+          <p id="thirteenthSalaryBase" class="helper"></p>
+          <div class="two-col">
+            <label>Mês inicial<select id="thirteenthStartMonth"></select></label>
+            <label>Mês final<select id="thirteenthEndMonth"></select></label>
+          </div>
+          <p class="helper small-text">Cada mês selecionado conta como 1/12. Considere apenas meses com pelo menos 15 dias trabalhados; ajuste o período se necessário.</p>
+          <div class="pay-grid">
+            <div><span>Meses considerados</span><strong id="thirteenthMonthsCount">0</strong></div>
+            <div><span>Salário proporcional</span><strong id="thirteenthBaseShare">R$ 0,00</strong></div>
+            <div><span>Média estimada de extras</span><strong id="thirteenthExtraShare">R$ 0,00</strong></div>
+            <div><span>13º bruto estimado</span><strong id="thirteenthGross">R$ 0,00</strong></div>
+            <div><span>Adiantamento bruto (50%)</span><strong id="thirteenthFirstEstimate">R$ 0,00</strong></div>
+            <div><span>Parcela final líquida estimada</span><strong id="thirteenthSecondEstimate">R$ 0,00</strong></div>
+            <div><span>Descontos estimados no 13º</span><strong id="thirteenthDeductions">R$ 0,00</strong></div>
+          </div>
+          <p id="thirteenthExtrasNote" class="helper"></p>
+        </section>
+        <section class="panel form-panel">
+          <div class="section-head"><div><span class="muted">Pagamentos</span><h3>Parcelas recebidas</h3></div></div>
+          <div class="two-col">
+            <label>Valor da 1ª parcela<div class="money-input"><span>R$</span><input id="thirteenthFirstAmount" inputmode="decimal"></div></label>
+            <label>Data da 1ª parcela<input id="thirteenthFirstDate" type="date"></label>
+          </div>
+          <label class="check-row"><input id="thirteenthFirstPaid" type="checkbox"> 1ª parcela recebida</label>
+          <div class="two-col">
+            <label>Valor da 2ª parcela<div class="money-input"><span>R$</span><input id="thirteenthSecondAmount" inputmode="decimal"></div></label>
+            <label>Data da 2ª parcela<input id="thirteenthSecondDate" type="date"></label>
+          </div>
+          <label class="check-row"><input id="thirteenthSecondPaid" type="checkbox"> 2ª parcela recebida</label>
+          <button id="saveThirteenth" class="btn full">Salvar cálculo e atualizar Lançamentos</button>
+          <p id="thirteenthStatus" class="helper" aria-live="polite"></p>
+        </section>
+      </section>
+
+      <section id="view-fgts" class="view">
+        <div class="section-head page-head">
+          <div><span class="muted">Depósitos do empregador</span><h2>FGTS</h2></div>
+        </div>
+        <p class="helper">Estimativa mensal de 8% sobre salário e adicionais registrados. Marcar um depósito como realizado atualiza esta aba, mas não altera o saldo disponível nem cria entrada em dinheiro nos Lançamentos.</p>
+        <div class="month-row slim">
+          <button class="icon-btn" id="prevFgtsYear" aria-label="Ano anterior">‹</button>
+          <div><span class="muted">Ano de referência</span><h3 id="fgtsYearLabel">—</h3></div>
+          <button class="icon-btn" id="nextFgtsYear" aria-label="Próximo ano">›</button>
+        </div>
+        <section class="panel form-panel">
+          <div class="two-col">
+            <label>Mês inicial de trabalho<select id="fgtsStartMonth"></select></label>
+            <label>Mês final de trabalho<select id="fgtsEndMonth"></select></label>
+          </div>
+          <div class="grid kpis compact-kpis">
+            <article class="card"><span>FGTS estimado</span><strong id="fgtsYearTotal">R$ 0,00</strong><small>Período selecionado</small></article>
+            <article class="card"><span>Depósitos confirmados</span><strong id="fgtsPaidTotal">R$ 0,00</strong><small>Marcados como realizados</small></article>
+            <article class="card"><span>A depositar</span><strong id="fgtsPendingTotal">R$ 0,00</strong><small>Estimado − confirmado</small></article>
+            <article class="card"><span>FGTS sobre 13º</span><strong id="fgtsThirteenthTotal">R$ 0,00</strong><small>Incluído no total anual</small></article>
+          </div>
+          <button id="saveFgtsPeriod" class="btn secondary full">Salvar período de trabalho</button>
+        </section>
+        <section class="panel">
+          <div class="section-head"><div><span class="muted">Competências</span><h3>Depósitos mensais</h3></div></div>
+          <div id="fgtsMonthList" class="list large"></div>
         </section>
       </section>
 
@@ -849,7 +928,9 @@
             <button id="exportPdf" class="btn secondary full">Exportar relatório (.pdf)</button>
             <label class="btn ghost full file-label">Importar backup<input id="importJson" type="file" accept="application/json,.json"></label>
             <button id="restorePreviousLocal" class="btn ghost full">Restaurar cópia local anterior</button>
+            <button id="undoLastChange" class="btn ghost full">Desfazer última alteração</button>
           </div>
+          <div id="undoHistory" class="undo-history" aria-live="polite"></div>
         </section>
 
         <section class="panel danger-zone">
@@ -998,7 +1079,9 @@
 
 <button class="nav-item" data-nav="savings"><span>◆</span>Guardado</button>
       <button class="nav-item" data-nav="simulator"><span>⌁</span>Simulação</button>
-      <button class="nav-item" data-nav="fixed"><span>↻</span>Fixos</button>
+<button class="nav-item" data-nav="thirteenth"><span>13</span>13º</button>
+<button class="nav-item" data-nav="fgts"><span>▣</span>FGTS</button>
+<button class="nav-item" data-nav="fixed"><span>↻</span>Fixos</button>
       <button class="nav-item" data-nav="data"><span>⚙</span>Dados</button>
       <button class="nav-item" data-nav="about"><span>ⓘ</span>Sobre</button>
     </nav>

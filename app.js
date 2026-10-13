@@ -1,5 +1,7 @@
 const STORAGE_KEY='meuCaixa.v1'; // Mantido de propósito para preservar os dados da versão anterior.
 const PREVIOUS_KEY='meuCaixa.previousBackup.v2';
+const UNDO_HISTORY_KEY='meuCaixa.undoHistory.v2';
+const MAX_UNDO_SNAPSHOTS=12;
 const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const NATIONAL_HOLIDAYS={
   2026:['2026-01-01','2026-04-03','2026-04-21','2026-05-01','2026-09-07','2026-10-12','2026-11-02','2026-11-15','2026-11-20','2026-12-25']
@@ -31,6 +33,8 @@ const monthKey=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`
 const today=new Date();
 let cursor=new Date(today.getFullYear(),today.getMonth(),1);
 let simCursor=new Date(today.getFullYear(),today.getMonth(),1);
+let thirteenthViewYear=today.getFullYear();
+let fgtsViewYear=today.getFullYear();
 
 const LAST_VIEW_MONTH_KEY='saldoplan.lastViewMonth';
 
@@ -80,6 +84,8 @@ const seed={
   cloud:{provider:'google',emailHint:'',clientId:'',account:'',providerClientId:'',folderName:'SaldoPlan - Backups',folderId:'',autoBackup:false,retentionDays:30,lastBackupAt:null,lastFileId:null},
   payrollConfig:{baseSalary:5000,monthlyHours:220,advance:2000,nightPct:20,extraGoal:40},
   payrollMonths:{},
+  thirteenthByYear:{},
+  fgtsByYear:{},
   fixedTemplates:[],
   savingTemplates:[],
   savings:[],
@@ -113,6 +119,8 @@ function migrateState(raw){
   if(migrated.cloud.folderName==='Meu Caixa - Backups')migrated.cloud.folderName='SaldoPlan - Backups';
   migrated.payrollConfig={...base.payrollConfig,...(raw.payrollConfig||{})};
   migrated.payrollMonths=(raw.payrollMonths&&typeof raw.payrollMonths==='object')?raw.payrollMonths:{};
+  migrated.thirteenthByYear=(raw.thirteenthByYear&&typeof raw.thirteenthByYear==='object')?raw.thirteenthByYear:{};
+  migrated.fgtsByYear=(raw.fgtsByYear&&typeof raw.fgtsByYear==='object')?raw.fgtsByYear:{};
   migrated.transactions=Array.isArray(raw.transactions)?raw.transactions:base.transactions;
   migrated.transactions=migrated.transactions.map(x=>x.description==='Crédito Flash'?{...x,description:migrated.settings.bonusName||'Bônus'}:x);
   migrated.fixedTemplates=Array.isArray(raw.fixedTemplates)?raw.fixedTemplates:[];
@@ -138,9 +146,90 @@ if(hadExisting&&state.version===2){
   localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
 }
 
-function save({backupOld=true,cloud=true}={}){
+function readUndoHistory(){
   try{
-    if(backupOld){const old=localStorage.getItem(STORAGE_KEY);if(old)localStorage.setItem(PREVIOUS_KEY,old)}
+    const raw=localStorage.getItem(UNDO_HISTORY_KEY);
+    if(!raw)return [];
+    const items=JSON.parse(raw);
+    return Array.isArray(items)?items.filter(item=>item&&typeof item?.state==='string').slice(-MAX_UNDO_SNAPSHOTS):[];
+  }catch{
+    return [];
+  }
+}
+
+function writeUndoHistory(items){
+  try{
+    localStorage.setItem(UNDO_HISTORY_KEY,JSON.stringify(items.slice(-MAX_UNDO_SNAPSHOTS)));
+  }catch{}
+}
+
+function renderUndoHistory(){
+  const host=document.querySelector('#undoHistory');
+  if(!host)return;
+  const history=readUndoHistory().slice().reverse();
+  if(!history.length){
+    host.innerHTML='<div class="empty">Sem histórico recente de alterações.</div>';
+    return;
+  }
+
+  host.innerHTML=history.map((item,index)=>{
+    const entryIndex=history.length-1-index;
+    return `<div class="undo-row">
+      <div class="undo-copy">
+        <strong>${escapeHtml(item.label||'Alteração salva')}</strong>
+        <span>${new Date(item.createdAt).toLocaleString('pt-BR')}</span>
+      </div>
+      <button type="button" class="btn ghost small" data-undo-index="${entryIndex}">Restaurar</button>
+    </div>`;
+  }).join('');
+}
+
+function pushUndoSnapshot(label='Alteração salva'){
+  const snapshot=JSON.stringify(state);
+  const history=readUndoHistory();
+  history.push({
+    id:uid(),
+    label:String(label||'Alteração salva').trim()||'Alteração salva',
+    createdAt:new Date().toISOString(),
+    state:snapshot
+  });
+  writeUndoHistory(history);
+}
+
+function restoreUndoSnapshot(index=-1){
+  const history=readUndoHistory();
+  if(!history.length){
+    alert('Nenhuma alteração recente para desfazer.');
+    return false;
+  }
+
+  const restoreIndex=index>=0?Math.min(index,history.length-1):history.length-1;
+  const target=history[restoreIndex];
+  const remaining=history.filter((_,idx)=>idx!==restoreIndex);
+  writeUndoHistory(remaining);
+
+  try{
+    const current=JSON.stringify(state);
+    state=migrateState(JSON.parse(target.state||'{}'));
+    localStorage.setItem(PREVIOUS_KEY,current);
+    save({backupOld:false,cloud:false});
+    renderAll();
+    alert(`Alteração restaurada: ${target.label}.`);
+    return true;
+  }catch{
+    writeUndoHistory([...remaining,target]);
+    alert('Não foi possível restaurar a última alteração.');
+    return false;
+  }
+}
+
+function save({backupOld=true,cloud=true,undoLabel='Alteração salva'}={}){
+  try{
+    if(backupOld){
+      const old=localStorage.getItem(STORAGE_KEY);
+      if(old)localStorage.setItem(PREVIOUS_KEY,old);
+      pushUndoSnapshot(undoLabel);
+    }
     localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
     localStorage.setItem(`${STORAGE_KEY}.savedAt`,new Date().toISOString());
     if(cloud&&state.cloud?.autoBackup&&(driveToken||cloudToken))scheduleCloudBackup();
@@ -1524,6 +1613,74 @@ function irrf2026(gross,inss){
   reduction=Math.min(before,reduction);return {base:round2(base),before,reduction:round2(reduction),value:round2(Math.max(0,before-reduction)),deductionUsed:round2(deduction)};
 }
 function payrollMonthConfig(k=simKey()){if(!state.payrollMonths[k])state.payrollMonths[k]={holidayCount:0,referenceHours:null};return state.payrollMonths[k]}
+function payrollTaxEstimate(base){
+  const gross=Number(base||0);
+  const inss=inss2026(gross);
+  const ir=irrf2026(gross,inss);
+  return {gross, inss, ir:ir.value, net:round2(gross-inss-ir.value)};
+}
+function annualRecord(records,year,defaults){
+  const key=String(year);
+  if(!records[key])records[key]=defaults;
+  return records[key];
+}
+function thirteenthYearRecord(year){
+  return annualRecord(state.thirteenthByYear,year,{
+    startMonth:year===2026?5:1,
+    endMonth:12,
+    firstDate:year===2026?'2026-07-23':`${year}-11-30`,
+    secondDate:`${year}-12-18`,
+    firstAmount:null,
+    secondAmount:null,
+    firstPaid:year===2026,
+    secondPaid:false
+  });
+}
+function fgtsYearRecord(year){
+  return annualRecord(state.fgtsByYear,year,{
+    startMonth:year===2026?5:1,
+    endMonth:12,
+    deposits:{}
+  });
+}
+function extraCompensationForMonth(year,month){
+  const monthValue=`${year}-${String(month).padStart(2,'0')}`;
+  const baseSalary=Number(state.payrollConfig.baseSalary||0);
+  const hourBase=baseSalary/Math.max(1,Number(state.payrollConfig.monthlyHours||220));
+  const extras=state.overtimeLogs
+    .filter(r=>r.date?.slice(0,7)===monthValue)
+    .reduce((sum,r)=>{
+      const c=calculateExtraRecord(r);
+      return sum+(c.hours50*hourBase*1.5)+(c.hours100*hourBase*2)+(c.nightHours*hourBase*(Number(state.payrollConfig.nightPct||20)/100));
+    },0);
+  if(!extras)return 0;
+  const totalDays=new Date(year,month,0).getDate();
+  const sundays=getDSRCalendar(monthValue).sundays;
+  return round2(extras+round2(extras/Math.max(1,totalDays-sundays)*sundays));
+}
+function thirteenthCalculation(year,startMonth,endMonth){
+  const monthsWorked=Math.max(0,endMonth-startMonth+1);
+  const baseSalary=Number(state.payrollConfig.baseSalary||0);
+  const baseShare=round2(baseSalary*monthsWorked/12);
+  let extraTotal=0;
+  for(let month=startMonth;month<=endMonth;month++){
+    extraTotal=round2(extraTotal+extraCompensationForMonth(year,month));
+  }
+  const extraShare=round2(extraTotal/12);
+  const gross=round2(baseShare+extraShare);
+  const tax=payrollTaxEstimate(gross);
+  const first=round2(gross/2);
+  return {
+    monthsWorked,
+    baseShare,
+    extraShare,
+    gross,
+    first,
+    second:round2(Math.max(0,tax.net-first)),
+    deductions:round2(gross-tax.net),
+    net:tax.net
+  };
+}
 function payrollSimulation(){
   const cfg = state.payrollConfig,
       k = simKey(),
@@ -1545,13 +1702,153 @@ function renderSimulator(){
   const referenceButton=document.querySelector('#loadJulyReference');if(referenceButton)referenceButton.textContent='Referência set/26';
   document.querySelector('#simMonthLabel').textContent=`${MONTHS[simCursor.getMonth()]} ${simCursor.getFullYear()}`;
   const cfg=state.payrollConfig,monthCfg=payrollMonthConfig();document.querySelector('#simBaseSalary').value=Number(cfg.baseSalary).toFixed(2).replace('.',',');document.querySelector('#simMonthlyHours').value=cfg.monthlyHours;document.querySelector('#simAdvance').value=Number(cfg.advance).toFixed(2).replace('.',',');document.querySelector('#simHolidayCount').value=monthCfg.holidayCount||0;document.querySelector('#simNightPct').value=cfg.nightPct;document.querySelector('#simExtraGoal').value=cfg.extraGoal||0;
-  const p=payrollSimulation();document.querySelector('#simHours50').textContent=hoursLabel(p.h50);document.querySelector('#simValue50').textContent=fmt.format(p.v50);document.querySelector('#simHours100').textContent=hoursLabel(p.h100);document.querySelector('#simValue100').textContent=fmt.format(p.v100);document.querySelector('#simNightHours').textContent=hoursLabel(p.night);document.querySelector('#simNightValue').textContent=fmt.format(p.nightValue);setMoney('simDsrValue',p.dsr);document.querySelector('#simDsrDetail').textContent=`${p.restDays} DSR / ${p.workDays} dias no divisor`;
+  const p=payrollSimulation();
+  document.querySelector('#simHours50').textContent=hoursLabel(p.h50);document.querySelector('#simValue50').textContent=fmt.format(p.v50);document.querySelector('#simHours100').textContent=hoursLabel(p.h100);document.querySelector('#simValue100').textContent=fmt.format(p.v100);document.querySelector('#simNightHours').textContent=hoursLabel(p.night);document.querySelector('#simNightValue').textContent=fmt.format(p.nightValue);setMoney('simDsrValue',p.dsr);document.querySelector('#simDsrDetail').textContent=`${p.restDays} DSR / ${p.workDays} dias no divisor`;
   setMoney('payBase',state.payrollConfig.baseSalary);setMoney('payExtras',p.extras);setMoney('payGross',p.gross);document.querySelector('#payInss').textContent=`− ${fmt.format(p.inss)}`;document.querySelector('#payIrrf').textContent=`− ${fmt.format(p.ir.value)}`;setMoney('payNetMonth',p.netMonth);document.querySelector('#payAdvance').textContent=`− ${fmt.format(p.advance)}`;setMoney('payFinal',p.finalPay);
   document.querySelector('#payrollReferenceNote').textContent=p.reference?'Referência de setembro/2026 carregada: 60h00 de HE 50%, 0h00 de HE 100% e 6h00 de adicional noturno. A calibração reproduz o holerite de setembro.':'INSS e IRRF usam as tabelas de 2026; o DSR da simulação segue o padrão observado no holerite de setembro, usando os domingos do mês.';
   const records=[...p.logs].sort((a,b)=>b.date.localeCompare(a.date));
   let refHtml='';if(p.reference)refHtml=`<div class="item"><span class="item-icon">✓</span><span class="item-main"><strong>Referência do contracheque — setembro/2026</strong><span>60h00 HE50 · 0h00 HE100 · 6h00 noturno</span></span><span class="item-side"><strong>${fmt.format(p.extras)}</strong><span>Calibração</span></span></div>`;
   document.querySelector('#extraList').innerHTML=refHtml+(records.length?records.map(r=>{const c=calculateExtraRecord(r);return `<button class="item" data-extra-edit="${r.id}" style="width:100%;text-align:left;cursor:pointer"><span class="item-icon">⌁</span><span class="item-main"><strong>${escapeHtml(r.description)}</strong><span>${formatDate(r.date)} · ${r.start}–${r.end}${r.holiday?' · HE 100%':''}</span></span><span class="item-side"><strong>${hoursLabel(c.minutes/60)}</strong><span>${c.is100?'100%':'50%'}${c.nightHours?` · ${hoursLabel(c.nightHours)} not.`:''}</span></span></button>`}).join(''):'');
   if(!p.reference&&!records.length)document.querySelector('#extraList').innerHTML='<div class="empty">Nenhuma hora extra registrada nesta competência.</div>';
+}
+
+function populateMonthSelect(select,selected){
+  select.innerHTML=MONTHS.map((month,index)=>`<option value="${index+1}">${month}</option>`).join('');
+  select.value=String(selected);
+}
+function thirteenthTransaction(year,part){
+  return state.transactions.find(t=>t.payrollSource===`thirteenth-${year}-${part}`);
+}
+function renderThirteenth(preserveSelection=false){
+  const year=thirteenthViewYear,record=thirteenthYearRecord(year);
+  const startMonth=preserveSelection?Number(document.querySelector('#thirteenthStartMonth').value):record.startMonth||1;
+  const endMonth=preserveSelection?Number(document.querySelector('#thirteenthEndMonth').value):record.endMonth||12;
+  document.querySelector('#thirteenthYearLabel').textContent=String(year);
+  populateMonthSelect(document.querySelector('#thirteenthStartMonth'),startMonth);
+  populateMonthSelect(document.querySelector('#thirteenthEndMonth'),endMonth);
+  const calc=thirteenthCalculation(year,startMonth,endMonth);
+  const firstTx=thirteenthTransaction(year,'first');
+  const secondTx=thirteenthTransaction(year,'second');
+  const firstAmount=firstTx?.amount??record.firstAmount??calc.first;
+  const defaultSecond=round2(Math.max(0,calc.net-Number(firstAmount||0)));
+  const secondAmount=secondTx?.amount??record.secondAmount??defaultSecond;
+  const firstDate=firstTx?.date||record.firstDate;
+  const secondDate=secondTx?.date||record.secondDate;
+  document.querySelector('#thirteenthSalaryBase').textContent=`Salário-base atual: ${fmt.format(Number(state.payrollConfig.baseSalary||0))}. As horas extras e o adicional noturno registrados no período entram como média estimada.`;
+  document.querySelector('#thirteenthMonthsCount').textContent=String(calc.monthsWorked);
+  document.querySelector('#thirteenthBaseShare').textContent=fmt.format(calc.baseShare);
+  document.querySelector('#thirteenthExtraShare').textContent=fmt.format(calc.extraShare);
+  document.querySelector('#thirteenthGross').textContent=fmt.format(calc.gross);
+  document.querySelector('#thirteenthFirstEstimate').textContent=fmt.format(calc.first);
+  document.querySelector('#thirteenthSecondEstimate').textContent=fmt.format(calc.second);
+  document.querySelector('#thirteenthDeductions').textContent=fmt.format(calc.deductions);
+  document.querySelector('#thirteenthExtrasNote').textContent=`Parcela variável estimada pelas horas extras registradas entre ${MONTHS[startMonth-1]} e ${MONTHS[endMonth-1]}, incluindo DSR aproximado. Os descontos usam as tabelas 2026 disponíveis no simulador e são apenas estimativas; confira a folha oficial.`;
+  document.querySelector('#thirteenthFirstAmount').value=Number(firstAmount).toFixed(2).replace('.',',');
+  document.querySelector('#thirteenthSecondAmount').value=Number(secondAmount).toFixed(2).replace('.',',');
+  document.querySelector('#thirteenthFirstDate').value=firstDate||'';
+  document.querySelector('#thirteenthSecondDate').value=secondDate||'';
+  document.querySelector('#thirteenthFirstPaid').checked=firstTx?firstTx.status==='realized':!!record.firstPaid;
+  document.querySelector('#thirteenthSecondPaid').checked=secondTx?secondTx.status==='realized':!!record.secondPaid;
+  document.querySelector('#thirteenthStatus').textContent=firstTx||secondTx?'As parcelas vinculadas aos Lançamentos refletem os status atuais de recebimento.':'Salve para incluir as parcelas nos Lançamentos.';
+}
+function renderFgts(){
+  const year=fgtsViewYear,record=fgtsYearRecord(year),startMonth=Number(record.startMonth||1),endMonth=Number(record.endMonth||12);
+  document.querySelector('#fgtsYearLabel').textContent=String(year);
+  populateMonthSelect(document.querySelector('#fgtsStartMonth'),startMonth);
+  populateMonthSelect(document.querySelector('#fgtsEndMonth'),endMonth);
+  const monthly=[];
+  if(startMonth<=endMonth){
+    for(let month=startMonth;month<=endMonth;month++){
+      const extra=extraCompensationForMonth(year,month);
+      const amount=round2((Number(state.payrollConfig.baseSalary||0)+extra)*0.08);
+      const deposit=record.deposits?.[String(month)]||{};
+      monthly.push({month,amount,deposit});
+    }
+  }
+  const total=round2(monthly.reduce((sum,item)=>sum+item.amount,0));
+  const thirteenthRecord=thirteenthYearRecord(year);
+  const thirteenth=thirteenthCalculation(year,thirteenthRecord.startMonth,thirteenthRecord.endMonth);
+  const thirteenthFgts=startMonth<=endMonth?round2(thirteenth.gross*0.08):0;
+  const thirteenthDeposit=record.deposits?.thirteenth||{};
+  const annualTotal=round2(total+thirteenthFgts);
+  const paid=round2(monthly.reduce((sum,item)=>sum+(item.deposit.paid?Number(item.deposit.amount??item.amount):0),0)+(thirteenthDeposit.paid?Number(thirteenthDeposit.amount??thirteenthFgts):0));
+  document.querySelector('#fgtsYearTotal').textContent=fmt.format(annualTotal);
+  document.querySelector('#fgtsPaidTotal').textContent=fmt.format(paid);
+  document.querySelector('#fgtsPendingTotal').textContent=fmt.format(Math.max(0,annualTotal-paid));
+  document.querySelector('#fgtsThirteenthTotal').textContent=fmt.format(thirteenthFgts);
+  const monthlyRows=monthly.map(({month,amount,deposit})=>{
+    const lastDay=new Date(year,month,0).getDate();
+    const defaultDate=`${year}-${String(month).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
+    return `<div class="item fgts-month-row">
+      <span class="item-icon">▣</span>
+      <span class="item-main"><strong>${MONTHS[month-1]}</strong><span>Estimativa: ${fmt.format(amount)}</span></span>
+      <span class="item-side fgts-deposit-controls">
+        <label class="check-row"><input type="checkbox" data-fgts-paid="${month}" ${deposit.paid?'checked':''}> Depositado</label>
+        <input type="text" inputmode="decimal" aria-label="Valor do FGTS de ${MONTHS[month-1]}" data-fgts-amount="${month}" value="${Number(deposit.amount??amount).toFixed(2).replace('.',',')}">
+        <input type="date" aria-label="Data do depósito ${MONTHS[month-1]}" data-fgts-date="${month}" value="${deposit.date||defaultDate}">
+      </span>
+    </div>`;
+  });
+  if(startMonth<=endMonth){
+    monthlyRows.push(`<div class="item fgts-month-row">
+      <span class="item-icon">13</span>
+      <span class="item-main"><strong>13º salário</strong><span>Estimativa: ${fmt.format(thirteenthFgts)}</span></span>
+      <span class="item-side fgts-deposit-controls">
+        <label class="check-row"><input type="checkbox" data-fgts-thirteenth-paid ${thirteenthDeposit.paid?'checked':''}> Depositado</label>
+        <input type="text" inputmode="decimal" aria-label="Valor do FGTS sobre o 13º" data-fgts-thirteenth-amount value="${Number(thirteenthDeposit.amount??thirteenthFgts).toFixed(2).replace('.',',')}">
+        <input type="date" aria-label="Data do depósito do FGTS sobre o 13º" data-fgts-thirteenth-date value="${thirteenthDeposit.date||`${year}-12-18`}">
+      </span>
+    </div>`);
+  }
+  document.querySelector('#fgtsMonthList').innerHTML=monthlyRows.length?monthlyRows.join(''):'<div class="empty">O mês inicial deve ser anterior ou igual ao mês final.</div>';
+}
+function syncThirteenthTransaction(year,part,record){
+  const suffix=part==='first'?'1ª':'2ª';
+  const marker=`thirteenth-${year}-${part}`;
+  let transaction=state.transactions.find(t=>t.payrollSource===marker);
+  const amount=Number(part==='first'?record.firstAmount:record.secondAmount);
+  const date=part==='first'?record.firstDate:record.secondDate;
+  const paid=!!record[`${part}Paid`];
+  const data={
+    id:transaction?.id||uid(),
+    kind:'income',
+    incomeType:'extra',
+    description:`13º salário - ${suffix} parcela`,
+    amount,
+    date,
+    status:paid?'realized':'planned',
+    payrollSource:marker
+  };
+  if(transaction)Object.assign(transaction,data);
+  else state.transactions.push(data);
+}
+function saveThirteenth(){
+  const year=thirteenthViewYear;
+  const record=thirteenthYearRecord(year);
+  record.startMonth=Number(document.querySelector('#thirteenthStartMonth').value);
+  record.endMonth=Number(document.querySelector('#thirteenthEndMonth').value);
+  if(record.startMonth>record.endMonth){
+    alert('O mês inicial deve ser anterior ou igual ao mês final.');
+    return;
+  }
+  const calc=thirteenthCalculation(year,record.startMonth,record.endMonth);
+  const firstAmountInput=document.querySelector('#thirteenthFirstAmount').value.trim();
+  const secondAmountInput=document.querySelector('#thirteenthSecondAmount').value.trim();
+  record.firstAmount=Math.max(0,firstAmountInput?money(firstAmountInput):calc.first);
+  record.secondAmount=Math.max(0,secondAmountInput?money(secondAmountInput):Math.max(0,calc.net-record.firstAmount));
+  record.firstDate=document.querySelector('#thirteenthFirstDate').value;
+  record.secondDate=document.querySelector('#thirteenthSecondDate').value;
+  record.firstPaid=document.querySelector('#thirteenthFirstPaid').checked;
+  record.secondPaid=document.querySelector('#thirteenthSecondPaid').checked;
+  if(!record.firstDate||!record.secondDate){
+    alert('Informe as datas previstas ou recebidas das duas parcelas.');
+    return;
+  }
+  syncThirteenthTransaction(year,'first',record);
+  syncThirteenthTransaction(year,'second',record);
+  save();
+  renderAll();
+  go('thirteenth');
 }
 
 function renderData(){
@@ -1568,8 +1865,9 @@ function renderData(){
   updateCloudProviderFields();
   renderDriveFolderSelection();
   document.querySelectorAll('[data-theme-option]').forEach(b=>b.classList.toggle('active',b.dataset.themeOption===state.settings.theme));updateDriveStatus();updateLocalSaveStatus();
+  renderUndoHistory();
 }
-function renderAll(){applyTheme();renderDashboard();renderTransactions();renderCycles();renderSavings();renderPortfolio();renderSimulator();renderFixed();renderData()}
+function renderAll(){applyTheme();renderDashboard();renderTransactions();renderCycles();renderSavings();renderPortfolio();renderSimulator();renderThirteenth();renderFgts();renderFixed();renderData()}
 
 const cloudProviderNames={google:'Google Drive',onedrive:'OneDrive',dropbox:'Dropbox'};
 function updateCloudProviderFields(){
@@ -1768,7 +2066,7 @@ function applyTheme(){
   const theme=state.settings?.theme==='dark'?'dark':'light';document.body.dataset.theme=theme;document.documentElement.style.colorScheme=theme;document.querySelector('meta[name="theme-color"]').setAttribute('content',theme==='dark'?'#070a0f':'#111827');document.querySelector('#themeQuickBtn').textContent=theme==='dark'?'☀':'☾';
 }
 function toggleTheme(){state.settings.theme=state.settings.theme==='dark'?'light':'dark';save();applyTheme();renderData()}
-function go(view){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.querySelector(`#view-${view}`).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.nav===view));if(view==='transactions')renderTransactions();if(view==='cycles')renderCycles();if(view==='savings')renderSavings();if(view==='portfolio')renderPortfolio();if(view==='simulator')renderSimulator();if(view==='fixed')renderFixed();if(view==='market')renderMarket();if(view==='data')renderData();window.scrollTo({top:0,behavior:'smooth'})}
+function go(view){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.querySelector(`#view-${view}`).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.nav===view));if(view==='transactions')renderTransactions();if(view==='cycles')renderCycles();if(view==='savings')renderSavings();if(view==='portfolio')renderPortfolio();if(view==='simulator')renderSimulator();if(view==='thirteenth')renderThirteenth();if(view==='fgts')renderFgts();if(view==='fixed')renderFixed();if(view==='market')renderMarket();if(view==='data')renderData();window.scrollTo({top:0,behavior:'smooth'})}
 
 // Navegação e atalhos
 addEventListener('click',e=>{
@@ -1804,6 +2102,113 @@ document.querySelector('#prevCycleMonth').onclick=()=>{cursor=new Date(cursor.ge
 document.querySelector('#nextCycleMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);rememberViewMonth();renderAll()};
 document.querySelector('#prevSimMonth').onclick=()=>{simCursor=new Date(simCursor.getFullYear(),simCursor.getMonth()-1,1);rememberSimMonth();renderSimulator()};
 document.querySelector('#nextSimMonth').onclick=()=>{simCursor=new Date(simCursor.getFullYear(),simCursor.getMonth()+1,1);rememberSimMonth();renderSimulator()};
+document.querySelector('#prevThirteenthYear').onclick=()=>{thirteenthViewYear--;renderThirteenth()};
+document.querySelector('#nextThirteenthYear').onclick=()=>{thirteenthViewYear++;renderThirteenth()};
+document.querySelector('#prevFgtsYear').onclick=()=>{fgtsViewYear--;renderFgts()};
+document.querySelector('#nextFgtsYear').onclick=()=>{fgtsViewYear++;renderFgts()};
+document.querySelector('#thirteenthStartMonth').onchange=()=>renderThirteenth(true);
+document.querySelector('#thirteenthEndMonth').onchange=()=>renderThirteenth(true);
+document.querySelector('#thirteenthFirstAmount').addEventListener('input',()=>{
+  const calc=thirteenthCalculation(
+    thirteenthViewYear,
+    Number(document.querySelector('#thirteenthStartMonth').value),
+    Number(document.querySelector('#thirteenthEndMonth').value)
+  );
+  const firstAmount=money(document.querySelector('#thirteenthFirstAmount').value);
+  document.querySelector('#thirteenthSecondAmount').value=round2(Math.max(0,calc.net-firstAmount)).toFixed(2).replace('.',',');
+});
+document.querySelector('#saveThirteenth').onclick=saveThirteenth;
+document.querySelector('#saveFgtsPeriod').onclick=()=>{
+  const record=fgtsYearRecord(fgtsViewYear);
+  const startMonth=Number(document.querySelector('#fgtsStartMonth').value);
+  const endMonth=Number(document.querySelector('#fgtsEndMonth').value);
+  if(startMonth>endMonth){
+    alert('O mês inicial deve ser anterior ou igual ao mês final.');
+    return;
+  }
+  record.startMonth=startMonth;
+  record.endMonth=endMonth;
+  save();
+  renderFgts();
+};
+addEventListener('change',e=>{
+  const thirteenthPaid=e.target.closest('[data-fgts-thirteenth-paid]');
+  if(thirteenthPaid){
+    const record=fgtsYearRecord(fgtsViewYear);
+    record.deposits=record.deposits||{};
+    const deposit=record.deposits.thirteenth||{};
+    const thirteenthRecord=thirteenthYearRecord(fgtsViewYear);
+    const calc=thirteenthCalculation(fgtsViewYear,thirteenthRecord.startMonth,thirteenthRecord.endMonth);
+    const dateInput=document.querySelector('[data-fgts-thirteenth-date]');
+    const amountInput=document.querySelector('[data-fgts-thirteenth-amount]');
+    record.deposits.thirteenth={
+      ...deposit,
+      paid:thirteenthPaid.checked,
+      amount:amountInput?.value.trim()?Math.max(0,money(amountInput.value)):round2(calc.gross*0.08),
+      date:dateInput?.value||''
+    };
+    save();
+    renderFgts();
+    return;
+  }
+  const thirteenthDate=e.target.closest('[data-fgts-thirteenth-date]');
+  if(thirteenthDate){
+    const record=fgtsYearRecord(fgtsViewYear);
+    record.deposits=record.deposits||{};
+    record.deposits.thirteenth={...(record.deposits.thirteenth||{}),date:thirteenthDate.value};
+    save();
+    return;
+  }
+  const thirteenthAmount=e.target.closest('[data-fgts-thirteenth-amount]');
+  if(thirteenthAmount){
+    const record=fgtsYearRecord(fgtsViewYear);
+    record.deposits=record.deposits||{};
+    record.deposits.thirteenth={...(record.deposits.thirteenth||{}),amount:Math.max(0,money(thirteenthAmount.value))};
+    save();
+    renderFgts();
+    return;
+  }
+  const paidToggle=e.target.closest('[data-fgts-paid]');
+  if(paidToggle){
+    const month=Number(paidToggle.dataset.fgtsPaid);
+    const record=fgtsYearRecord(fgtsViewYear);
+    record.deposits=record.deposits||{};
+    const deposit=record.deposits[String(month)]||{};
+    const extra=extraCompensationForMonth(fgtsViewYear,month);
+    const amount=round2((Number(state.payrollConfig.baseSalary||0)+extra)*0.08);
+    const dateInput=document.querySelector(`[data-fgts-date="${month}"]`);
+    const amountInput=document.querySelector(`[data-fgts-amount="${month}"]`);
+    record.deposits[String(month)]={
+      ...deposit,
+      paid:paidToggle.checked,
+      amount:amountInput?.value.trim()?Math.max(0,money(amountInput.value)):amount,
+      date:dateInput?.value||''
+    };
+    save();
+    renderFgts();
+    return;
+  }
+  const dateInput=e.target.closest('[data-fgts-date]');
+  if(dateInput){
+    const month=Number(dateInput.dataset.fgtsDate);
+    const record=fgtsYearRecord(fgtsViewYear);
+    record.deposits=record.deposits||{};
+    const deposit=record.deposits[String(month)]||{};
+    record.deposits[String(month)]={...deposit,date:dateInput.value};
+    save();
+    return;
+  }
+  const amountInput=e.target.closest('[data-fgts-amount]');
+  if(amountInput){
+    const month=Number(amountInput.dataset.fgtsAmount);
+    const record=fgtsYearRecord(fgtsViewYear);
+    record.deposits=record.deposits||{};
+    const deposit=record.deposits[String(month)]||{};
+    record.deposits[String(month)]={...deposit,amount:Math.max(0,money(amountInput.value))};
+    save();
+    renderFgts();
+  }
+});
 document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');filter=c.dataset.filter;renderTransactions()});
 document.querySelector('#dismissImportNote').onclick=()=>{state.importNote=false;save();renderDashboard()};
 document.querySelectorAll('[data-theme-option]').forEach(b=>b.onclick=()=>{state.settings.theme=b.dataset.themeOption;save();applyTheme();renderData()});
@@ -2203,6 +2608,13 @@ document.querySelector('#deleteEntry').onclick=()=>{
     }else{
       if(!confirm('Excluir este item?'))return;
 
+      const thirteenthMatch=item.payrollSource?.match(/^thirteenth-(\d{4})-(first|second)$/);
+      if(thirteenthMatch){
+        const [,year,part]=thirteenthMatch;
+        const record=thirteenthYearRecord(Number(year));
+        record[`${part}Paid`]=false;
+      }
+
       state.transactions=
         state.transactions.filter(x=>x.id!==id);
     }
@@ -2457,7 +2869,7 @@ document.querySelector('#closeExtraDialog').onclick=()=>extraDlg.close();
 extraForm.addEventListener('submit',e=>{e.preventDefault();const id=document.querySelector('#extraId').value,obj={id:id||uid(),date:document.querySelector('#extraDate').value,description:document.querySelector('#extraDescription').value.trim(),start:document.querySelector('#extraStart').value,end:document.querySelector('#extraEnd').value,deductLunch:document.querySelector('#extraDeductLunch').checked,lunchStart:document.querySelector('#extraLunchStart').value,lunchEnd:document.querySelector('#extraLunchEnd').value,holiday:document.querySelector('#extraHoliday').checked};const c=calculateExtraRecord(obj);if(!obj.date||!obj.description||!obj.start||!obj.end||c.minutes<=0)return;const ix=state.overtimeLogs.findIndex(x=>x.id===id);if(ix>=0)state.overtimeLogs[ix]=obj;else state.overtimeLogs.push(obj);save();extraDlg.close();renderAll()});
 document.querySelector('#deleteExtra').onclick=()=>{const id=document.querySelector('#extraId').value;if(!id||!confirm('Excluir este registro de hora extra?'))return;state.overtimeLogs=state.overtimeLogs.filter(x=>x.id!==id);save();extraDlg.close();renderAll()};
 
-document.querySelector('#savePayrollConfig').onclick=()=>{state.payrollConfig.baseSalary=money(document.querySelector('#simBaseSalary').value);state.payrollConfig.monthlyHours=Math.max(1,decimal(document.querySelector('#simMonthlyHours').value));state.payrollConfig.advance=money(document.querySelector('#simAdvance').value);state.payrollConfig.nightPct=Math.max(0,decimal(document.querySelector('#simNightPct').value));state.payrollConfig.extraGoal=Math.max(0,decimal(document.querySelector('#simExtraGoal').value));payrollMonthConfig().holidayCount=Math.max(0,Number(document.querySelector('#simHolidayCount').value||0));save();renderSimulator();alert('Parâmetros da simulação salvos.')};
+document.querySelector('#savePayrollConfig').onclick=()=>{state.payrollConfig.baseSalary=money(document.querySelector('#simBaseSalary').value);state.payrollConfig.monthlyHours=Math.max(1,decimal(document.querySelector('#simMonthlyHours').value));state.payrollConfig.advance=money(document.querySelector('#simAdvance').value);state.payrollConfig.nightPct=Math.max(0,decimal(document.querySelector('#simNightPct').value));state.payrollConfig.extraGoal=Math.max(0,decimal(document.querySelector('#simExtraGoal').value));payrollMonthConfig().holidayCount=Math.max(0,Number(document.querySelector('#simHolidayCount').value||0));save();renderAll();alert('Parâmetros da simulação salvos.')};
 document.querySelector('#loadJulyReference').onclick=()=>{simCursor=new Date(2026,8,1);const m=payrollMonthConfig('2026-09');m.holidayCount=0;m.referenceHours={h50:60,h100:0,night:6};state.payrollConfig.baseSalary=5000;state.payrollConfig.monthlyHours=220;state.payrollConfig.advance=2000;state.payrollConfig.nightPct=20;save();renderSimulator()};
 document.querySelector('#useSimulationIncome').onclick=()=>{const p=payrollSimulation(),[y,m]=p.k.split('-').map(Number),last=new Date(y,m,0).getDate(),date=`${y}-${String(m).padStart(2,'0')}-${String(last).padStart(2,'0')}`;let x=state.transactions.find(t=>t.source==='payroll-simulation'&&t.date?.slice(0,7)===p.k);const obj={id:x?.id||uid(),kind:'income',incomeType:'second',description:'Salário - final do mês (simulação)',amount:Math.max(0,p.finalPay),date,status:'planned',source:'payroll-simulation'};if(x)Object.assign(x,obj);else state.transactions.push(obj);cursor=new Date(y,m-1,1);save();renderAll();alert('Entrada prevista atualizada em Lançamentos.')};
 
@@ -2469,6 +2881,13 @@ document.querySelector('#operationOk').onclick=()=>document.querySelector('#oper
 document.querySelector('#saveGoalBtn').onclick=()=>{state.savingGoal=money(document.querySelector('#savingGoal').value);save();renderAll();alert('Meta salva.')};
 document.querySelector('#saveBonusConfig').onclick=()=>{state.settings.bonusEnabled=document.querySelector('#bonusEnabled').checked;state.settings.bonusName=document.querySelector('#bonusName').value.trim()||'Bônus';save();renderAll();alert('Configuração do bônus salva.')};
 document.querySelector('#saveLocalData').onclick=()=>{save({backupOld:false,cloud:false});updateLocalSaveStatus();alert('Informações salvas neste aparelho.')};
+document.querySelector('#undoQuickBtn')?.addEventListener('click',()=>restoreUndoSnapshot());
+document.querySelector('#undoLastChange')?.addEventListener('click',()=>restoreUndoSnapshot());
+addEventListener('click',e=>{
+  const restore=e.target.closest('[data-undo-index]');
+  if(!restore)return;
+  restoreUndoSnapshot(Number(restore.dataset.undoIndex));
+});
 document.querySelector('#exportJson').onclick=()=>{operationStart('Preparando exportação','Gerando o backup completo em JSON…');download(`saldoplan-backup-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({...state,exportedAt:new Date().toISOString()},null,2),'application/json');operationFinish('Exportação concluída','O arquivo JSON foi baixado para o seu aparelho.')};
 function exportRows(){
   const rows=[['Tipo de registro','Data','Natureza','Categoria','Descrição','Conta / origem','Status','Valor (R$)','Início','Fim','Feriado','ID']];
