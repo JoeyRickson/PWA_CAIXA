@@ -1,11 +1,11 @@
-const CACHE='saldoplan-v2.11.2';
+const CACHE='saldoplan-v2.12.0';
 
 const ASSETS=[
   './',
   './index.html',
-  './styles.css?v=2.11.2',
-  './drive-config.js?v=2.11.2',
-  './app.js?v=2.11.2',
+  './styles.css?v=2.12.0',
+  './drive-config.js?v=2.12.0',
+  './app.js?v=2.12.0',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -38,4 +38,3 @@ self.addEventListener('fetch',e=>{
       .catch(()=>caches.match(e.request))
   );
 });
-
