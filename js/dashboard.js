@@ -9,6 +9,7 @@ function renderDashboard(){
   setMoney('incomeFirst',sum(m.inc.filter(x=>x.incomeType==='first')));setMoney('incomeSecond',sum(m.inc.filter(x=>x.incomeType==='second')));setMoney('incomeExtra',sum(m.inc.filter(x=>x.incomeType==='extra')));setMoney('incomeFlash',sum(m.inc.filter(x=>x.incomeType==='flash')));
   setMoney('fixedTotal',sum(m.exp.filter(x=>x.expenseType==='fixed')));setMoney('variableTotal',sum(m.exp.filter(x=>x.expenseType==='variable')));setMoney('unplannedTotal',sum(m.exp.filter(x=>x.expenseType==='unplanned')));
   renderBars(m.exp);renderPending(m.exp);document.querySelector('#importNote').classList.toggle('hidden',!state.importNote);
+  if(typeof renderPatrimonyDashboard==='function')renderPatrimonyDashboard();
 }
 function renderBars(exp){
   const by={};exp.forEach(x=>by[x.category||'Sem categoria']=(by[x.category||'Sem categoria']||0)+Number(x.amount||0));

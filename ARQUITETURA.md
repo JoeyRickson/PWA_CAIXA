@@ -1,4 +1,4 @@
-# SaldoPlan — Arquitetura modular v2.17.0
+# SaldoPlan — Arquitetura modular v2.18.0
 
 Esta versão inicia a modularização estrutural do projeto sem trocar framework e sem alterar o formato dos dados.
 
@@ -55,3 +55,16 @@ A área de cartões foi adicionada sem misturar sua lógica com Lançamentos:
 - `state.cardPurchases`: compras e parcelamentos.
 
 Cada parcela é materializada também em `state.transactions`, com metadados `cardId`, `cardPurchaseId`, `cardInstallmentIndex`, `cardInstallmentCount` e `cardStatementMonth`. Assim as faturas entram naturalmente nas projeções, ciclos de caixa, exportações e rollback sem criar um segundo sistema financeiro paralelo.
+
+
+## Patrimônio e metas v2.18
+
+- `views/patrimony.html`: visão consolidada de patrimônio, dívidas, metas e projeções;
+- `js/patrimony.js`: consolida caixa, Guardado, Carteira, FGTS, cartões e dívidas manuais;
+- `css/patrimony.css`: layout específico da área;
+- `state.patrimonySettings`: origem do saldo em conta (automático ou manual);
+- `state.liabilities`: dívidas manuais;
+- `state.financialGoals`: metas financeiras;
+- `state.netWorthSnapshots`: histórico diário do patrimônio líquido.
+
+A projeção de 30/60/90 dias considera lançamentos futuros, recorrências mensais e movimentações previstas de Guardado. Pagamentos de parcelas reduzem caixa e dívida do cartão simultaneamente, evitando dupla redução do patrimônio.

@@ -14,7 +14,7 @@ function renderData(){
   document.querySelectorAll('[data-theme-option]').forEach(b=>b.classList.toggle('active',b.dataset.themeOption===state.settings.theme));updateDriveStatus();updateLocalSaveStatus();
   renderUndoHistory();
 }
-function renderAll(){applyTheme();renderDashboard();renderTransactions();renderCycles();renderSavings();renderPortfolio();renderCards();renderSimulator();renderThirteenth();renderFgts();renderFixed();renderData()}
+function renderAll(){applyTheme();renderDashboard();renderTransactions();renderCycles();renderSavings();renderPortfolio();renderPatrimony();renderCards();renderSimulator();renderThirteenth();renderFgts();renderFixed();renderData()}
 
 const cloudProviderNames={google:'Google Drive',onedrive:'OneDrive',dropbox:'Dropbox'};
 function updateCloudProviderFields(){
@@ -213,7 +213,7 @@ function applyTheme(){
   const theme=state.settings?.theme==='dark'?'dark':'light';document.body.dataset.theme=theme;document.documentElement.style.colorScheme=theme;document.querySelector('meta[name="theme-color"]').setAttribute('content',theme==='dark'?'#070a0f':'#111827');document.querySelector('#themeQuickBtn').textContent=theme==='dark'?'☀':'☾';
 }
 function toggleTheme(){state.settings.theme=state.settings.theme==='dark'?'light':'dark';save({backupOld:false,cloud:false,history:false});applyTheme();renderData()}
-function go(view){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.querySelector(`#view-${view}`).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.nav===view));if(view==='transactions')renderTransactions();if(view==='cycles')renderCycles();if(view==='savings')renderSavings();if(view==='portfolio')renderPortfolio();if(view==='cards')renderCards();if(view==='simulator')renderSimulator();if(view==='thirteenth')renderThirteenth();if(view==='fgts')renderFgts();if(view==='fixed')renderFixed();if(view==='market')renderMarket();if(view==='data')renderData();window.scrollTo({top:0,behavior:'smooth'})}
+function go(view){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.querySelector(`#view-${view}`).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.nav===view));if(view==='transactions')renderTransactions();if(view==='cycles')renderCycles();if(view==='savings')renderSavings();if(view==='portfolio')renderPortfolio();if(view==='patrimony')renderPatrimony();if(view==='cards')renderCards();if(view==='simulator')renderSimulator();if(view==='thirteenth')renderThirteenth();if(view==='fgts')renderFgts();if(view==='fixed')renderFixed();if(view==='market')renderMarket();if(view==='data')renderData();window.scrollTo({top:0,behavior:'smooth'})}
 
 // Navegação e atalhos
 addEventListener('click',e=>{

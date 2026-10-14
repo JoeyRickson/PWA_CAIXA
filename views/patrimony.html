@@ -1,0 +1,140 @@
+<section id="view-patrimony" class="view">
+  <div class="page-head patrimony-head">
+    <div>
+      <span class="muted">Visão consolidada</span>
+      <h2>Patrimônio & metas</h2>
+      <p class="helper">Acompanhe ativos, dívidas, objetivos e uma projeção simples dos próximos 30, 60 e 90 dias.</p>
+    </div>
+  </div>
+
+  <div class="grid patrimony-kpis">
+    <article class="card hero">
+      <span>Patrimônio líquido</span>
+      <strong id="patrimonyNetWorth">R$ 0,00</strong>
+      <small>Ativos − dívidas</small>
+    </article>
+    <article class="card">
+      <span>Total de ativos</span>
+      <strong id="patrimonyAssets">R$ 0,00</strong>
+      <small>Conta + Guardado + Carteira + FGTS</small>
+    </article>
+    <article class="card">
+      <span>Total de dívidas</span>
+      <strong id="patrimonyLiabilities">R$ 0,00</strong>
+      <small>Cartões + dívidas cadastradas</small>
+    </article>
+    <article class="card">
+      <span>Variação registrada</span>
+      <strong id="patrimonyVariation">—</strong>
+      <small id="patrimonyVariationDetail">Aguardando histórico</small>
+    </article>
+  </div>
+
+  <section class="panel patrimony-cash-panel">
+    <div class="section-head">
+      <div><span class="muted">Caixa</span><h3>Saldo em conta</h3></div>
+      <span id="patrimonyCashStatus" class="status-pill">Automático</span>
+    </div>
+    <p class="helper">No modo automático, o SaldoPlan usa o saldo realizado da competência atual. Se quiser refletir exatamente o saldo bancário, use o modo manual.</p>
+    <div class="patrimony-cash-controls">
+      <label>Origem do saldo
+        <select id="patrimonyCashMode">
+          <option value="auto">Automático · competência atual</option>
+          <option value="manual">Manual · saldo bancário informado</option>
+        </select>
+      </label>
+      <label id="patrimonyManualCashWrap">Saldo manual
+        <div class="money-input"><span>R$</span><input id="patrimonyManualCash" inputmode="decimal" placeholder="0,00"></div>
+      </label>
+      <button id="savePatrimonyCash" type="button" class="btn">Salvar saldo</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="section-head">
+      <div><span class="muted">Composição</span><h3>Onde está seu patrimônio</h3></div>
+    </div>
+    <div class="patrimony-assets-grid">
+      <div><span>Conta / caixa</span><strong id="patrimonyCash">R$ 0,00</strong><small id="patrimonyCashHint">Saldo realizado do mês atual</small></div>
+      <div><span>Guardado</span><strong id="patrimonySavings">R$ 0,00</strong><small>Aportes realizados</small></div>
+      <div><span>Investimentos</span><strong id="patrimonyPortfolio">R$ 0,00</strong><small>Valor atual da Carteira</small></div>
+      <div><span>FGTS</span><strong id="patrimonyFgts">R$ 0,00</strong><small>Saldos consolidados das contas</small></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="section-head">
+      <div><span class="muted">Futuro</span><h3>Projeção 30 / 60 / 90 dias</h3></div>
+    </div>
+    <p class="helper">Considera lançamentos previstos, recorrências e Guardado previsto. Investimentos e FGTS permanecem no valor atual; não há previsão de rentabilidade.</p>
+    <div id="patrimonyProjection" class="patrimony-projection-grid"></div>
+  </section>
+
+  <div class="patrimony-two-col">
+    <section class="panel">
+      <div class="section-head">
+        <div><span class="muted">Passivos</span><h3>Dívidas</h3></div>
+        <button id="newLiabilityBtn" type="button" class="btn small">+ Dívida</button>
+      </div>
+      <div class="patrimony-debt-summary">
+        <div><span>Cartões a pagar</span><strong id="patrimonyCardDebt">R$ 0,00</strong></div>
+        <div><span>Outras dívidas</span><strong id="patrimonyManualDebt">R$ 0,00</strong></div>
+      </div>
+      <div id="liabilityList" class="patrimony-list"></div>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <div><span class="muted">Objetivos</span><h3>Metas financeiras</h3></div>
+        <button id="newGoalBtn" type="button" class="btn small">+ Meta</button>
+      </div>
+      <div id="goalList" class="patrimony-list"></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <div class="section-head">
+      <div><span class="muted">Evolução</span><h3>Histórico do patrimônio</h3></div>
+      <span id="patrimonySnapshotCount" class="status-pill">0 registros</span>
+    </div>
+    <div id="patrimonyHistoryChart" class="patrimony-history-chart"></div>
+    <p class="helper small-text">O SaldoPlan mantém um ponto por dia em que o app é usado. O registro do dia é atualizado enquanto seu patrimônio muda.</p>
+  </section>
+
+  <dialog id="liabilityDialog">
+    <form id="liabilityForm" method="dialog" class="dialog-form">
+      <div class="dialog-head"><div><span class="muted">DÍVIDA</span><h2 id="liabilityFormTitle">Nova dívida</h2></div><button id="closeLiabilityDialog" type="button" class="icon-btn">×</button></div>
+      <input type="hidden" id="liabilityId">
+      <div class="two-col">
+        <label>Descrição<input id="liabilityName" required placeholder="Ex.: Empréstimo, financiamento"></label>
+        <label>Instituição<input id="liabilityInstitution" placeholder="Ex.: Caixa, Bradesco"></label>
+      </div>
+      <div class="two-col">
+        <label>Tipo<select id="liabilityType"><option value="loan">Empréstimo</option><option value="financing">Financiamento</option><option value="personal">Dívida pessoal</option><option value="other">Outra</option></select></label>
+        <label>Saldo devedor<div class="money-input"><span>R$</span><input id="liabilityBalance" required inputmode="decimal" placeholder="0,00"></div></label>
+      </div>
+      <div class="two-col">
+        <label>Vencimento / previsão<input id="liabilityDueDate" type="date"></label>
+        <label>Status<select id="liabilityStatus"><option value="active">Em aberto</option><option value="paid">Quitada</option></select></label>
+      </div>
+      <label>Observações<textarea id="liabilityNotes" rows="3" placeholder="Opcional"></textarea></label>
+      <div class="dialog-actions"><button id="deleteLiability" type="button" class="btn danger ghost hidden">Excluir</button><span class="spacer"></span><button id="cancelLiability" type="button" class="btn ghost">Cancelar</button><button type="submit" class="btn">Salvar</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="goalDialog">
+    <form id="goalForm" method="dialog" class="dialog-form">
+      <div class="dialog-head"><div><span class="muted">META FINANCEIRA</span><h2 id="goalFormTitle">Nova meta</h2></div><button id="closeGoalDialog" type="button" class="icon-btn">×</button></div>
+      <input type="hidden" id="goalId">
+      <label>Nome da meta<input id="goalName" required placeholder="Ex.: Reserva de emergência, entrada do imóvel"></label>
+      <div class="two-col">
+        <label>Valor-alvo<div class="money-input"><span>R$</span><input id="goalTarget" required inputmode="decimal" placeholder="0,00"></div></label>
+        <label>Prazo<input id="goalDeadline" type="date"></label>
+      </div>
+      <label>Como medir o progresso<select id="goalSource"><option value="manual">Valor informado manualmente</option><option value="savings">Saldo Guardado</option><option value="portfolio">Carteira de investimentos</option><option value="fgts">Saldo FGTS</option><option value="networth">Patrimônio líquido</option></select></label>
+      <label id="goalCurrentWrap">Valor atual<div class="money-input"><span>R$</span><input id="goalCurrent" inputmode="decimal" placeholder="0,00"></div></label>
+      <label>Observações<textarea id="goalNotes" rows="3" placeholder="Opcional"></textarea></label>
+      <div class="dialog-actions"><button id="deleteGoal" type="button" class="btn danger ghost hidden">Excluir</button><span class="spacer"></span><button id="cancelGoal" type="button" class="btn ghost">Cancelar</button><button type="submit" class="btn">Salvar</button></div>
+    </form>
+  </dialog>
+</section>

@@ -1,0 +1,22 @@
+.patrimony-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px}
+.patrimony-head .helper{margin:5px 0 0;max-width:760px}
+.patrimony-kpis{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:14px}
+.patrimony-cash-controls{display:grid;grid-template-columns:1.2fr 1fr auto;gap:10px;align-items:end}
+.patrimony-cash-controls label{margin:0}.patrimony-cash-controls .btn{min-height:44px}
+.patrimony-assets-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.patrimony-assets-grid>div,.patrimony-debt-summary>div{display:grid;gap:4px;padding:14px;border:1px solid var(--line);border-radius:15px;background:var(--surface-2)}
+.patrimony-assets-grid span,.patrimony-debt-summary span{color:var(--muted);font-size:.76rem}.patrimony-assets-grid strong,.patrimony-debt-summary strong{font-size:1.08rem}.patrimony-assets-grid small{color:var(--muted);font-size:.7rem}
+.patrimony-projection-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.patrimony-projection-card{display:grid;gap:4px;padding:15px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2)}
+.patrimony-projection-card span{color:var(--muted);font-size:.76rem}.patrimony-projection-card strong{font-size:1.25rem;letter-spacing:-.03em}.patrimony-projection-card small{color:var(--muted);font-size:.7rem;line-height:1.35}
+.patrimony-two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}.patrimony-two-col>.panel{margin-top:14px}
+.patrimony-debt-summary{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
+.patrimony-list{display:grid;gap:9px}.patrimony-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2)}
+.patrimony-row-main{display:grid;gap:3px;min-width:0}.patrimony-row-main strong{overflow-wrap:anywhere}.patrimony-row-main span,.patrimony-row-side span{color:var(--muted);font-size:.72rem}.patrimony-row-side{display:grid;gap:3px;text-align:right}.patrimony-row-side strong{white-space:nowrap}.patrimony-row button{grid-column:1/-1;justify-self:end}
+.goal-progress-track{height:7px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:5px}.goal-progress-track i{display:block;height:100%;border-radius:inherit;background:var(--accent)}
+.goal-complete .goal-progress-track i{background:var(--saving)}.goal-complete .patrimony-row-side strong{color:var(--saving)}
+.patrimony-history-chart{min-height:190px;overflow:hidden}.patrimony-history-chart svg{display:block;width:100%;height:auto;min-height:180px}.patrimony-chart-line{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.patrimony-chart-area{fill:color-mix(in srgb,var(--accent) 12%,transparent)}.patrimony-chart-axis{stroke:var(--line);stroke-width:1}.patrimony-chart-label{fill:var(--muted);font-size:10px}
+.patrimony-dashboard-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.patrimony-dashboard-grid>div{display:grid;gap:3px;padding:11px;border:1px solid var(--line);border-radius:13px;background:var(--surface-2)}.patrimony-dashboard-grid span{font-size:.72rem;color:var(--muted)}.patrimony-dashboard-grid strong{font-size:.96rem}
+@media(min-width:680px){.patrimony-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.patrimony-assets-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.patrimony-dashboard-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:900px){.patrimony-two-col{grid-template-columns:1fr}.patrimony-cash-controls{grid-template-columns:1fr 1fr}.patrimony-cash-controls .btn{grid-column:1/-1}.patrimony-projection-grid{grid-template-columns:1fr}}
+@media(max-width:520px){.patrimony-kpis{grid-template-columns:1fr 1fr}.patrimony-assets-grid,.patrimony-debt-summary{grid-template-columns:1fr 1fr}.patrimony-cash-controls{grid-template-columns:1fr}.patrimony-cash-controls .btn{grid-column:auto}.patrimony-row{grid-template-columns:1fr}.patrimony-row-side{text-align:left}.patrimony-row button{grid-column:1;justify-self:stretch}}

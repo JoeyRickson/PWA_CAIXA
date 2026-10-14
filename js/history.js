@@ -107,10 +107,16 @@ function describeStateChange(previousText,nextText){
       collectionChange(previous,current,'savingTemplates','Recorrência de guardado',item=>item?.description||'recorrência'),
       collectionChange(previous,current,'fgtsAccounts','Conta FGTS',item=>item?.employer||item?.accountNumber||'conta FGTS'),
       collectionChange(previous,current,'creditCards','Cartão',item=>item?.name||item?.institution||'cartão'),
-      collectionChange(previous,current,'cardPurchases','Compra no cartão',item=>item?.description||'compra')
+      collectionChange(previous,current,'cardPurchases','Compra no cartão',item=>item?.description||'compra'),
+      collectionChange(previous,current,'liabilities','Dívida',item=>item?.name||item?.institution||'dívida'),
+      collectionChange(previous,current,'financialGoals','Meta financeira',item=>item?.name||'meta')
     ].find(Boolean);
 
     if(checks)return checks;
+
+    if(JSON.stringify(previous.patrimonySettings)!==JSON.stringify(current.patrimonySettings)){
+      return 'Configuração de patrimônio alterada';
+    }
 
     if(JSON.stringify(previous.payrollConfig)!==JSON.stringify(current.payrollConfig)){
       return 'Parâmetros da simulação alterados';

@@ -91,6 +91,10 @@ const seed={
   activeFgtsAccountId:'',
   creditCards:[],
   cardPurchases:[],
+  patrimonySettings:{cashMode:'auto',manualCash:0},
+  liabilities:[],
+  financialGoals:[],
+  netWorthSnapshots:[],
   fixedTemplates:[],
   savingTemplates:[],
   savings:[],
@@ -172,6 +176,37 @@ function migrateState(raw){
       installments:Math.min(48,Math.max(1,Number(purchase.installments||1))),
       cancelled:purchase.cancelled===true
     }))
+    :[];
+  migrated.patrimonySettings={...base.patrimonySettings,...(raw.patrimonySettings||{})};
+  migrated.patrimonySettings.cashMode=migrated.patrimonySettings.cashMode==='manual'?'manual':'auto';
+  migrated.patrimonySettings.manualCash=Number(migrated.patrimonySettings.manualCash||0);
+  migrated.liabilities=Array.isArray(raw.liabilities)
+    ?raw.liabilities.filter(item=>item&&typeof item==='object').map(item=>({
+      ...item,
+      id:item.id||uid(),
+      name:String(item.name||'Dívida').trim()||'Dívida',
+      institution:String(item.institution||'').trim(),
+      type:['loan','financing','personal','other'].includes(item.type)?item.type:'other',
+      currentBalance:Math.max(0,Number(item.currentBalance||0)),
+      status:item.status==='paid'?'paid':'active',
+      dueDate:String(item.dueDate||''),
+      notes:String(item.notes||'')
+    }))
+    :[];
+  migrated.financialGoals=Array.isArray(raw.financialGoals)
+    ?raw.financialGoals.filter(item=>item&&typeof item==='object').map(item=>({
+      ...item,
+      id:item.id||uid(),
+      name:String(item.name||'Meta financeira').trim()||'Meta financeira',
+      targetAmount:Math.max(0,Number(item.targetAmount||0)),
+      currentAmount:Math.max(0,Number(item.currentAmount||0)),
+      source:['manual','savings','portfolio','fgts','networth'].includes(item.source)?item.source:'manual',
+      deadline:String(item.deadline||''),
+      notes:String(item.notes||'')
+    }))
+    :[];
+  migrated.netWorthSnapshots=Array.isArray(raw.netWorthSnapshots)
+    ?raw.netWorthSnapshots.filter(item=>item&&/^\d{4}-\d{2}-\d{2}$/.test(String(item.date||''))).slice(-730)
     :[];
   migrated.transactions=Array.isArray(raw.transactions)?raw.transactions:base.transactions;
   migrated.transactions=migrated.transactions.map(x=>x.description==='Crédito Flash'?{...x,description:migrated.settings.bonusName||'Bônus'}:x);
