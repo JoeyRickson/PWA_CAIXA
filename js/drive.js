@@ -2,10 +2,61 @@
 const DRIVE_CONFIG=window.SALDOPLAN_DRIVE_CONFIG||{};
 let pickerLoadPromise=null;
 
+// Mobile: evitar o Google Picker em tela pequena (iframe externa pouco utilizavel).
+function isMobileDriveLayout(){
+  return document.body?.dataset.layoutEffective==='compact' ||
+    window.matchMedia('(max-width: 899px)').matches;
+}
+
+function refreshMobileDriveChoices(){
+  const mobile=isMobileDriveLayout();
+  const choose=document.querySelector('#chooseDriveFolder');
+  const note=document.querySelector('#driveMobileHint');
+  if(choose){
+    choose.textContent=mobile?'Usar pasta SaldoPlan no Drive':'Escolher pasta existente';
+    choose.setAttribute('aria-label',mobile?'Criar ou reutilizar pasta SaldoPlan no Google Drive':'Escolher pasta existente no Google Drive');
+  }
+  if(note)note.classList.toggle('hidden',!mobile);
+}
+
+// Com drive.file, o aplicativo pode acessar as pastas que ele criou
+// ou as pastas que o usuario compartilhou via Picker anteriormente.
+async function ensureDriveAppFolder(){
+  if(!driveToken)await requestDriveToken(false);
+  const folderName='SaldoPlan - Backups';
+  if(state.cloud.folderId){
+    const id=await getSelectedDriveFolder();
+    return {id,name:state.cloud.folderName||folderName};
+  }
+  const escaped=folderName.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  const q=`name='${escaped}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+  const searchUrl=`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=${encodeURIComponent('files(id,name),nextPageToken')}&pageSize=100`;
+  const response=await driveFetch(searchUrl);
+  const result=await response.json();
+  let folder=(result.files||[]).find(f=>f.name===folderName);
+  if(!folder){
+    const created=await driveFetch('https://www.googleapis.com/drive/v3/files?fields=id,name',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:folderName,mimeType:'application/vnd.google-apps.folder'})
+    });
+    folder=await created.json();
+  }
+  if(!folder?.id)throw new Error('O Google Drive nao retornou uma pasta valida.');
+  state.cloud.folderId=folder.id;
+  state.cloud.folderName=folder.name||folderName;
+  save({backupOld:false,cloud:false,history:false});
+  renderDriveFolderSelection();
+  updateDriveStatus(`Pasta pronta: ${state.cloud.folderName}. Agora toque em Enviar backup agora.`);
+  return {id:folder.id,name:state.cloud.folderName};
+}
+
+
 function renderDriveFolderSelection(){
   const label=document.querySelector('#driveFolderLabel'),sub=document.querySelector('#driveFolderSubtext'),account=document.querySelector('#driveAccountLabel');
   if(account)account.textContent=window.saldoPlanAuthUser?.email||state.cloud.emailHint||'Use a conta conectada ao SaldoPlan';
   if(!label||!sub)return;
+  refreshMobileDriveChoices();
   if(state.cloud.folderId){
     label.textContent=`📁 ${state.cloud.folderName||'Pasta selecionada'}`;
     sub.textContent='Os backups do SaldoPlan serão gravados nesta pasta.';
@@ -56,7 +107,8 @@ async function connectCloudProvider(){
   if(provider==='google'){
     await requestDriveToken(true);
     updateDriveStatus('Google Drive conectado. Escolha a pasta de backup.');
-    if(!state.cloud.folderId)await chooseDriveFolder();
+    if(isMobileDriveLayout())await ensureDriveAppFolder();
+    else if(!state.cloud.folderId)await chooseDriveFolder();
     else await getSelectedDriveFolder();
     renderData();
     schedulePendingCloudBackup(5000);
@@ -147,6 +199,7 @@ function loadPickerApi(){
 }
 
 async function chooseDriveFolder(){
+  if(isMobileDriveLayout())return ensureDriveAppFolder();
   if(!driveToken)await requestDriveToken(false);
   if(!DRIVE_CONFIG.apiKey||!DRIVE_CONFIG.appId)throw new Error('O seletor do Google Drive ainda não foi configurado.');
   await loadPickerApi();
