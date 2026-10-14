@@ -1,4 +1,4 @@
-# SaldoPlan — Arquitetura modular v2.16.0
+# SaldoPlan — Arquitetura modular v2.17.0
 
 Esta versão inicia a modularização estrutural do projeto sem trocar framework e sem alterar o formato dos dados.
 
@@ -43,3 +43,15 @@ Na fase seguinte os arquivos em `js/` podem ser convertidos gradualmente para m�
 - `js/recurrence.js`: concentra migração, limites por data completa, geração mensal e compatibilidade com os campos antigos `startMonth`/`endMonth`.
 - Intervalos novos usam `startDate`/`endDate` em ISO (`YYYY-MM-DD`).
 - Séries antigas são migradas em memória e persistidas sem criar histórico/backup desnecessário.
+
+## Cartões v2.17
+
+A área de cartões foi adicionada sem misturar sua lógica com Lançamentos:
+
+- `views/cards.html`: tela de cartões, faturas e compras parceladas;
+- `js/cards.js`: cartões, limites, fechamento, vencimento, faturas e geração das parcelas;
+- `css/cards.css`: layout da área de crédito;
+- `state.creditCards`: cadastro dos cartões;
+- `state.cardPurchases`: compras e parcelamentos.
+
+Cada parcela é materializada também em `state.transactions`, com metadados `cardId`, `cardPurchaseId`, `cardInstallmentIndex`, `cardInstallmentCount` e `cardStatementMonth`. Assim as faturas entram naturalmente nas projeções, ciclos de caixa, exportações e rollback sem criar um segundo sistema financeiro paralelo.

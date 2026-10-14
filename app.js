@@ -1,10 +1,11 @@
-const SALDOPLAN_VERSION='2.16.0';
+const SALDOPLAN_VERSION='2.17.0';
 
 const SALDOPLAN_VIEWS=[
   'dashboard',
   'transactions',
   'cycles',
   'portfolio',
+  'cards',
   'savings',
   'simulator',
   'thirteenth',
@@ -19,6 +20,7 @@ const SALDOPLAN_SCRIPTS=[
   'core',
   'recurrence',
   'history',
+  'cards',
   'market',
   'portfolio',
   'dashboard',

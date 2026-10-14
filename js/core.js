@@ -89,6 +89,8 @@ const seed={
   fgtsByYear:{},
   fgtsAccounts:[],
   activeFgtsAccountId:'',
+  creditCards:[],
+  cardPurchases:[],
   fixedTemplates:[],
   savingTemplates:[],
   savings:[],
@@ -146,6 +148,31 @@ function migrateState(raw){
   migrated.activeFgtsAccountId=migrated.fgtsAccounts.some(account=>account.id===raw.activeFgtsAccountId)
     ?raw.activeFgtsAccountId
     :migrated.fgtsAccounts[0]?.id||'';
+  migrated.creditCards=Array.isArray(raw.creditCards)
+    ?raw.creditCards.filter(card=>card&&typeof card==='object').map(card=>({
+      ...card,
+      id:card.id||uid(),
+      name:String(card.name||card.institution||'Cartão').trim()||'Cartão',
+      institution:String(card.institution||'').trim(),
+      last4:String(card.last4||'').replace(/\D/g,'').slice(-4),
+      limit:Math.max(0,Number(card.limit||0)),
+      closingDay:Math.min(31,Math.max(1,Number(card.closingDay||1))),
+      dueDay:Math.min(31,Math.max(1,Number(card.dueDay||1))),
+      bestDay:Math.min(31,Math.max(1,Number(card.bestDay||1))),
+      active:card.active!==false
+    }))
+    :[];
+  migrated.cardPurchases=Array.isArray(raw.cardPurchases)
+    ?raw.cardPurchases.filter(purchase=>purchase&&typeof purchase==='object').map(purchase=>({
+      ...purchase,
+      id:purchase.id||uid(),
+      description:String(purchase.description||'Compra no cartão').trim()||'Compra no cartão',
+      category:String(purchase.category||'Cartão').trim()||'Cartão',
+      totalAmount:Math.max(0,Number(purchase.totalAmount||0)),
+      installments:Math.min(48,Math.max(1,Number(purchase.installments||1))),
+      cancelled:purchase.cancelled===true
+    }))
+    :[];
   migrated.transactions=Array.isArray(raw.transactions)?raw.transactions:base.transactions;
   migrated.transactions=migrated.transactions.map(x=>x.description==='Crédito Flash'?{...x,description:migrated.settings.bonusName||'Bônus'}:x);
   migrated.fixedTemplates=Array.isArray(raw.fixedTemplates)?raw.fixedTemplates:[];

@@ -238,3 +238,60 @@
       <div class="dialog-actions"><button type="button" id="deleteExtra" class="btn danger ghost hidden">Excluir</button><button type="submit" class="btn">Salvar</button></div>
     </form>
   </dialog>
+
+<dialog id="creditCardDialog">
+  <form id="creditCardForm" method="dialog" class="dialog-form">
+    <div class="dialog-head">
+      <div><span class="muted">CARTÃO DE CRÉDITO</span><h2 id="creditCardFormTitle">Novo cartão</h2></div>
+      <button type="button" class="icon-btn" id="closeCreditCardDialog">×</button>
+    </div>
+    <input type="hidden" id="creditCardId">
+    <div class="two-col">
+      <label>Nome do cartão<input id="creditCardName" required placeholder="Ex.: Bradesco Elo"></label>
+      <label>Instituição<input id="creditCardInstitution" placeholder="Ex.: Bradesco"></label>
+    </div>
+    <div class="two-col">
+      <label>Final do cartão<input id="creditCardLast4" inputmode="numeric" maxlength="4" placeholder="1234"></label>
+      <label>Limite<div class="money-input"><span>R$</span><input id="creditCardLimit" required inputmode="decimal" placeholder="0,00"></div></label>
+    </div>
+    <div class="three-col cards-date-fields">
+      <label>Fecha dia<input id="creditCardClosingDay" type="number" min="1" max="31" required></label>
+      <label>Vence dia<input id="creditCardDueDay" type="number" min="1" max="31" required></label>
+      <label>Melhor dia<input id="creditCardBestDay" type="number" min="1" max="31" required></label>
+    </div>
+    <label class="check-row"><input id="creditCardActive" type="checkbox" checked> Cartão ativo</label>
+    <p class="helper small-text">O limite disponível é estimado pelas parcelas ainda não pagas. O melhor dia é informativo e pode ser ajustado conforme o aplicativo do banco.</p>
+    <div class="dialog-actions">
+      <button type="button" id="deleteCreditCard" class="btn danger ghost hidden">Excluir</button>
+      <button type="submit" class="btn">Salvar cartão</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="cardPurchaseDialog">
+  <form id="cardPurchaseForm" method="dialog" class="dialog-form">
+    <div class="dialog-head">
+      <div><span class="muted">COMPRA NO CARTÃO</span><h2 id="cardPurchaseFormTitle">Nova compra</h2></div>
+      <button type="button" class="icon-btn" id="closeCardPurchaseDialog">×</button>
+    </div>
+    <input type="hidden" id="cardPurchaseId">
+    <label>Cartão<select id="cardPurchaseCard" required></select></label>
+    <div class="two-col">
+      <label>Data da compra<input id="cardPurchaseDate" type="date" required></label>
+      <label>Primeira fatura<input id="cardPurchaseFirstStatement" type="month" required></label>
+    </div>
+    <label>Descrição<input id="cardPurchaseDescription" required placeholder="Ex.: Notebook, mercado, passagem..."></label>
+    <label>Categoria<input id="cardPurchaseCategory" list="categoryOptions" placeholder="Ex.: Eletrônicos"></label>
+    <div class="two-col">
+      <label>Valor total<div class="money-input"><span>R$</span><input id="cardPurchaseAmount" required inputmode="decimal" placeholder="0,00"></div></label>
+      <label>Parcelas<input id="cardPurchaseInstallments" type="number" min="1" max="48" value="1" required></label>
+    </div>
+    <div id="cardPurchasePreview" class="cards-purchase-preview">Informe os dados da compra para visualizar as parcelas.</div>
+    <p class="helper small-text">A primeira fatura é calculada pelo fechamento do cartão, mas você pode corrigi-la caso o banco já tenha fechado a fatura.</p>
+    <div class="dialog-actions">
+      <button type="button" id="deleteCardPurchase" class="btn danger ghost hidden">Excluir / cancelar</button>
+      <button type="submit" class="btn">Salvar compra</button>
+    </div>
+  </form>
+</dialog>
+

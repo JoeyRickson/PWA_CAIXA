@@ -105,7 +105,9 @@ function describeStateChange(previousText,nextText){
       collectionChange(previous,current,'overtimeLogs','Hora extra',item=>item?.description||item?.date||'registro'),
       collectionChange(previous,current,'fixedTemplates','Gasto fixo',item=>item?.description||'gasto fixo'),
       collectionChange(previous,current,'savingTemplates','Recorrência de guardado',item=>item?.description||'recorrência'),
-      collectionChange(previous,current,'fgtsAccounts','Conta FGTS',item=>item?.employer||item?.accountNumber||'conta FGTS')
+      collectionChange(previous,current,'fgtsAccounts','Conta FGTS',item=>item?.employer||item?.accountNumber||'conta FGTS'),
+      collectionChange(previous,current,'creditCards','Cartão',item=>item?.name||item?.institution||'cartão'),
+      collectionChange(previous,current,'cardPurchases','Compra no cartão',item=>item?.description||'compra')
     ].find(Boolean);
 
     if(checks)return checks;

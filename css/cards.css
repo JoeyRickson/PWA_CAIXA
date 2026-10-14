@@ -1,0 +1,59 @@
+/* ===== SaldoPlan v2.17.0 — Cartões e parcelamentos ===== */
+.cards-page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.cards-page-actions{display:flex;gap:8px;flex-wrap:wrap}
+.cards-kpis{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:2px}
+.cards-dashboard-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.cards-dashboard-grid>div{padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
+.cards-dashboard-grid span,.cards-dashboard-grid strong{display:block}
+.cards-dashboard-grid span{color:var(--muted);font-size:.75rem}
+.cards-dashboard-grid strong{margin-top:4px}
+.credit-card-list,.card-invoice-list,.card-purchase-list{display:grid;gap:10px;margin-top:12px}
+.credit-card-item,.card-purchase-item,.card-invoice-item,.card-future-item{border:1px solid var(--line);background:var(--surface-2);color:var(--ink);cursor:pointer}
+.credit-card-item{width:100%;display:grid;gap:11px;padding:14px;border-radius:16px;text-align:left}
+.credit-card-item.is-archived{opacity:.66}
+.credit-card-topline{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.credit-card-topline>span:first-child,.credit-card-limit{display:grid;gap:3px}
+.credit-card-topline small,.credit-card-limit small,.credit-card-meta{color:var(--muted);font-size:.72rem}
+.credit-card-limit{text-align:right;white-space:nowrap}
+.credit-card-progress,.card-invoice-progress{height:7px;border-radius:999px;background:var(--line);overflow:hidden}
+.credit-card-progress i,.card-invoice-progress i{display:block;height:100%;border-radius:inherit;background:var(--accent)}
+.credit-card-meta{display:flex;flex-wrap:wrap;gap:6px 12px}
+.card-invoice-card{border:1px solid var(--line);border-radius:16px;background:var(--surface-2);padding:13px}
+.card-invoice-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.card-invoice-head>div{display:grid;gap:3px}
+.card-invoice-head>div>strong{font-size:1.35rem;letter-spacing:-.03em}
+.card-invoice-head small{color:var(--muted)}
+.card-invoice-progress{margin:11px 0 8px}
+.card-invoice-items{display:grid;gap:6px}
+.card-invoice-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 10px;border-radius:11px;text-align:left}
+.card-invoice-item>span{display:grid;gap:2px;min-width:0}
+.card-invoice-item>span:last-child{text-align:right;white-space:nowrap}
+.card-invoice-item strong{font-size:.8rem;overflow:hidden;text-overflow:ellipsis}
+.card-invoice-item small{color:var(--muted);font-size:.7rem}
+.card-future-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.card-future-item{display:grid;gap:4px;padding:12px;border-radius:13px;text-align:left}
+.card-future-item span,.card-future-item small{color:var(--muted);font-size:.72rem}
+.card-future-item strong{font-size:.92rem}
+.card-purchase-item{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border-radius:13px;text-align:left}
+.card-purchase-item>span{display:grid;gap:3px;min-width:0}
+.card-purchase-item>span:last-child{text-align:right;white-space:nowrap}
+.card-purchase-item small{color:var(--muted);font-size:.72rem}
+.card-purchase-item.is-cancelled{opacity:.6}
+.cards-purchase-preview{display:grid;gap:4px;margin:2px 0 13px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--muted);font-size:.78rem}
+.cards-purchase-preview strong{color:var(--ink);font-size:.9rem}
+.three-col.cards-date-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(min-width:900px){
+  body[data-layout-effective="desktop"] #view-cards .cards-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
+  body[data-layout-effective="desktop"] #view-cards .credit-card-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+  body[data-layout-effective="desktop"] #view-cards .card-future-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+}
+@media(max-width:650px){
+  .cards-page-head{align-items:stretch;flex-direction:column}
+  .cards-page-actions{display:grid;grid-template-columns:1fr 1fr}
+  .cards-dashboard-grid,.cards-kpis{grid-template-columns:1fr 1fr}
+  .credit-card-topline,.card-invoice-head,.card-purchase-item{align-items:stretch;flex-direction:column}
+  .credit-card-limit,.card-purchase-item>span:last-child{text-align:left}
+  .card-invoice-head .btn{width:100%}
+  .card-future-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .three-col.cards-date-fields{grid-template-columns:1fr}
+}

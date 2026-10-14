@@ -22,8 +22,13 @@ function expenseLabel(t){return ({fixed:'Fixo',variable:'Variável',unplanned:'I
 function defaultIncomeDescription(t){return ({first:'Salário - quinzena',second:'Salário - final do mês',extra:'Entrada extra',flash:bonusLabel()})[t]||'Entrada'}
 function defaultExpenseDescription(t,category){const c=String(category||'').trim();return c||({fixed:'Gasto fixo',variable:'Gasto variável',unplanned:'Gasto imprevisto'})[t]||'Gasto'}
 function itemHtml(x){
-  const isInc=x.kind==='income',flash=isInc?x.incomeType==='flash':x.paySource==='flash',label=isInc?incomeLabel(x.incomeType):`${expenseLabel(x.expenseType)} · ${x.category||'Sem categoria'}`;
-  return `<button class="item" data-edit="${x.id}" style="width:100%;text-align:left;cursor:pointer"><span class="item-icon ${flash?'flash':''}">${isInc?'+':'−'}</span><span class="item-main"><strong>${escapeHtml(x.description)}</strong><span>${formatDate(x.date)} · ${escapeHtml(label)}</span></span><span class="item-side"><strong class="${isInc?'positive':'negative'}">${isInc?'+ ':'− '}${fmt.format(x.amount)}</strong><span class="${x.status==='planned'?'pending':''}">${x.status==='planned'?'Previsto':'Realizado'}</span></span></button>`;
+  const isInc=x.kind==='income',flash=isInc?x.incomeType==='flash':x.paySource==='flash';
+  const card=x.cardId&&typeof creditCardById==='function'?creditCardById(x.cardId):null;
+  const label=x.cardPurchaseId
+    ?`Cartão · ${card?.name||'Cartão'} · ${x.cardInstallmentIndex||'?'} / ${x.cardInstallmentCount||'?'}`
+    :isInc?incomeLabel(x.incomeType):`${expenseLabel(x.expenseType)} · ${x.category||'Sem categoria'}`;
+  const action=x.cardPurchaseId?`data-card-purchase="${x.cardPurchaseId}"`:`data-edit="${x.id}"`;
+  return `<button class="item" ${action} style="width:100%;text-align:left;cursor:pointer"><span class="item-icon ${flash?'flash':''}">${isInc?'+':'−'}</span><span class="item-main"><strong>${escapeHtml(x.description)}</strong><span>${formatDate(x.date)} · ${escapeHtml(label)}</span></span><span class="item-side"><strong class="${isInc?'positive':'negative'}">${isInc?'+ ':'− '}${fmt.format(x.amount)}</strong><span class="${x.status==='planned'?'pending':''}">${x.status==='planned'?'Previsto':'Realizado'}</span></span></button>`;
 }
 function renderTransactions(){const transactionMonthLabel=document.querySelector('#transactionMonthLabel');if(transactionMonthLabel)transactionMonthLabel.textContent=`${MONTHS[cursor.getMonth()]} ${cursor.getFullYear()}`;let tx=transactions();if(filter==='income')tx=tx.filter(x=>x.kind==='income');if(filter==='expense')tx=tx.filter(x=>x.kind==='expense');if(filter==='pending')tx=tx.filter(x=>x.status==='planned');document.querySelector('#transactionList').innerHTML=tx.length?tx.map(itemHtml).join(''):'<div class="empty">Nada por aqui.</div>'}
 function renderFixed(){

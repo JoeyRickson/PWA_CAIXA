@@ -1,0 +1,76 @@
+<section id="view-cards" class="view">
+  <div class="page-head cards-page-head">
+    <div>
+      <span class="muted">Faturas, limites e parcelas</span>
+      <h2>Cartões</h2>
+    </div>
+    <div class="cards-page-actions">
+      <button class="btn secondary small" id="newCreditCard" type="button">+ Cartão</button>
+      <button class="btn small" id="newCardPurchase" type="button">+ Compra</button>
+    </div>
+  </div>
+
+  <div class="month-row slim cards-month-row">
+    <button class="icon-btn" id="prevCardsMonth" aria-label="Mês anterior">‹</button>
+    <div>
+      <span class="muted">Fatura</span>
+      <h3 id="cardsMonthLabel">—</h3>
+    </div>
+    <button class="icon-btn" id="nextCardsMonth" aria-label="Próximo mês">›</button>
+  </div>
+
+  <div class="grid cards-kpis">
+    <article class="card hero">
+      <span>Fatura selecionada</span>
+      <strong id="cardsInvoiceTotal">R$ 0,00</strong>
+      <small id="cardsInvoiceDetail">Nenhuma compra nesta fatura</small>
+    </article>
+    <article class="card">
+      <span>Limite total</span>
+      <strong id="cardsLimitTotal">R$ 0,00</strong>
+      <small>Somente cartões ativos</small>
+    </article>
+    <article class="card">
+      <span>Limite usado</span>
+      <strong id="cardsUsedTotal">R$ 0,00</strong>
+      <small>Parcelas ainda não pagas</small>
+    </article>
+    <article class="card">
+      <span>Limite disponível</span>
+      <strong id="cardsAvailableTotal">R$ 0,00</strong>
+      <small id="cardsAvailableDetail">Cadastre seu primeiro cartão</small>
+    </article>
+  </div>
+
+  <section class="panel">
+    <div class="section-head">
+      <div><span class="muted">Seus cartões</span><h3>Limites e datas</h3></div>
+      <button class="text-btn" id="cardsAddCardLink" type="button">Adicionar cartão</button>
+    </div>
+    <div id="creditCardList" class="credit-card-list"></div>
+  </section>
+
+  <section class="panel">
+    <div class="section-head">
+      <div><span class="muted">Competência selecionada</span><h3>Faturas por cartão</h3></div>
+      <span id="cardsInvoiceStatus" class="status-pill">—</span>
+    </div>
+    <div id="cardInvoiceList" class="card-invoice-list"></div>
+  </section>
+
+  <section class="panel">
+    <div class="section-head">
+      <div><span class="muted">Próximos meses</span><h3>Parcelas futuras</h3></div>
+      <small class="muted">6 faturas</small>
+    </div>
+    <div id="cardFutureInvoices" class="card-future-grid"></div>
+  </section>
+
+  <section class="panel">
+    <div class="section-head">
+      <div><span class="muted">Histórico de compras</span><h3>Compras parceladas</h3></div>
+      <button class="text-btn" id="cardsAddPurchaseLink" type="button">Nova compra</button>
+    </div>
+    <div id="cardPurchaseList" class="card-purchase-list"></div>
+  </section>
+</section>
