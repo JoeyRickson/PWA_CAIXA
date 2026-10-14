@@ -1,136 +1,130 @@
-<section id="view-about" class="view">
-  <div class="page-head">
-    <span class="muted">Informações</span>
-    <h2>Sobre o SaldoPlan</h2>
-  </div>
-
-  <section class="panel about-hero">
-    <span class="muted">CONTROLE FINANCEIRO PESSOAL</span>
-    <h3>SaldoPlan</h3>
-    <p class="helper">
-      Uma aplicação multiplataforma criada para organizar a vida financeira,
-      acompanhar o salário por períodos e reunir entradas, gastos, reservas,
-      projeções e simulação de folha em um só lugar.
-    </p>
-
-    <button id="aboutOnboardingReplayBtn" class="btn ghost" type="button" style="margin:12px 0">Ver apresentação do SaldoPlan</button>
-
-    <div class="about-tags">
-      <span class="about-tag">Web</span>
-      <span class="about-tag">PWA</span>
-      <span class="about-tag">Android</span>
-      <span class="about-tag">Offline</span>
-      <span class="about-tag">Google Drive</span>
-    </div>
-  </section>
-
-  <div class="about-grid">
-    <section class="panel about-feature">
-      <span class="muted">RECURSOS</span>
-      <h3>Controle financeiro</h3>
-
-      <div class="about-list">
-        <span>✓ Entradas e despesas</span>
-        <span>✓ Gastos fixos, variáveis e imprevistos</span>
-        <span>✓ Valores guardados e reservas</span>
-        <span>✓ Ciclos de quinzena e final do mês</span>
-        <span>✓ Entradas extras selecionáveis nos ciclos</span>
-        <span>✓ Projeções financeiras mensais</span>
-        <span>✓ Histórico por competência</span>
-        <span>✓ Cartões, faturas e compras parceladas</span>
-        <span>✓ Patrimônio líquido, dívidas e metas financeiras</span>
-        <span>✓ Projeção financeira de 30, 60 e 90 dias</span>
-        <span>✓ Importação PDF/OFX/CSV com detecção de duplicados</span>
-        <span>✓ Regras inteligentes de categorização</span>
-      </div>
-    </section>
-
-    <section class="panel about-feature">
-      <span class="muted">FOLHA</span>
-      <h3>Simulação salarial</h3>
-
-      <div class="about-list">
-        <span>✓ Salário base e adiantamento</span>
-        <span>✓ Horas extras 50% e 100%</span>
-        <span>✓ Adicional noturno</span>
-        <span>✓ DSR sobre extras</span>
-        <span>✓ INSS e IRRF estimados</span>
-        <span>✓ Competências mensais independentes</span>
-      </div>
-    </section>
-
-    <section class="panel about-feature">
-      <span class="muted">PLATAFORMAS</span>
-      <h3>Disponibilidade</h3>
-
-      <div class="about-list">
-        <span>🌐 Aplicação Web</span>
-        <span>📲 PWA instalável</span>
-        <span>🤖 Aplicativo Android via APK</span>
-        <span>📴 Funcionamento offline</span>
-        <span>💻 Compatível com desktop e mobile</span>
-      </div>
-    </section>
-
-    <section class="panel about-feature">
-      <span class="muted">DADOS</span>
-      <h3>Backup e segurança</h3>
-
-      <div class="about-list">
-        <span>✓ Armazenamento local no dispositivo</span>
-        <span>✓ Login com conta Google</span>
-        <span>✓ Backup no Google Drive</span>
-        <span>✓ Seleção de pasta pelo Google Picker</span>
-        <span>✓ Exportação JSON e CSV</span>
-        <span>✓ Restauração de backups</span>
-      </div>
-    </section>
-  </div>
-
-  <section class="panel">
-    <span class="muted">TECNOLOGIAS</span>
-    <h3>Stack do projeto</h3>
-
-    <div class="about-tags about-tech">
-      <span class="about-tag">HTML5</span>
-      <span class="about-tag">CSS3</span>
-      <span class="about-tag">JavaScript</span>
-      <span class="about-tag">LocalStorage</span>
-      <span class="about-tag">Service Worker</span>
-      <span class="about-tag">Web App Manifest</span>
-      <span class="about-tag">Firebase Authentication</span>
-      <span class="about-tag">Google Identity Services</span>
-      <span class="about-tag">Google Drive API</span>
-      <span class="about-tag">Google Picker API</span>
-      <span class="about-tag">Git</span>
-      <span class="about-tag">GitHub</span>
-      <span class="about-tag">Vercel</span>
-    </div>
-  </section>
-
-  <section class="panel">
-    <span class="muted">PRIVACIDADE</span>
-    <h3>Seus dados continuam seus</h3>
-
-    <p class="helper">
-      As informações financeiras são mantidas localmente no dispositivo.
-      O acesso ao Google Drive é separado do login e somente é autorizado
-      quando o próprio usuário conecta o serviço para utilizar o backup.
-    </p>
-  </section>
-
-  <section class="panel about-footer">
+<section id="view-about" class="view" aria-labelledby="aboutPageTitle">
+  <div class="page-head about-page-head">
     <div>
-      <span class="muted">DESENVOLVIMENTO</span>
-      <h3>Joey Rickson</h3>
-      <p class="helper">
-        Projeto desenvolvido e mantido de forma independente.
-      </p>
+      <span class="muted">O PROJETO</span>
+      <h2 id="aboutPageTitle">Sobre o SaldoPlan</h2>
     </div>
+    <span class="about-page-version" data-saldoplan-version>v2.21.0</span>
+  </div>
 
-    <div class="about-version">
-      <span>SaldoPlan</span>
-      <strong>v2.20.4</strong>
+  <section class="about-showcase" aria-labelledby="aboutHeroTitle">
+    <div class="about-showcase-copy">
+      <div class="about-showcase-label"><span class="about-status-dot" aria-hidden="true"></span> CONTROLE FINANCEIRO PESSOAL</div>
+      <div class="about-identity">
+        <img src="icons/icon-192.png" alt="" width="60" height="60" loading="lazy">
+        <span>SaldoPlan</span>
+      </div>
+      <h3 id="aboutHeroTitle">Clareza para planejar.<br>Controle para evoluir.</h3>
+      <p>Organize o presente e enxergue os próximos passos da sua vida financeira, em um só lugar. Do lançamento de uma despesa às projeções do seu patrimônio.</p>
+      <div class="about-actions">
+        <button id="aboutOnboardingReplayBtn" class="about-primary-action" type="button">Conhecer o aplicativo <span aria-hidden="true">→</span></button>
+        <button class="about-secondary-action" type="button" data-nav="data">Dados e backup</button>
+        <button class="about-secondary-action" type="button" data-nav="support">Sugerir melhoria</button>
+      </div>
+      <div class="about-hero-tags" aria-label="Plataformas e recursos">
+        <span>Web e PWA</span><span>Android</span><span>Offline para recursos locais</span>
+      </div>
+    </div>
+    <div class="about-showcase-graphic" aria-hidden="true">
+      <div class="about-graphic-top"><span>VISÃO GERAL</span><span class="about-graphic-dots">● ● ●</span></div>
+      <div class="about-graphic-chart"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="about-graphic-divider"></div>
+      <div class="about-graphic-metrics"><span><b>01</b><small>Organizar</small></span><span><b>02</b><small>Planejar</small></span><span><b>03</b><small>Acompanhar</small></span></div>
     </div>
   </section>
+
+  <div class="about-highlights" aria-label="Destaques do SaldoPlan">
+    <div class="about-highlight"><strong>17</strong><span>áreas integradas</span></div>
+    <div class="about-highlight"><strong>14</strong><span>temas visuais</span></div>
+    <div class="about-highlight"><strong>PWA</strong><span>instalável</span></div>
+  </div>
+
+  <div class="about-section-title">
+    <div><span class="muted">O QUE VOCÊ ENCONTRA</span><h3>Mais que registrar gastos</h3></div>
+    <p>Ferramentas que se complementam sem complicar o uso diário.</p>
+  </div>
+  <div class="about-capabilities">
+    <article class="about-capability">
+      <span class="about-capability-icon" aria-hidden="true">↗</span>
+      <h4>Planejamento do dia a dia</h4>
+      <p>Entradas, despesas, contas fixas, recorrências, calendário e ciclos financeiros para acompanhar o mês de perto.</p>
+      <div class="about-capability-keywords">Lançamentos · Ciclos · Calendário</div>
+    </article>
+    <article class="about-capability">
+      <span class="about-capability-icon" aria-hidden="true">▤</span>
+      <h4>Cartões e importações</h4>
+      <p>Compras parceladas, faturas futuras e importação de extratos OFX, QFX, CSV e PDF pesquisável com análise de duplicados.</p>
+      <div class="about-capability-keywords">Cartões · Importar · Categorias</div>
+    </article>
+    <article class="about-capability">
+      <span class="about-capability-icon" aria-hidden="true">◇</span>
+      <h4>Seu patrimônio em perspectiva</h4>
+      <p>Guardado, carteira de investimentos, metas, dívidas e acompanhamento do patrimônio com projeções financeiras.</p>
+      <div class="about-capability-keywords">Carteira · Metas · Patrimônio</div>
+    </article>
+    <article class="about-capability">
+      <span class="about-capability-icon" aria-hidden="true">≈</span>
+      <h4>Salário e indicadores</h4>
+      <p>Estimativas de horas extras, 13º, FGTS e folha, além de indicadores econômicos para apoiar o planejamento.</p>
+      <div class="about-capability-keywords">Simulações · FGTS · Mercado</div>
+    </article>
+  </div>
+
+  <div class="about-lower-grid">
+    <section class="panel about-info-panel" aria-labelledby="aboutPrivacyTitle">
+      <span class="muted">DADOS E PRIVACIDADE</span>
+      <h3 id="aboutPrivacyTitle">Você decide como usar</h3>
+      <p>O SaldoPlan mantém as informações financeiras no armazenamento local do navegador ou dispositivo. Você pode usar o modo offline e, se desejar, conectar o Google Drive para criar e recuperar cópias de segurança.</p>
+      <ul class="about-check-list">
+        <li>Login Google e autorização do Drive são independentes.</li>
+        <li>Backups em nuvem dependem de conexão e autorização.</li>
+        <li>Histórico e restauração ajudam a recuperar alterações.</li>
+      </ul>
+      <p class="about-info-footnote">Dica: mantenha também uma exportação JSON em local seguro. Dados locais podem ser perdidos ao limpar o armazenamento do navegador.</p>
+    </section>
+    <section class="panel about-info-panel" aria-labelledby="aboutTechnologyTitle">
+      <span class="muted">CONSTRUÍDO COM</span>
+      <h3 id="aboutTechnologyTitle">Tecnologia direta e modular</h3>
+      <p>Um aplicativo web progressivo construído com HTML, CSS e JavaScript puro, sem framework frontend pesado.</p>
+      <div class="about-tech-list" aria-label="Tecnologias utilizadas">
+        <span>HTML5</span><span>CSS3</span><span>JavaScript</span><span>Service Worker</span><span>localStorage</span><span>Firebase Auth</span><span>Google Drive API</span><span>Vercel</span>
+      </div>
+      <div class="about-platform-links">
+        <a href="https://joeyrickson-portfolio.vercel.app/" target="_blank" rel="noopener noreferrer">Portfólio do desenvolvedor <span aria-hidden="true">↗</span></a>
+        <a href="https://linkedin.com/in/joeyrickgoliveira" target="_blank" rel="noopener noreferrer">LinkedIn profissional <span aria-hidden="true">↗</span></a>
+        <a href="https://github.com/JoeyRickson" target="_blank" rel="noopener noreferrer">GitHub do desenvolvedor <span aria-hidden="true">↗</span></a>
+        <a href="https://github.com/JoeyRickson/PWA_CAIXA" target="_blank" rel="noopener noreferrer">Código no GitHub <span aria-hidden="true">↗</span></a>
+        <a href="https://github.com/JoeyRickson/PWA_CAIXA/releases/latest/download/SaldoPlan.apk" target="_blank" rel="noopener noreferrer">APK Android <span aria-hidden="true">↗</span></a>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel about-milestones" aria-labelledby="aboutMilestonesTitle">
+    <div class="about-section-title about-section-title-compact">
+      <div><span class="muted">EVOLUÇÃO CONTÍNUA</span><h3 id="aboutMilestonesTitle">Como o SaldoPlan evoluiu</h3></div>
+    </div>
+    <ol class="about-timeline">
+      <li><span class="about-timeline-version">v2.14–2.16</span><div><strong>Base mais organizada</strong><p>Modularização, histórico de alterações e recorrências por data.</p></div></li>
+      <li><span class="about-timeline-version">v2.17–2.19</span><div><strong>Visão financeira ampliada</strong><p>Cartões, patrimônio, metas e importação de extratos.</p></div></li>
+      <li><span class="about-timeline-version">v2.20</span><div><strong>Experiência e planejamento</strong><p>Calendário, alertas, fechamento, navegação mobile, temas e animações.</p></div></li>
+      <li><span class="about-timeline-version">v2.21</span><div><strong>Comunidade e suporte</strong><p>Envio autenticado de sugestões e problemas ao desenvolvedor.</p></div></li>
+    </ol>
+  </section>
+
+  <section class="panel about-faq" aria-labelledby="aboutFaqTitle">
+    <div class="about-section-title about-section-title-compact">
+      <div><span class="muted">DÚVIDAS FREQUENTES</span><h3 id="aboutFaqTitle">Como funciona?</h3></div>
+    </div>
+    <details><summary>Preciso entrar com Google para usar?</summary><p>Não. É possível continuar offline e utilizar as funções locais. A conexão com serviços Google é opcional.</p></details>
+    <details><summary>Meus dados aparecem em outro aparelho automaticamente?</summary><p>Não. Os dados ficam no armazenamento de cada aparelho. Para levar informações para outro dispositivo, use os recursos de exportação ou backup e restauração.</p></details>
+    <details><summary>Todas as funções estão disponíveis sem internet?</summary><p>Não. As funções locais podem funcionar sem conexão após os recursos estarem disponíveis no dispositivo. Login Google, backup no Drive e dados de mercado precisam de internet.</p></details>
+  </section>
+
+  <footer class="about-credit">
+    <div class="about-credit-author">
+      <div class="about-credit-monogram" aria-hidden="true">JR</div>
+      <div><span class="muted">CRIADO E MANTIDO POR</span><strong>Joey Rickson</strong><small>Desenvolvimento independente · SaldoPlan</small><div class="about-author-social"><a href="https://joeyrickson-portfolio.vercel.app/" target="_blank" rel="noopener noreferrer">Portfólio</a><a href="https://linkedin.com/in/joeyrickgoliveira" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://github.com/JoeyRickson" target="_blank" rel="noopener noreferrer">GitHub</a></div></div>
+    </div>
+    <div class="about-credit-version"><span>VERSÃO ATUAL</span><strong data-saldoplan-version>v2.21.0</strong></div>
+  </footer>
 </section>

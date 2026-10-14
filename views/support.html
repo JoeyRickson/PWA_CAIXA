@@ -1,0 +1,45 @@
+<section id="view-support" class="view" aria-labelledby="supportHeading">
+  <div class="page-head support-page-head">
+    <div><span class="muted">FALE COM O DESENVOLVEDOR</span><h2 id="supportHeading">Suporte e sugestões</h2></div>
+  </div>
+  <section class="support-intro">
+    <div class="support-intro-copy">
+      <span class="support-kicker">SUA OPINIÃO FAZ DIFERENÇA</span>
+      <h3>Ajude a construir as próximas versões.</h3>
+      <p>Encontrou um problema, tem uma dúvida ou pensou numa melhoria? Envie uma mensagem para a equipe do SaldoPlan.</p>
+      <div class="support-intro-tags"><span>Melhorias</span><span>Problemas</span><span>Dúvidas</span></div>
+    </div>
+    <div class="support-intro-icon" aria-hidden="true">✉</div>
+  </section>
+  <div class="support-layout">
+    <section class="panel support-panel" aria-labelledby="supportFormHeading">
+      <h3 id="supportFormHeading">Nova solicitação</h3>
+      <p class="support-help">Sua mensagem será encaminhada por e-mail ao desenvolvedor. O envio requer login Google no SaldoPlan.</p>
+      <div id="supportLoginNotice" class="support-login-notice" role="status">
+        <strong>Entre com Google para enviar</strong>
+        <p>O modo offline continua disponível para suas finanças. Para enviar solicitações, precisamos identificar a conta do remetente.</p>
+        <button class="btn" type="button" data-nav="data">Ir para Dados e backup</button>
+      </div>
+      <form id="supportForm" class="support-form" novalidate>
+        <div class="support-identity">Enviando como <strong id="supportIdentity">Conta Google</strong></div>
+        <div class="support-grid">
+          <label><span>Categoria</span><select id="supportCategory" name="category" required><option value="sugestao">Sugestão de melhoria</option><option value="problema">Informar problema</option><option value="duvida">Tirar dúvida</option><option value="outro">Outro assunto</option></select></label>
+          <label><span>Assunto</span><input id="supportSubject" name="subject" type="text" minlength="6" maxlength="110" required placeholder="Ex.: melhorar calendário mobile" autocomplete="off" /></label>
+        </div>
+        <label><span>Descreva sua solicitação</span><textarea id="supportMessage" name="message" rows="6" minlength="15" maxlength="4000" required placeholder="Conte o que aconteceu ou como você imagina a melhoria..." ></textarea></label>
+        <p class="support-security-note">Por segurança, não envie senhas, tokens, números de cartão, extratos ou outras informações financeiras privadas.</p>
+        <input id="supportWebsite" name="website" tabindex="-1" autocomplete="off" type="text" class="support-honeypot" aria-hidden="true" />
+        <div class="support-form-footer"><span id="supportCharacterCount">0 / 4.000 caracteres</span><button id="supportSubmit" class="btn" type="submit">Enviar solicitação <span aria-hidden="true">↗</span></button></div>
+        <p id="supportStatus" class="support-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+    <aside class="support-side">
+      <div class="panel support-side-panel"><span class="muted">COMO FUNCIONA</span><h3>Da ideia à evolução</h3>
+        <ol class="support-steps"><li><strong>Escreva sua sugestão</strong><span>Descreva com detalhes, sem informações sensíveis.</span></li><li><strong>Envio autenticado</strong><span>Confirmamos sua conta Google antes de encaminhar.</span></li><li><strong>Recebimento por e-mail</strong><span>A solicitação chega ao contato do desenvolvedor.</span></li></ol>
+      </div>
+      <div class="panel support-side-panel"><span class="muted">OUTROS CANAIS</span><h3>Conecte-se</h3>
+        <div class="support-links"><a href="https://joeyrickson-portfolio.vercel.app/" target="_blank" rel="noopener noreferrer">Portfólio <span>↗</span></a><a href="https://linkedin.com/in/joeyrickgoliveira" target="_blank" rel="noopener noreferrer">LinkedIn <span>↗</span></a><a href="https://github.com/JoeyRickson" target="_blank" rel="noopener noreferrer">GitHub <span>↗</span></a></div>
+      </div>
+    </aside>
+  </div>
+</section>

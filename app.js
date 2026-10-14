@@ -1,4 +1,4 @@
-const SALDOPLAN_VERSION='2.20.8';
+const SALDOPLAN_VERSION='2.21.0';
 
 const SALDOPLAN_VIEWS=[
   'dashboard',
@@ -16,7 +16,8 @@ const SALDOPLAN_VIEWS=[
   'fixed',
   'market',
   'data',
-  'about'
+  'about',
+  'support'
 ];
 
 const SALDOPLAN_SCRIPTS=[
@@ -40,7 +41,8 @@ const SALDOPLAN_SCRIPTS=[
   'pwa',
   'mobile-nav',
   'themes',
-  'motion'
+  'motion',
+  'support'
 ];
 
 async function saldoPlanFetchPartial(path){
@@ -73,6 +75,11 @@ async function saldoPlanBootstrap(){
   );
 
   main.innerHTML=viewHtml.join('\n');
+
+  // Rótulos da aba Sobre acompanham a versão sem cadastro manual.
+  main.querySelectorAll('[data-saldoplan-version]').forEach(label=>{
+    label.textContent=`v${SALDOPLAN_VERSION}`;
+  });
 
   dialogHost.innerHTML=await saldoPlanFetchPartial('views/dialogs.html');
 

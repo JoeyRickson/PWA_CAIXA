@@ -1,0 +1,46 @@
+/* SaldoPlan v2.21.0: suporte e sugestões, escopo independente */
+#view-support{min-width:0}
+#view-support .support-page-head{margin-bottom:15px}
+#view-support .support-intro{display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:18px;align-items:center;padding:25px;border-radius:22px;background:linear-gradient(120deg,var(--brand),color-mix(in srgb,var(--brand) 72%,#08aac4));color:var(--brand-ink);border:1px solid color-mix(in srgb,var(--brand-ink) 15%,transparent)}
+#view-support .support-intro *{min-width:0}
+#view-support .support-kicker{font-weight:850;font-size:.69rem;letter-spacing:.13em}
+#view-support .support-intro h3{font-size:clamp(1.5rem,2.9vw,2.25rem);line-height:1.1;letter-spacing:-.04em;margin:10px 0}
+#view-support .support-intro p{max-width:60ch;margin:0;font-size:.9rem;line-height:1.55;opacity:.87}
+#view-support .support-intro-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:17px}
+#view-support .support-intro-tags span{border-radius:100px;border:1px solid color-mix(in srgb,var(--brand-ink) 24%,transparent);font-size:.72rem;font-weight:750;padding:6px 10px}
+#view-support .support-intro-icon{display:grid;place-items:center;font-size:3.8rem;min-height:110px;border-radius:25px;background:color-mix(in srgb,var(--brand-ink) 12%,transparent)}
+#view-support .support-layout{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(235px,.9fr);gap:14px;margin-top:15px;align-items:start}
+#view-support .support-panel,#view-support .support-side-panel{margin:0;padding:21px}
+#view-support .support-panel h3,#view-support .support-side h3{font-size:1.17rem;margin:0 0 9px;letter-spacing:-.025em}
+#view-support .support-help{font-size:.84rem;line-height:1.6;margin:0 0 18px;color:var(--muted)}
+#view-support .support-login-notice{border:1px solid var(--line);border-radius:16px;background:var(--surface-2);padding:16px;display:grid;gap:9px}
+#view-support .support-login-notice[hidden],#view-support .support-form[hidden]{display:none !important}
+#view-support .support-login-notice p{font-size:.82rem;line-height:1.55;color:var(--muted);margin:0}
+#view-support .support-login-notice .btn{justify-self:start}
+#view-support .support-form{display:grid;gap:16px}
+#view-support .support-identity{font-size:.81rem;color:var(--muted);overflow-wrap:anywhere}
+#view-support .support-identity strong{color:var(--ink)}
+#view-support .support-grid{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.4fr);gap:12px}
+#view-support .support-form label{display:grid;gap:7px;min-width:0;font-size:.83rem;font-weight:800;color:var(--ink)}
+#view-support .support-form label select,#view-support .support-form label input,#view-support .support-form label textarea{width:100%;min-width:0;max-width:100%;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit;font-size:.89rem;line-height:1.4}
+#view-support .support-form textarea{resize:vertical;min-height:145px}
+#view-support .support-form label :is(input,select,textarea):focus-visible{outline:2px solid var(--saving);outline-offset:2px}
+#view-support .support-security-note{padding:11px 13px;background:var(--surface-2);border:1px solid var(--line);border-radius:11px;font-size:.76rem;line-height:1.5;color:var(--muted);margin:0}
+#view-support .support-honeypot{position:absolute;left:-9999px;opacity:0;pointer-events:none}
+#view-support .support-form-footer{display:flex;align-items:center;justify-content:space-between;gap:11px}
+#view-support .support-form-footer>span{font-size:.76rem;color:var(--muted)}
+#view-support .support-form-footer .btn{min-height:43px}
+#view-support .support-status{margin:0;line-height:1.5;font-size:.83rem;min-height:1.4em}
+#view-support .support-status[data-tone="error"]{color:var(--danger)}
+#view-support .support-status[data-tone="success"]{color:var(--saving)}
+#view-support .support-side{display:grid;gap:14px}
+#view-support .support-side-panel .muted{font-size:.71rem}
+#view-support .support-side-panel h3{margin-top:6px}
+#view-support .support-steps{padding:0 0 0 22px;margin:14px 0 0;display:grid;gap:15px}
+#view-support .support-steps li{font-size:.85rem;padding-left:4px}
+#view-support .support-steps li span{font-size:.76rem;color:var(--muted);line-height:1.55;display:block;margin-top:3px}
+#view-support .support-links{display:grid;gap:8px;margin-top:11px}
+#view-support .support-links a{display:flex;justify-content:space-between;gap:8px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;color:var(--ink);background:var(--surface-2);text-decoration:none;font-size:.83rem;font-weight:750}
+#view-support .support-links a:hover{border-color:var(--saving)}
+@media(max-width:900px){#view-support .support-layout{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:560px){#view-support .support-intro{padding:21px 17px;grid-template-columns:minmax(0,1fr)}#view-support .support-intro-icon{display:none}#view-support .support-grid{grid-template-columns:minmax(0,1fr)}#view-support .support-panel,#view-support .support-side-panel{padding:16px}#view-support .support-form-footer{align-items:stretch;flex-direction:column}#view-support .support-form-footer .btn{width:100%}}
