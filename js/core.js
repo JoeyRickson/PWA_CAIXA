@@ -1,7 +1,7 @@
 const STORAGE_KEY='meuCaixa.v1'; // Mantido de propósito para preservar os dados da versão anterior.
 const PREVIOUS_KEY='meuCaixa.previousBackup.v2';
-const UNDO_HISTORY_KEY='meuCaixa.undoHistory.v2';
-const MAX_UNDO_SNAPSHOTS=12;
+const CLOUD_BACKUP_DIRTY_KEY='saldoplan.cloudBackupDirtyAt';
+const CLOUD_BACKUP_DEBOUNCE_MS=180000;
 const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const NATIONAL_HOLIDAYS={
   2026:['2026-01-01','2026-04-03','2026-04-21','2026-05-01','2026-09-07','2026-10-12','2026-11-02','2026-11-15','2026-11-20','2026-12-25']
@@ -81,6 +81,7 @@ const seed={
   savingGoal:500,
   importNote:true,
   settings:{theme:'light',bonusEnabled:true,bonusName:'Bônus'},
+  historySettings:{enabled:true,limit:20},
   cloud:{provider:'google',emailHint:'',clientId:'',account:'',providerClientId:'',folderName:'SaldoPlan - Backups',folderId:'',autoBackup:false,retentionDays:30,lastBackupAt:null,lastFileId:null},
   payrollConfig:{baseSalary:5000,monthlyHours:220,advance:2000,nightPct:20,extraGoal:40},
   payrollMonths:{},
@@ -117,6 +118,9 @@ function migrateState(raw){
   const migrated={...base,...raw};
   migrated.version=2;
   migrated.settings={...base.settings,...(raw.settings||{})};
+  migrated.historySettings={...base.historySettings,...(raw.historySettings||{})};
+  migrated.historySettings.enabled=migrated.historySettings.enabled!==false;
+  migrated.historySettings.limit=Math.min(30,Math.max(5,Number(migrated.historySettings.limit||20)));
   migrated.cloud={...base.cloud,...(raw.cloud||{})};
   if(migrated.cloud.folderName==='Meu Caixa - Backups')migrated.cloud.folderName='SaldoPlan - Backups';
   migrated.payrollConfig={...base.payrollConfig,...(raw.payrollConfig||{})};
@@ -167,97 +171,94 @@ if(hadExisting&&state.version===2){
   localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
 }
 
-function readUndoHistory(){
+function save({backupOld=true,cloud=true,undoLabel='',history=true}={}){
   try{
-    const raw=localStorage.getItem(UNDO_HISTORY_KEY);
-    if(!raw)return [];
-    const items=JSON.parse(raw);
-    return Array.isArray(items)?items.filter(item=>item&&typeof item?.state==='string').slice(-MAX_UNDO_SNAPSHOTS):[];
-  }catch{
-    return [];
+    const previousText=localStorage.getItem(STORAGE_KEY);
+    const nextText=JSON.stringify(state);
+
+    if(backupOld&&previousText){
+      localStorage.setItem(PREVIOUS_KEY,previousText);
+    }
+
+    if(
+      history &&
+      backupOld &&
+      previousText &&
+      previousText!==nextText &&
+      state.historySettings?.enabled!==false &&
+      typeof pushUndoSnapshot==='function'
+    ){
+      const label=undoLabel||(
+        typeof describeStateChange==='function'
+          ?describeStateChange(previousText,nextText)
+          :'Alteração salva'
+      );
+
+      pushUndoSnapshot(label,previousText);
+    }
+
+    localStorage.setItem(STORAGE_KEY,nextText);
+    localStorage.setItem(`${STORAGE_KEY}.savedAt`,new Date().toISOString());
+
+    if(cloud&&state.cloud?.autoBackup){
+      markCloudBackupDirty();
+    }
+  }catch(e){
+    console.error(e);
   }
 }
 
-function writeUndoHistory(items){
+function updateLocalSaveStatus(){
+  const el=document.querySelector('#localSaveStatus');
+  if(!el)return;
+  const savedAt=localStorage.getItem(`${STORAGE_KEY}.savedAt`);
+  el.textContent=savedAt
+    ?`Última gravação neste aparelho: ${new Date(savedAt).toLocaleString('pt-BR')}.`
+    :'As alterações também são salvas automaticamente ao usar o app.';
+}
+
+function markCloudBackupDirty(){
   try{
-    localStorage.setItem(UNDO_HISTORY_KEY,JSON.stringify(items.slice(-MAX_UNDO_SNAPSHOTS)));
+    localStorage.setItem(CLOUD_BACKUP_DIRTY_KEY,new Date().toISOString());
+  }catch{}
+
+  if(driveToken||cloudToken){
+    scheduleCloudBackup();
+  }
+}
+
+function clearCloudBackupDirty(){
+  try{
+    localStorage.removeItem(CLOUD_BACKUP_DIRTY_KEY);
   }catch{}
 }
 
-function renderUndoHistory(){
-  const host=document.querySelector('#undoHistory');
-  if(!host)return;
-  const history=readUndoHistory().slice().reverse();
-  if(!history.length){
-    host.innerHTML='<div class="empty">Sem histórico recente de alterações.</div>';
-    return;
-  }
-
-  host.innerHTML=history.map((item,index)=>{
-    const entryIndex=history.length-1-index;
-    return `<div class="undo-row">
-      <div class="undo-copy">
-        <strong>${escapeHtml(item.label||'Alteração salva')}</strong>
-        <span>${new Date(item.createdAt).toLocaleString('pt-BR')}</span>
-      </div>
-      <button type="button" class="btn ghost small" data-undo-index="${entryIndex}">Restaurar</button>
-    </div>`;
-  }).join('');
-}
-
-function pushUndoSnapshot(label='Alteração salva'){
-  const snapshot=JSON.stringify(state);
-  const history=readUndoHistory();
-  history.push({
-    id:uid(),
-    label:String(label||'Alteração salva').trim()||'Alteração salva',
-    createdAt:new Date().toISOString(),
-    state:snapshot
-  });
-  writeUndoHistory(history);
-}
-
-function restoreUndoSnapshot(index=-1){
-  const history=readUndoHistory();
-  if(!history.length){
-    alert('Nenhuma alteração recente para desfazer.');
-    return false;
-  }
-
-  const restoreIndex=index>=0?Math.min(index,history.length-1):history.length-1;
-  const target=history[restoreIndex];
-  const remaining=history.filter((_,idx)=>idx!==restoreIndex);
-  writeUndoHistory(remaining);
-
+function hasPendingCloudBackup(){
   try{
-    const current=JSON.stringify(state);
-    state=migrateState(JSON.parse(target.state||'{}'));
-    localStorage.setItem(PREVIOUS_KEY,current);
-    save({backupOld:false,cloud:false});
-    renderAll();
-    alert(`Alteração restaurada: ${target.label}.`);
-    return true;
+    return !!localStorage.getItem(CLOUD_BACKUP_DIRTY_KEY);
   }catch{
-    writeUndoHistory([...remaining,target]);
-    alert('Não foi possível restaurar a última alteração.');
     return false;
   }
 }
 
-function save({backupOld=true,cloud=true,undoLabel='Alteração salva'}={}){
-  try{
-    if(backupOld){
-      const old=localStorage.getItem(STORAGE_KEY);
-      if(old)localStorage.setItem(PREVIOUS_KEY,old);
-      pushUndoSnapshot(undoLabel);
-    }
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
-    localStorage.setItem(`${STORAGE_KEY}.savedAt`,new Date().toISOString());
-    if(cloud&&state.cloud?.autoBackup&&(driveToken||cloudToken))scheduleCloudBackup();
-  }catch(e){console.error(e)}
+function scheduleCloudBackup(delay=CLOUD_BACKUP_DEBOUNCE_MS){
+  clearTimeout(cloudTimer);
+
+  if(!state.cloud?.autoBackup||!(driveToken||cloudToken))return;
+
+  const last=state.cloud.lastBackupAt?new Date(state.cloud.lastBackupAt).getTime():0;
+  const overdue=!last||(Date.now()-last)>=86400000;
+  const effectiveDelay=overdue?Math.min(delay,15000):delay;
+
+  cloudTimer=setTimeout(()=>{
+    backupToDrive(true).catch(()=>{});
+  },effectiveDelay);
 }
-function updateLocalSaveStatus(){const el=document.querySelector('#localSaveStatus');if(!el)return;const savedAt=localStorage.getItem(`${STORAGE_KEY}.savedAt`);el.textContent=savedAt?`Última gravação neste aparelho: ${new Date(savedAt).toLocaleString('pt-BR')}.`:'As alterações também são salvas automaticamente ao usar o app.'}
-function scheduleCloudBackup(){clearTimeout(cloudTimer);cloudTimer=setTimeout(()=>backupToDrive(true).catch(()=>{}),1800)}
+
+function schedulePendingCloudBackup(delay=5000){
+  if(!hasPendingCloudBackup())return;
+  scheduleCloudBackup(delay);
+}
 function key(){return monthKey(cursor)}
 function simKey(){return monthKey(simCursor)}
 // Define em qual folha a hora extra será paga.
@@ -388,7 +389,7 @@ function ensureRecurring(){
     changed=true;
   });
 
-  if(changed)save();
+  if(changed)save({backupOld:false,history:false});
 }
 
 function savingMonth(x){
@@ -469,7 +470,7 @@ function ensureSavingRecurring(targetKey=key()){
     changed=true;
   });
 
-  if(changed)save();
+  if(changed)save({backupOld:false,history:false});
 }
 function transactions(){ensureRecurring();return state.transactions.filter(x=>inMonth(x)).sort((a,b)=>a.date.localeCompare(b.date))}
 function metrics(){

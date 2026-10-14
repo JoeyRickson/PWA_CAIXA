@@ -113,6 +113,7 @@
           </label>
 
           <label class="check-row"><input id="driveAutoBackup" type="checkbox"> Fazer backup automático enquanto o Drive estiver conectado</label>
+          <p class="helper small-text">Quando habilitado, alterações ficam pendentes e são agrupadas. O envio automático ocorre após alguns minutos sem novas mudanças; se o último backup tiver mais de 24 horas, o próximo envio é antecipado.</p>
           <label>Manter backups automáticos por
             <select id="driveRetentionDays">
               <option value="10">10 dias</option>
@@ -156,6 +157,36 @@
             <button id="restorePreviousLocal" class="btn ghost full">Restaurar cópia local anterior</button>
             <button id="undoLastChange" class="btn ghost full">Desfazer última alteração</button>
           </div>
+
+          <div class="history-settings">
+            <div class="section-head">
+              <div>
+                <span class="muted">Proteção contra erros</span>
+                <h3>Histórico e restauração</h3>
+              </div>
+              <span id="undoHistoryCount" class="status-pill">0/20</span>
+            </div>
+
+            <label class="check-row">
+              <input id="historyEnabled" type="checkbox">
+              Criar snapshot local antes de alterações importantes
+            </label>
+
+            <label>Quantidade de versões locais
+              <select id="historyLimit">
+                <option value="10">10 versões</option>
+                <option value="20">20 versões</option>
+                <option value="30">30 versões</option>
+              </select>
+            </label>
+
+            <p class="helper small-text">
+              Os snapshots ficam somente neste aparelho. Antes de restaurar uma versão, o estado atual também é protegido para permitir desfazer a restauração.
+            </p>
+
+            <button id="clearUndoHistory" class="btn ghost full" type="button">Limpar histórico local</button>
+          </div>
+
           <div id="undoHistory" class="undo-history" aria-live="polite"></div>
         </section>
 

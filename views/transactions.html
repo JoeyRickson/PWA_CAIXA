@@ -3,6 +3,14 @@
           <div><span class="muted">Mês selecionado</span><h2>Lançamentos</h2></div>
           <button class="btn" data-action="new-expense">+ Novo</button>
         </div>
+        <div class="month-row slim transaction-month-row" aria-label="Mês dos lançamentos">
+          <button class="icon-btn" id="prevTransactionMonth" type="button" aria-label="Mês anterior">‹</button>
+          <div>
+            <span class="muted">Competência</span>
+            <h3 id="transactionMonthLabel">—</h3>
+          </div>
+          <button class="icon-btn" id="nextTransactionMonth" type="button" aria-label="Próximo mês">›</button>
+        </div>
         <div class="filter-row">
           <button class="chip active" data-filter="all">Todos</button>
           <button class="chip" data-filter="income">Entradas</button>

@@ -1,0 +1,81 @@
+/* ===== SaldoPlan v2.15.0 — Histórico e navegação mensal ===== */
+.history-settings{
+  display:grid;
+  gap:10px;
+  margin-top:16px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--surface-2);
+}
+
+.history-settings .section-head{
+  margin-bottom:2px;
+}
+
+.history-settings h3{
+  margin:2px 0 0;
+}
+
+.history-settings label{
+  margin:0;
+}
+
+.undo-history{
+  display:grid;
+  gap:8px;
+  margin-top:12px;
+}
+
+.undo-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface-2);
+}
+
+.undo-copy{
+  display:grid;
+  gap:2px;
+  min-width:0;
+}
+
+.undo-copy strong{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:.82rem;
+}
+
+.undo-copy span{
+  color:var(--muted);
+  font-size:.7rem;
+}
+
+.transaction-month-row{
+  margin-top:0;
+  margin-bottom:12px;
+}
+
+@media(max-width:520px){
+  .undo-row{
+    align-items:flex-start;
+  }
+
+  .undo-copy strong{
+    white-space:normal;
+  }
+}
+
+body[data-layout-effective="desktop"] #view-transactions .transaction-month-row{
+  width:min(520px,100%);
+  margin-left:0;
+}
+
+body[data-layout-effective="desktop"] #view-data .history-settings{
+  grid-column:1 / -1;
+}

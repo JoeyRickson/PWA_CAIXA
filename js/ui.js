@@ -212,7 +212,7 @@ function saveDesktopTheme(value){
 function applyTheme(){
   const theme=state.settings?.theme==='dark'?'dark':'light';document.body.dataset.theme=theme;document.documentElement.style.colorScheme=theme;document.querySelector('meta[name="theme-color"]').setAttribute('content',theme==='dark'?'#070a0f':'#111827');document.querySelector('#themeQuickBtn').textContent=theme==='dark'?'☀':'☾';
 }
-function toggleTheme(){state.settings.theme=state.settings.theme==='dark'?'light':'dark';save();applyTheme();renderData()}
+function toggleTheme(){state.settings.theme=state.settings.theme==='dark'?'light':'dark';save({backupOld:false,cloud:false,history:false});applyTheme();renderData()}
 function go(view){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.querySelector(`#view-${view}`).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.nav===view));if(view==='transactions')renderTransactions();if(view==='cycles')renderCycles();if(view==='savings')renderSavings();if(view==='portfolio')renderPortfolio();if(view==='simulator')renderSimulator();if(view==='thirteenth')renderThirteenth();if(view==='fgts')renderFgts();if(view==='fixed')renderFixed();if(view==='market')renderMarket();if(view==='data')renderData();window.scrollTo({top:0,behavior:'smooth'})}
 
 // Navegação e atalhos
@@ -245,6 +245,8 @@ addEventListener('resize',()=>{
 applyLayoutExperience();
 document.querySelector('#prevMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);rememberViewMonth();renderAll()};
 document.querySelector('#nextMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);rememberViewMonth();renderAll()};
+document.querySelector('#prevTransactionMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);rememberViewMonth();renderAll()};
+document.querySelector('#nextTransactionMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);rememberViewMonth();renderAll()};
 document.querySelector('#prevCycleMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);rememberViewMonth();renderAll()};
 document.querySelector('#nextCycleMonth').onclick=()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);rememberViewMonth();renderAll()};
 document.querySelector('#prevSimMonth').onclick=()=>{simCursor=new Date(simCursor.getFullYear(),simCursor.getMonth()-1,1);rememberSimMonth();renderSimulator()};
@@ -437,4 +439,4 @@ addEventListener('change',e=>{
 });
 document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');filter=c.dataset.filter;renderTransactions()});
 document.querySelector('#dismissImportNote').onclick=()=>{state.importNote=false;save();renderDashboard()};
-document.querySelectorAll('[data-theme-option]').forEach(b=>b.onclick=()=>{state.settings.theme=b.dataset.themeOption;save();applyTheme();renderData()});
+document.querySelectorAll('[data-theme-option]').forEach(b=>b.onclick=()=>{state.settings.theme=b.dataset.themeOption;save({backupOld:false,cloud:false,history:false});applyTheme();renderData()});

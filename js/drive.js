@@ -59,6 +59,7 @@ async function connectCloudProvider(){
     if(!state.cloud.folderId)await chooseDriveFolder();
     else await getSelectedDriveFolder();
     renderData();
+    schedulePendingCloudBackup(5000);
     return;
   }
   const config=oauthConfig[provider],clientId=state.cloud.providerClientId;if(!clientId)throw new Error(`Informe o Client ID do ${cloudProviderNames[provider]} antes de conectar.`);
@@ -68,6 +69,7 @@ async function connectCloudProvider(){
   const popup=window.open(`${config.authorize}?${params}`,'saldoPlanOAuth','width=520,height=700');if(!popup)throw new Error('Permita pop-ups para concluir a conexão.');
   await new Promise((resolve,reject)=>{const timer=setTimeout(()=>{window.removeEventListener('message',receive);reject(new Error('A autorização expirou ou foi cancelada.'))},180000);function receive(event){if(event.origin!==location.origin||event.data?.type!=='saldoPlanOAuth')return;clearTimeout(timer);window.removeEventListener('message',receive);if(event.data.error){reject(new Error(event.data.error));return}fetch(config.token,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({client_id:clientId,grant_type:'authorization_code',code:event.data.code,redirect_uri:redirectUri,code_verifier:verifier}).toString()}).then(r=>r.json()).then(data=>{if(!data.access_token)throw new Error(data.error_description||'Não foi possível obter o token.');cloudToken=data.access_token;resolve()}).catch(reject)}window.addEventListener('message',receive)});
   updateDriveStatus(`${cloudProviderNames[provider]} conectado. Backup pronto para uso.`);
+  schedulePendingCloudBackup(5000);
 }
 
 function handleCloudOAuthCallback(){const params=new URLSearchParams(location.search),oauth=sessionStorage.getItem('saldoPlan.oauth');if(!oauth||(!params.get('code')&&!params.get('error'))||!window.opener)return false;window.opener.postMessage({type:'saldoPlanOAuth',code:params.get('code'),error:params.get('error_description')||params.get('error')},location.origin);window.close();return true}
@@ -80,7 +82,7 @@ function requestDriveToken(forceConsent=false){
     state.cloud.clientId=clientId;
     state.cloud.emailHint=window.saldoPlanAuthUser?.email||state.cloud.emailHint||'';
     state.cloud.autoBackup=document.querySelector('#driveAutoBackup').checked;
-    save({cloud:false});
+    save({backupOld:false,cloud:false,history:false});
     const tokenClient=google.accounts.oauth2.initTokenClient({
       client_id:clientId,
       scope:'https://www.googleapis.com/auth/drive.file',
@@ -259,7 +261,7 @@ async function backupToOtherCloud(){
     await fetch('https://api.dropboxapi.com/2/files/create_folder_v2',{method:'POST',headers,body:JSON.stringify({path:`/${folder}`,autorename:false})}).catch(()=>{});
     const r=await fetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{Authorization:`Bearer ${cloudToken}`,'Content-Type':'application/octet-stream','Dropbox-API-Arg':JSON.stringify({path:`/${folder}/${name}`,mode:'add',autorename:true,mute:false})},body});if(!r.ok)throw new Error('Não foi possível enviar o backup ao Dropbox.');
   }
-  state.cloud.lastBackupAt=new Date().toISOString();save({backupOld:false,cloud:false});updateDriveStatus(`Backup enviado ao ${cloudProviderNames[state.cloud.provider]}.`);alert('Backup enviado com sucesso.');
+  state.cloud.lastBackupAt=new Date().toISOString();clearCloudBackupDirty();save({backupOld:false,cloud:false,history:false});updateDriveStatus(`Backup enviado ao ${cloudProviderNames[state.cloud.provider]}.`);alert('Backup enviado com sucesso.');
 }
 
 async function backupToDrive(silent=false){
@@ -281,7 +283,8 @@ async function backupToDrive(silent=false){
     await driveFetch(`https://www.googleapis.com/upload/drive/v3/files/${file.id}?uploadType=media`,{method:'PATCH',headers:{'Content-Type':'application/json'},body});
     if(silent)await cleanOldBackups(folderId);else setBackupProgress('cleaning','Finalizando backup','Conferindo a retenção dos backups antigos…');
     state.cloud.lastBackupAt=now.toISOString();state.cloud.lastFileId=file.id;
-    save({backupOld:false,cloud:false});
+    clearCloudBackupDirty();
+    save({backupOld:false,cloud:false,history:false});
     updateDriveStatus(`Backup enviado ao Drive em ${now.toLocaleString('pt-BR')}.`);
     if(!silent){setBackupProgress('done','Backup concluído','Suas informações foram salvas com sucesso.');operationFinish('Backup concluído','Suas informações foram salvas com sucesso.')}
   }catch(e){
@@ -303,10 +306,11 @@ document.querySelector('#restoreDrive').onclick=async()=>{
     if(!file){alert('Nenhum backup do SaldoPlan foi encontrado nessa pasta.');return}
     if(!confirm(`Restaurar o backup do Drive${file.modifiedTime?` de ${new Date(file.modifiedTime).toLocaleString('pt-BR')}`:''}? O estado atual será mantido como cópia local anterior.`))return;
     const r=await driveFetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`),data=migrateState(await r.json());
+    createSafetySnapshot('Antes de restaurar backup do Drive');
     localStorage.setItem(PREVIOUS_KEY,JSON.stringify(state));
     state=data;
     state.cloud={...seed.cloud,...state.cloud,clientId:DRIVE_CONFIG.clientId||state.cloud.clientId,emailHint:window.saldoPlanAuthUser?.email||state.cloud.emailHint};
-    save({backupOld:false,cloud:false});
+    save({backupOld:false,cloud:false,history:false});
     renderAll();
     alert('Backup do Drive restaurado.');
   }catch(e){alert(e.message)}

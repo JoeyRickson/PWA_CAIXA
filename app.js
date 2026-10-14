@@ -1,4 +1,4 @@
-const SALDOPLAN_VERSION='2.14.0';
+const SALDOPLAN_VERSION='2.15.0';
 
 const SALDOPLAN_VIEWS=[
   'dashboard',
@@ -17,6 +17,7 @@ const SALDOPLAN_VIEWS=[
 
 const SALDOPLAN_SCRIPTS=[
   'core',
+  'history',
   'market',
   'portfolio',
   'dashboard',
