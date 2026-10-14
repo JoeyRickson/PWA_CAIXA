@@ -14,7 +14,7 @@ function parseIsoLocal(value){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(String(value||'')))return null;
   const [year,month,day]=value.split('-').map(Number);
   const date=new Date(year,month-1,day);
-  return Number.isNaN(date.getTime())?null:date;
+  return Number.isNaN(date.getTime())||date.getFullYear()!==year||date.getMonth()!==month-1||date.getDate()!==day?null:date;
 }
 
 function dayDiff(from,to){
@@ -97,6 +97,23 @@ function calendarEventHtml(event){
   return `<span class="calendar-event ${event.type}" title="${escapeHtml(event.title)}${escapeHtml(amountText)}">${escapeHtml(event.title)}${escapeHtml(amountText)}</span>`;
 }
 
+let selectedCalendarDate = null;
+
+function renderCalendarDayDetails(date){
+  const panel=document.querySelector('#calendarDayDetails');
+  const heading=document.querySelector('#calendarDayDetailsTitle');
+  const list=document.querySelector('#calendarDayDetailsEvents');
+  if(!panel||!heading||!list)return;
+  const parsed=parseIsoLocal(date);
+  if(!parsed)return;
+  selectedCalendarDate=date;
+  const events=calendarEvents(date.slice(0,7)).filter(item=>item.date===date);
+  heading.textContent=new Intl.DateTimeFormat('pt-BR',{dateStyle:'full'}).format(parsed);
+  list.innerHTML=events.length?events.map(event=>`<div class="calendar-day-detail-event"><strong>${escapeHtml(event.title)}</strong><span>${escapeHtml(event.meta||'')} · ${escapeHtml(event.status==='realized'?'Realizado':'Previsto')} · ${fmt.format(Number(event.amount||0))}</span></div>`).join(''):'<div class="empty">Nenhum evento financeiro neste dia.</div>';
+  panel.hidden=false;
+  document.querySelectorAll('#financialCalendar .calendar-day').forEach(cell=>cell.classList.toggle('is-selected',cell.dataset.calendarDate===date));
+}
+
 function renderFinancialCalendar(events){
   const host=document.querySelector('#financialCalendar');
   const mobile=document.querySelector('#calendarMobileAgenda');
@@ -124,12 +141,16 @@ function renderFinancialCalendar(events){
     const iso=localIsoDate(dateObj);
     const rows=byDate.get(iso)||[];
     const visible=rows.slice(0,3);
-    html+=`<div class="calendar-day ${monthOffset!==0?'is-outside':''} ${iso===todayKey?'is-today':''} ${rows.length?'has-events':''}">
+    html+=`<div role="button" tabindex="0" data-calendar-date="${iso}" aria-label="Ver eventos de ${iso}" class="calendar-day ${monthOffset!==0?'is-outside':''} ${iso===todayKey?'is-today':''} ${rows.length?'has-events':''}">
       <div class="calendar-day-number"><span>${day}</span>${iso===todayKey?'<small>Hoje</small>':''}</div>
       <div class="calendar-event-stack">${visible.map(calendarEventHtml).join('')}${rows.length>3?`<span class="calendar-more">+ ${rows.length-3} evento${rows.length-3===1?'':'s'}</span>`:''}</div>
     </div>`;
   }
   host.innerHTML=html;
+  if(selectedCalendarDate){
+    if(selectedCalendarDate.slice(0,7)===key())renderCalendarDayDetails(selectedCalendarDate);
+    else {selectedCalendarDate=null;const panel=document.querySelector('#calendarDayDetails');if(panel)panel.hidden=true;}
+  }
 
   const days=[...byDate.entries()].filter(([date])=>date.slice(0,7)===key()).sort((a,b)=>a[0].localeCompare(b[0]));
   mobile.innerHTML=days.length?days.map(([date,rows])=>{
@@ -319,3 +340,21 @@ function renderCalendar(){
 ensureCalendarState();
 document.querySelector('#saveMonthlyClosing')?.addEventListener('click',saveMonthlyClosingSnapshot);
 document.querySelector('#view-calendar')?.addEventListener('click',event=>{const button=event.target.closest('[data-closing-delete]');if(button)deleteMonthlyClosing(button.dataset.closingDelete)});
+
+// Delegação: não recriar listeners após cada renderização do calendário.
+document.querySelector('#financialCalendar')?.addEventListener('click',event=>{
+  const cell=event.target.closest('[data-calendar-date]');
+  if(cell)renderCalendarDayDetails(cell.dataset.calendarDate);
+});
+document.querySelector('#financialCalendar')?.addEventListener('keydown',event=>{
+  if(event.key!=='Enter'&&event.key!==' ')return;
+  const cell=event.target.closest('[data-calendar-date]');
+  if(!cell)return;
+  event.preventDefault();
+  renderCalendarDayDetails(cell.dataset.calendarDate);
+});
+document.querySelector('#calendarDayDetailsClose')?.addEventListener('click',()=>{
+  selectedCalendarDate=null;
+  const panel=document.querySelector('#calendarDayDetails');if(panel)panel.hidden=true;
+  document.querySelectorAll('#financialCalendar .calendar-day').forEach(cell=>cell.classList.remove('is-selected'));
+});
