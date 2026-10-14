@@ -145,11 +145,11 @@
 
         <div class="two-col">
           <label>Começa em
-            <input id="repeatStartMonth" type="month" disabled>
+            <input id="repeatStartDate" type="date" disabled>
           </label>
 
           <label>Repetir até
-            <input id="repeatEndMonth" type="month">
+            <input id="repeatEndDate" type="date">
           </label>
         </div>
 
@@ -159,7 +159,7 @@
         </label>
 
         <small class="input-help">
-          Você pode digitar o mês/ano ou usar o seletor. Meses anteriores ao início não são alterados.
+          A repetição ocorre mensalmente no mesmo dia. Se o dia não existir no mês, o app usa o último dia válido. Datas anteriores ao início permanecem congeladas.
         </small>
       </div>
       <div class="dialog-actions"><button type="button" id="deleteEntry" class="btn danger ghost hidden">Excluir</button><button type="submit" class="btn">Salvar</button></div>
@@ -196,12 +196,12 @@
         <span class="recurrence-title">Período da repetição</span>
 
         <div class="two-col">
-          <label>De
-            <input id="savingRepeatStartMonth" type="month">
+          <label>Começa em
+            <input id="savingRepeatStartDate" type="date" disabled>
           </label>
 
-          <label>Até
-            <input id="savingRepeatEndMonth" type="month">
+          <label>Repetir até
+            <input id="savingRepeatEndDate" type="date">
           </label>
         </div>
 
@@ -211,7 +211,7 @@
         </label>
 
         <small class="input-help">
-          Aportes futuros são criados como previstos e só entram no total guardado quando forem marcados como realizados.
+          A repetição ocorre mensalmente no mesmo dia. Aportes futuros continuam como previstos e só entram no total guardado quando forem marcados como realizados.
         </small>
       </div>
       <div class="dialog-actions"><button type="button" id="deleteSaving" class="btn danger ghost hidden">Excluir</button><button type="submit" class="btn">Salvar</button></div>

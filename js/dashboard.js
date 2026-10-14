@@ -31,8 +31,7 @@ function renderFixed(){
 
   document.querySelector('#fixedList').innerHTML=fixeds.length
     ?fixeds.map(t=>{
-      const start=formatMonthValue(t.startMonth);
-      const end=t.endMonth?formatMonthValue(t.endMonth):'sem fim';
+      const range=recurringRangeLabel(t);
 
       return `<button class="item" data-template="${t.id}" style="width:100%;text-align:left;cursor:pointer">
         <span class="item-icon">↻</span>
@@ -42,7 +41,7 @@ function renderFixed(){
         </span>
         <span class="item-side">
           <strong>${fmt.format(t.amount)}</strong>
-          <span>${start} → ${end}</span>
+          <span>${range}</span>
         </span>
       </button>`;
     }).join('')

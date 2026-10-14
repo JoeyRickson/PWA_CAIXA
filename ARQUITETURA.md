@@ -1,4 +1,4 @@
-# SaldoPlan — Arquitetura modular v2.14.0
+# SaldoPlan — Arquitetura modular v2.16.0
 
 Esta versão inicia a modularização estrutural do projeto sem trocar framework e sem alterar o formato dos dados.
 
@@ -37,3 +37,9 @@ Na fase seguinte os arquivos em `js/` podem ser convertidos gradualmente para m�
 - APIs preservadas;
 - mobile e desktop preservados;
 - nenhum dado financeiro é migrado ou apagado por esta etapa.
+
+## Recorrência v2.16
+
+- `js/recurrence.js`: concentra migração, limites por data completa, geração mensal e compatibilidade com os campos antigos `startMonth`/`endMonth`.
+- Intervalos novos usam `startDate`/`endDate` em ISO (`YYYY-MM-DD`).
+- Séries antigas são migradas em memória e persistidas sem criar histórico/backup desnecessário.

@@ -1,4 +1,4 @@
-/* ===== SaldoPlan v2.8.0 — Recorrência por período ===== */
+/* ===== SaldoPlan v2.16.0 — Recorrência mensal por datas ===== */
 .recurrence-box{
   margin:10px 0 13px;
   padding:13px;
@@ -32,4 +32,13 @@
   .recurrence-box{
     padding:11px;
   }
+}
+
+.recurrence-box input[type="date"]{
+  min-width:0;
+  width:100%;
+}
+.recurrence-box input[type="date"]:disabled{
+  opacity:.82;
+  cursor:not-allowed;
 }

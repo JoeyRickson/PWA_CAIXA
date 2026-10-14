@@ -13,27 +13,25 @@ function setEntryRecurrenceUI(show){
 
   if(visible){
     const date=document.querySelector('#entryDate')?.value||baseDate();
-    const month=date.slice(0,7);
-
-    const start=document.querySelector('#repeatStartMonth');
+    const start=document.querySelector('#repeatStartDate');
 
     if(start){
-      start.value=month;
+      start.value=date;
       start.disabled=true;
     }
   }
 
   const noEnd=document.querySelector('#repeatNoEnd');
-  const end=document.querySelector('#repeatEndMonth');
+  const end=document.querySelector('#repeatEndDate');
 
   if(end){
     end.disabled=!!noEnd?.checked;
   }
 }
 
-function syncEntryEndMonth(){
+function syncEntryEndDate(){
   const noEnd=document.querySelector('#repeatNoEnd');
-  const end=document.querySelector('#repeatEndMonth');
+  const end=document.querySelector('#repeatEndDate');
   if(end)end.disabled=!!noEnd?.checked;
 }
 
@@ -60,10 +58,11 @@ function openEntry(kind='expense',obj=null){
 
   document.querySelector('#repeatMonthly').checked=recurring;
 
-  const occurrenceMonth=(obj?.date||baseDate()).slice(0,7);
-  document.querySelector('#repeatStartMonth').value=occurrenceMonth;
-  document.querySelector('#repeatEndMonth').value=template?.endMonth||'';
-  document.querySelector('#repeatNoEnd').checked=!template?.endMonth;
+  const occurrenceDate=obj?.date||baseDate();
+  const templateEnd=template?recurringEndDate(template):'';
+  document.querySelector('#repeatStartDate').value=occurrenceDate;
+  document.querySelector('#repeatEndDate').value=templateEnd;
+  document.querySelector('#repeatNoEnd').checked=!templateEnd;
 
   setEntryRecurrenceUI(recurring);
 
@@ -108,15 +107,16 @@ function openTemplate(t=null){
 
   const day=t?.dueDay||15;
 
-  document.querySelector('#entryDate').value=
-    `${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  document.querySelector('#entryDate').value=recurrenceDateForMonth(key(),day);
 
   document.querySelector('#entryStatus').value='planned';
   document.querySelector('#entryStatus').closest('label').classList.add('hidden');
 
-  document.querySelector('#repeatStartMonth').value=key();
-  document.querySelector('#repeatEndMonth').value=t?.endMonth||'';
-  document.querySelector('#repeatNoEnd').checked=!t?.endMonth;
+  const fixedStartDate=document.querySelector('#entryDate').value;
+  const fixedEndDate=t?recurringEndDate(t):'';
+  document.querySelector('#repeatStartDate').value=fixedStartDate;
+  document.querySelector('#repeatEndDate').value=fixedEndDate;
+  document.querySelector('#repeatNoEnd').checked=!fixedEndDate;
 
   setEntryRecurrenceUI(true);
 
@@ -136,13 +136,13 @@ document.querySelector('#repeatMonthly').addEventListener('change',e=>{
   const date=document.querySelector('#entryDate').value||baseDate();
 
   if(e.target.checked){
-    document.querySelector('#repeatStartMonth').value=date.slice(0,7);
+    document.querySelector('#repeatStartDate').value=date;
   }
 
   setEntryRecurrenceUI(e.target.checked);
 });
 
-document.querySelector('#repeatNoEnd').addEventListener('change',syncEntryEndMonth);
+document.querySelector('#repeatNoEnd').addEventListener('change',syncEntryEndDate);
 
 document.querySelector('#repeatMonthly').onclick=()=>{
   setEntryRecurrenceUI(
@@ -152,10 +152,10 @@ document.querySelector('#repeatMonthly').onclick=()=>{
 
 document.querySelector('#entryDate').addEventListener('change',()=>{
   if(document.querySelector('#repeatMonthly').checked){
-    const month=document.querySelector('#entryDate').value.slice(0,7);
+    const recurrenceStart=document.querySelector('#entryDate').value;
 
-    if(month){
-      document.querySelector('#repeatStartMonth').value=month;
+    if(recurrenceStart){
+      document.querySelector('#repeatStartDate').value=recurrenceStart;
     }
 
     setEntryRecurrenceUI(true);
@@ -195,19 +195,19 @@ form.addEventListener('submit',e=>{
   }
 
   const effectiveMonth=date.slice(0,7);
-  const requestedStart=document.querySelector('#repeatStartMonth')?.value||effectiveMonth;
+  const requestedStartDate=document.querySelector('#repeatStartDate')?.value||date;
   const noEnd=!!document.querySelector('#repeatNoEnd')?.checked;
-  const requestedEnd=noEnd?'':(document.querySelector('#repeatEndMonth')?.value||'');
+  const requestedEndDate=noEnd?'':(document.querySelector('#repeatEndDate')?.value||'');
 
-  if(requestedStart<effectiveMonth){
-    alert('O início da repetição não pode ser anterior ao mês do lançamento.');
-    document.querySelector('#repeatStartMonth').focus();
+  if(requestedStartDate<date){
+    alert('O início da repetição não pode ser anterior à data do lançamento.');
+    document.querySelector('#repeatStartDate').focus();
     return;
   }
 
-  if(requestedEnd && requestedEnd<requestedStart){
-    alert('O mês final da repetição não pode ser anterior ao mês inicial.');
-    document.querySelector('#repeatEndMonth').focus();
+  if(requestedEndDate && requestedEndDate<requestedStartDate){
+    alert('A data final da repetição não pode ser anterior à data inicial.');
+    document.querySelector('#repeatEndDate').focus();
     return;
   }
 
@@ -225,12 +225,14 @@ form.addEventListener('submit',e=>{
       expenseType:'fixed',
       description,
       amount,
-      dueDay:Number(date.slice(-2)),
       category:category||'Outros',
       paySource:document.querySelector('#paySource').value,
-      startMonth:requestedStart,
-      endMonth:requestedEnd
+      startDate:requestedStartDate,
+      endDate:requestedEndDate,
+      dueDay:Number(requestedStartDate.slice(-2))
     };
+
+    syncRecurringTemplateDateFields(t,requestedStartDate,requestedEndDate);
 
     const ix=state.fixedTemplates.findIndex(x=>x.id===id);
 
@@ -274,10 +276,12 @@ form.addEventListener('submit',e=>{
         kind,
         description,
         amount,
-        dueDay:Number(date.slice(-2)),
-        startMonth:requestedStart,
-        endMonth:requestedEnd
+        dueDay:Number(requestedStartDate.slice(-2)),
+        startDate:requestedStartDate,
+        endDate:requestedEndDate
       };
+
+      syncRecurringTemplateDateFields(template,requestedStartDate,requestedEndDate);
 
       if(kind==='income'){
         template.incomeType=incomeType;
@@ -293,8 +297,8 @@ form.addEventListener('submit',e=>{
       else state.fixedTemplates.push(template);
 
       const currentIsInRange=
-        effectiveMonth>=requestedStart &&
-        (!requestedEnd || effectiveMonth<=requestedEnd);
+        date>=requestedStartDate &&
+        (!requestedEndDate || date<=requestedEndDate);
 
       if(currentIsInRange){
         obj.templateId=templateId;
