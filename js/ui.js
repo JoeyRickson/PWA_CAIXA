@@ -193,7 +193,9 @@ function applyLayoutExperience(){
     layoutSelect.value=selected;
   }
 
-  if(themeSelect && themeSelect.value!==desktopTheme){
+  if(themeSelect && typeof window.saldoPlanUpdateThemeSelect==='function'){
+    window.saldoPlanUpdateThemeSelect(themeSelect);
+  }else if(themeSelect && themeSelect.value!==desktopTheme){
     themeSelect.value=desktopTheme;
   }
 }
@@ -210,10 +212,10 @@ function saveDesktopTheme(value){
   applyLayoutExperience();
 }
 function applyTheme(){
-  const theme=state.settings?.theme==='dark'?'dark':'light';document.body.dataset.theme=theme;document.documentElement.style.colorScheme=theme;document.querySelector('meta[name="theme-color"]').setAttribute('content',theme==='dark'?'#070a0f':'#111827');document.querySelector('#themeQuickBtn').textContent=theme==='dark'?'☀':'☾';
+  const theme=state.settings?.theme==='dark'?'dark':'light';document.body.dataset.theme=theme;document.documentElement.style.colorScheme=theme;document.querySelector('meta[name="theme-color"]').setAttribute('content',theme==='dark'?'#070a0f':'#111827');document.querySelector('#themeQuickBtn').textContent=theme==='dark'?'☀':'☾';window.saldoPlanApplyVisualTheme?.();
 }
 function toggleTheme(){state.settings.theme=state.settings.theme==='dark'?'light':'dark';save({backupOld:false,cloud:false,history:false});applyTheme();renderData()}
-function go(view){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.querySelector(`#view-${view}`).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.nav===view));if(view==='transactions')renderTransactions();if(view==='importer')renderImporter();if(view==='calendar')renderCalendar();if(view==='cycles')renderCycles();if(view==='savings')renderSavings();if(view==='portfolio')renderPortfolio();if(view==='patrimony')renderPatrimony();if(view==='cards')renderCards();if(view==='simulator')renderSimulator();if(view==='thirteenth')renderThirteenth();if(view==='fgts')renderFgts();if(view==='fixed')renderFixed();if(view==='market')renderMarket();if(view==='data')renderData();window.scrollTo({top:0,behavior:'smooth'})}
+function go(view){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.querySelector(`#view-${view}`).classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.nav===view));if(view==='transactions')renderTransactions();if(view==='importer')renderImporter();if(view==='calendar')renderCalendar();if(view==='cycles')renderCycles();if(view==='savings')renderSavings();if(view==='portfolio')renderPortfolio();if(view==='patrimony')renderPatrimony();if(view==='cards')renderCards();if(view==='simulator')renderSimulator();if(view==='thirteenth')renderThirteenth();if(view==='fgts')renderFgts();if(view==='fixed')renderFixed();if(view==='market')renderMarket();if(view==='data')renderData();window.scrollTo({top:0,behavior:'smooth'});if(typeof window.syncMobileNavigation==='function')window.syncMobileNavigation(view)}
 
 // Navegação e atalhos
 addEventListener('click',e=>{
@@ -232,7 +234,8 @@ document.querySelector('#layoutModeSelect')?.addEventListener('change',e=>{
 });
 
 document.querySelector('#desktopThemeSelect')?.addEventListener('change',e=>{
-  saveDesktopTheme(e.target.value);
+  if(typeof window.saldoPlanSetVisualTheme==='function')window.saldoPlanSetVisualTheme(e.target.value);
+  else saveDesktopTheme(e.target.value);
 });
 
 let layoutResizeTimer=null;

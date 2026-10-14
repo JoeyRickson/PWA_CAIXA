@@ -1,4 +1,4 @@
-const SALDOPLAN_VERSION='2.20.0';
+const SALDOPLAN_VERSION='2.20.5';
 
 const SALDOPLAN_VIEWS=[
   'dashboard',
@@ -37,7 +37,9 @@ const SALDOPLAN_SCRIPTS=[
   'overtime',
   'backup',
   'drive',
-  'pwa'
+  'pwa',
+  'mobile-nav',
+  'themes'
 ];
 
 async function saldoPlanFetchPartial(path){

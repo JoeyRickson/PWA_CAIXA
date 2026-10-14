@@ -1,0 +1,366 @@
+/* SaldoPlan v2.20.5 — identidade visual por tema. Sem alterações em cálculos ou dados. */
+:root{--theme-corner:20px;--theme-font:inherit;}
+body[data-visual-theme="light"][data-layout-effective][data-desktop-theme]{
+  --bg:#f3f4f6;
+  --surface:#ffffff;
+  --surface-2:#f9fafb;
+  --ink:#111827;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --brand:#111827;
+  --brand-ink:#ffffff;
+  --accent:#16a34a;
+  --accent-soft:#dcfce7;
+  --saving:#0284c7;
+  --flash:#7c3aed;
+  --warning:#d97706;
+  --danger:#dc2626;
+  color-scheme:light;
+}
+body[data-visual-theme="dark"][data-layout-effective][data-desktop-theme]{
+  --bg:#070a0f;
+  --surface:#11151d;
+  --surface-2:#171c26;
+  --ink:#f3f4f6;
+  --muted:#9ca3af;
+  --line:#29303c;
+  --brand:#e2e8f0;
+  --brand-ink:#111827;
+  --accent:#4ade80;
+  --accent-soft:#12351f;
+  --saving:#38bdf8;
+  --flash:#a78bfa;
+  --warning:#f59e0b;
+  --danger:#f87171;
+  color-scheme:dark;
+}
+body[data-visual-theme="graphite"][data-layout-effective][data-desktop-theme]{
+  --bg:#090d12;
+  --surface:#10161f;
+  --surface-2:#161e29;
+  --ink:#f4f7fb;
+  --muted:#9daec0;
+  --line:#263141;
+  --brand:#17202c;
+  --brand-ink:#ffffff;
+  --accent:#60a5fa;
+  --accent-soft:#132943;
+  --saving:#38bdf8;
+  --flash:#a78bfa;
+  --warning:#f6b84b;
+  --danger:#fb7185;
+  color-scheme:dark;
+}
+body[data-visual-theme="midnight"][data-layout-effective][data-desktop-theme]{
+  --bg:#060813;
+  --surface:#0d1220;
+  --surface-2:#131a2c;
+  --ink:#f5f7ff;
+  --muted:#a3b2cb;
+  --line:#222d48;
+  --brand:#1a2650;
+  --brand-ink:#ffffff;
+  --accent:#8b8cff;
+  --accent-soft:#1b1d46;
+  --saving:#67e8f9;
+  --flash:#c084fc;
+  --warning:#f7b955;
+  --danger:#fb7185;
+  color-scheme:dark;
+}
+body[data-visual-theme="aero"][data-layout-effective][data-desktop-theme]{
+  --bg:#d0ecf6;
+  --surface:#f5fcff;
+  --surface-2:#e0f5fc;
+  --ink:#123c53;
+  --muted:#426a7c;
+  --line:#89c3da;
+  --brand:#08709e;
+  --brand-ink:#ffffff;
+  --accent:#0b866b;
+  --accent-soft:#d8f6e4;
+  --saving:#087da5;
+  --flash:#7466c9;
+  --warning:#a4600e;
+  --danger:#c12c48;
+  color-scheme:light;
+}
+body[data-visual-theme="luna"][data-layout-effective][data-desktop-theme]{
+  --bg:#dce7f7;
+  --surface:#ffffff;
+  --surface-2:#edf5ff;
+  --ink:#153a68;
+  --muted:#506d8e;
+  --line:#87a8d3;
+  --brand:#1357ad;
+  --brand-ink:#ffffff;
+  --accent:#27894f;
+  --accent-soft:#dbf6da;
+  --saving:#165ba3;
+  --flash:#7249a3;
+  --warning:#946207;
+  --danger:#ba3030;
+  color-scheme:light;
+}
+body[data-visual-theme="win95"][data-layout-effective][data-desktop-theme]{
+  --bg:#bdbdbd;
+  --surface:#e1e1e1;
+  --surface-2:#c8c8c8;
+  --ink:#161616;
+  --muted:#4b4b4b;
+  --line:#777777;
+  --brand:#080878;
+  --brand-ink:#ffffff;
+  --accent:#006b70;
+  --accent-soft:#d7eded;
+  --saving:#006b70;
+  --flash:#6e348a;
+  --warning:#855000;
+  --danger:#a00000;
+  color-scheme:light;
+}
+body[data-visual-theme="vista"][data-layout-effective][data-desktop-theme]{
+  --bg:#d9e8ef;
+  --surface:#f3fbff;
+  --surface-2:#e9f3f8;
+  --ink:#153047;
+  --muted:#49657a;
+  --line:#9bc1d0;
+  --brand:#203b61;
+  --brand-ink:#ffffff;
+  --accent:#087eaa;
+  --accent-soft:#ddf7ff;
+  --saving:#10729c;
+  --flash:#8468be;
+  --warning:#93600c;
+  --danger:#b12c48;
+  color-scheme:light;
+}
+body[data-visual-theme="winmobile"][data-layout-effective][data-desktop-theme]{
+  --bg:#c9dce9;
+  --surface:#f5faff;
+  --surface-2:#e5f0f8;
+  --ink:#183b55;
+  --muted:#4b6778;
+  --line:#94b5ce;
+  --brand:#174977;
+  --brand-ink:#ffffff;
+  --accent:#187fb1;
+  --accent-soft:#d8f0f7;
+  --saving:#135c88;
+  --flash:#7960af;
+  --warning:#95620a;
+  --danger:#b43b45;
+  color-scheme:light;
+}
+body[data-visual-theme="symbian"][data-layout-effective][data-desktop-theme]{
+  --bg:#ede6f6;
+  --surface:#fffbff;
+  --surface-2:#f6efff;
+  --ink:#3d255d;
+  --muted:#705a87;
+  --line:#cbb3df;
+  --brand:#5a348e;
+  --brand-ink:#ffffff;
+  --accent:#8554bc;
+  --accent-soft:#f0e0ff;
+  --saving:#6e4ca4;
+  --flash:#b366c9;
+  --warning:#8d5b18;
+  --danger:#b43760;
+  color-scheme:light;
+}
+body[data-visual-theme="lcd"][data-layout-effective][data-desktop-theme]{
+  --bg:#d6e0b0;
+  --surface:#f0f3cf;
+  --surface-2:#e5ebbd;
+  --ink:#283c23;
+  --muted:#56664d;
+  --line:#93a278;
+  --brand:#405c33;
+  --brand-ink:#ffffff;
+  --accent:#537c35;
+  --accent-soft:#e0ecc2;
+  --saving:#366b58;
+  --flash:#6d6a36;
+  --warning:#7d5b22;
+  --danger:#9e372f;
+  color-scheme:light;
+}
+body[data-visual-theme="y2k"][data-layout-effective][data-desktop-theme]{
+  --bg:#e8ddf4;
+  --surface:#fcfaff;
+  --surface-2:#f0e9fa;
+  --ink:#39304d;
+  --muted:#766881;
+  --line:#c5b5dc;
+  --brand:#744baf;
+  --brand-ink:#ffffff;
+  --accent:#9a55b0;
+  --accent-soft:#f6e6ff;
+  --saving:#7456b1;
+  --flash:#dd69bb;
+  --warning:#96600c;
+  --danger:#bc4175;
+  color-scheme:light;
+}
+body[data-visual-theme="macclassic"][data-layout-effective][data-desktop-theme]{
+  --bg:#dcdad1;
+  --surface:#fcfaf3;
+  --surface-2:#eeeae0;
+  --ink:#262626;
+  --muted:#66645c;
+  --line:#a4a49b;
+  --brand:#383a40;
+  --brand-ink:#ffffff;
+  --accent:#5b685d;
+  --accent-soft:#e5ebe2;
+  --saving:#4e6869;
+  --flash:#6a5478;
+  --warning:#805c29;
+  --danger:#a54141;
+  color-scheme:light;
+}
+body[data-visual-theme="neon"][data-layout-effective][data-desktop-theme]{
+  --bg:#0d0920;
+  --surface:#1b1233;
+  --surface-2:#251a44;
+  --ink:#f6edff;
+  --muted:#bcaed7;
+  --line:#49346b;
+  --brand:#7635b2;
+  --brand-ink:#ffffff;
+  --accent:#3ed4af;
+  --accent-soft:#133e3d;
+  --saving:#5ae4fb;
+  --flash:#f18cf9;
+  --warning:#f2b95a;
+  --danger:#ff748a;
+  color-scheme:dark;
+}
+
+/* Comportamento comum a todos os novos temas */
+body[data-visual-theme] .card.hero{background:var(--brand);color:var(--brand-ink);border-color:color-mix(in srgb,var(--brand) 68%,var(--line));}
+body[data-visual-theme] .card.hero>span,body[data-visual-theme] .card.hero>small{color:color-mix(in srgb,var(--brand-ink) 82%,transparent);}
+body[data-visual-theme] .mobile-brand-mark{background:var(--brand);color:var(--brand-ink);}
+body[data-visual-theme] .desktop-brand-mark{background:var(--accent);color:white;}
+body[data-visual-theme] .card,body[data-visual-theme] .panel{border-radius:var(--theme-corner,19px);}
+body[data-visual-theme] .btn{border-radius:var(--theme-button-corner,12px);}
+body[data-visual-theme] .topbar{background:color-mix(in srgb,var(--surface) 89%,transparent);}
+body[data-visual-theme][data-layout-effective="compact"] .bottom-nav{background:color-mix(in srgb,var(--surface) 96%,transparent);}
+body[data-visual-theme] .desktop-sidebar{background:linear-gradient(180deg,color-mix(in srgb,var(--surface) 96%,var(--accent) 4%),var(--surface));}
+body[data-visual-theme] #themeQuickBtn{font-size:1.22rem;}
+
+/* Frutiger Aero: natureza, vidro e o brilho glossy dos anos 2000 */
+body[data-visual-theme="aero"]{--theme-corner:22px;--theme-button-corner:17px;}
+body[data-visual-theme="aero"]{background:radial-gradient(circle at 95% 0%,#f6ffda 0,transparent 28rem),linear-gradient(165deg,#9fd9ef 0%,#e0f7fb 45%,#b2e5d3 100%);}
+body[data-visual-theme="aero"] .topbar,body[data-visual-theme="aero"] .desktop-sidebar,body[data-visual-theme="aero"] .bottom-nav{background:linear-gradient(180deg,rgba(255,255,255,.91),rgba(199,238,247,.77));border-color:#89c9d9;backdrop-filter:blur(20px);}
+body[data-visual-theme="aero"] .panel,body[data-visual-theme="aero"] .card:not(.hero){background:linear-gradient(155deg,#fff 0%,#f3fdff 49%,#d9f4f8 100%);box-shadow:inset 0 2px rgba(255,255,255,.9),0 10px 26px rgba(32,118,135,.12);}
+body[data-visual-theme="aero"] .btn:not(.ghost):not(.secondary),body[data-visual-theme="aero"] .card.hero{background:linear-gradient(180deg,#71c9ee 0%,#1388b6 54%,#08628e 100%);color:white;box-shadow:inset 0 2px rgba(255,255,255,.4),0 5px 12px rgba(30,105,148,.16);}
+body[data-visual-theme="aero"] .card.hero>span,body[data-visual-theme="aero"] .card.hero>small{color:#effaff;}
+body[data-visual-theme="aero"] .desktop-sidebar .nav-item.active,body[data-visual-theme="aero"] .bottom-nav .nav-item.active{background:linear-gradient(180deg,#f8ffff,#bce8f5);}
+
+/* Windows XP Luna: cabeçalhos azuis e botões com relevo */
+body[data-visual-theme="luna"]{--theme-corner:12px;--theme-button-corner:10px;}
+body[data-visual-theme="luna"] .topbar,body[data-visual-theme="luna"] .desktop-sidebar{background:linear-gradient(180deg,#e1f0ff,#f9fcff 48%,#dcecff);border-color:#789bc6;}
+body[data-visual-theme="luna"] .card,body[data-visual-theme="luna"] .panel{box-shadow:inset 0 1px #fff,0 4px 11px #6b95c42a;}
+body[data-visual-theme="luna"] .btn:not(.ghost):not(.secondary),body[data-visual-theme="luna"] .card.hero{background:linear-gradient(180deg,#4d92e2 0%,#1267bc 45%,#0c3e9b 100%);color:white;box-shadow:inset 0 1px #c6ebff,0 2px 3px #0e47834a;}
+body[data-visual-theme="luna"] .bottom-nav{background:linear-gradient(180deg,#f6fcff,#d2e5fc);border-top-color:#85acd7;}
+
+/* Windows 95: botões chanfrados, geometria quadrada e cinza clássico */
+body[data-visual-theme="win95"]{--theme-corner:0px;--theme-button-corner:0px;font-family:Tahoma,"MS Sans Serif",Verdana,sans-serif;}
+body[data-visual-theme="win95"] .panel,body[data-visual-theme="win95"] .card,body[data-visual-theme="win95"] .topbar,body[data-visual-theme="win95"] .desktop-sidebar,body[data-visual-theme="win95"] .mobile-menu-sheet{border-radius:0!important;box-shadow:inset 2px 2px #fff,inset -2px -2px #555,1px 1px 0 #444;}
+body[data-visual-theme="win95"] .btn,body[data-visual-theme="win95"] .icon-btn,body[data-visual-theme="win95"] input,body[data-visual-theme="win95"] select,body[data-visual-theme="win95"] .nav-item{border-radius:0!important;}
+body[data-visual-theme="win95"] .btn:not(.ghost),body[data-visual-theme="win95"] .icon-btn{border:2px solid;border-color:#fff #555 #555 #fff;box-shadow:inset 1px 1px #dadada;}
+body[data-visual-theme="win95"] .card.hero{background:#080878;color:#fff;}
+body[data-visual-theme="win95"] .bottom-nav{border-radius:0!important;background:#d4d4d4;}
+body[data-visual-theme="win95"] .desktop-brand-mark{border-radius:0;background:#080878;}
+
+/* Vista: vidro azul acinzentado */
+body[data-visual-theme="vista"]{--theme-corner:20px;--theme-button-corner:13px;}
+body[data-visual-theme="vista"]{background:linear-gradient(140deg,#b5d8e3,#ecf6f9 40%,#c7dfe9);}
+body[data-visual-theme="vista"] .topbar,body[data-visual-theme="vista"] .desktop-sidebar,body[data-visual-theme="vista"] .bottom-nav{background:linear-gradient(180deg,#ffffffd9,#cfe6f0de);box-shadow:inset 0 1px #fff,0 5px 21px #567d9630;backdrop-filter:blur(18px);}
+body[data-visual-theme="vista"] .btn:not(.ghost):not(.secondary),body[data-visual-theme="vista"] .card.hero{background:linear-gradient(180deg,#5a81a7,#1a3552 55%,#112941);color:white;box-shadow:inset 0 1px #d2f3ff;}
+
+/* Windows Mobile / Symbian: interfaces de celular de 2006–2011 */
+body[data-visual-theme="winmobile"]{--theme-corner:11px;--theme-button-corner:8px;}
+body[data-visual-theme="winmobile"] .topbar,body[data-visual-theme="winmobile"] .bottom-nav{background:linear-gradient(180deg,#e2effa,#a7c7dc);}
+body[data-visual-theme="winmobile"] .btn:not(.ghost):not(.secondary),body[data-visual-theme="winmobile"] .card.hero{background:linear-gradient(180deg,#6096c3,#1b588c 56%,#103859);color:white;}
+body[data-visual-theme="winmobile"] .panel,body[data-visual-theme="winmobile"] .card{box-shadow:inset 0 1px #fff,0 3px 9px #234c7722;}
+body[data-visual-theme="symbian"]{--theme-corner:22px;--theme-button-corner:16px;}
+body[data-visual-theme="symbian"] .topbar,body[data-visual-theme="symbian"] .bottom-nav{background:linear-gradient(170deg,#fffbff,#dfc9ef);}
+body[data-visual-theme="symbian"] .btn:not(.ghost):not(.secondary),body[data-visual-theme="symbian"] .card.hero{background:linear-gradient(180deg,#aa7ddb,#7445ad 55%,#583289);color:white;box-shadow:inset 0 1px #f3dbff;}
+body[data-visual-theme="symbian"] .panel{background:linear-gradient(170deg,#fffdff,#f2e7ff);}
+
+/* Retrô LCD: visual monocromático legível */
+body[data-visual-theme="lcd"]{--theme-corner:7px;--theme-button-corner:4px;}
+body[data-visual-theme="lcd"] .card,body[data-visual-theme="lcd"] .panel,body[data-visual-theme="lcd"] .desktop-sidebar{box-shadow:inset 0 0 0 2px #c5d0a2,2px 3px 0 #a6b28a;}
+body[data-visual-theme="lcd"] .card strong,body[data-visual-theme="lcd"] .mini-stat strong{font-family:ui-monospace,"Consolas",monospace;letter-spacing:-.055em;}
+body[data-visual-theme="lcd"] .card.hero{background:#405c33;color:#fff;}
+
+/* Y2K Chrome: prata, lilás e reflexos */
+body[data-visual-theme="y2k"]{--theme-corner:24px;--theme-button-corner:99px;}
+body[data-visual-theme="y2k"]{background:radial-gradient(circle at 90% 5%,#fff 0%,transparent 25rem),linear-gradient(140deg,#e1d7f8,#f7efff 50%,#e8daec);}
+body[data-visual-theme="y2k"] .topbar,body[data-visual-theme="y2k"] .desktop-sidebar,body[data-visual-theme="y2k"] .bottom-nav{background:linear-gradient(180deg,#fff,#e6dbf7 65%,#f5f1fb);}
+body[data-visual-theme="y2k"] .card,body[data-visual-theme="y2k"] .panel{background:linear-gradient(145deg,#fff,#f3effb);box-shadow:inset 0 2px #fff,0 10px 25px #7560a52b;}
+body[data-visual-theme="y2k"] .btn:not(.ghost):not(.secondary),body[data-visual-theme="y2k"] .card.hero{background:linear-gradient(180deg,#bba5ec,#7543b2 52%,#6e359f);color:white;}
+
+/* Macintosh: bege e tinta cinza escuro */
+body[data-visual-theme="macclassic"]{--theme-corner:5px;--theme-button-corner:5px;font-family:Geneva,Chicago,Arial,sans-serif;}
+body[data-visual-theme="macclassic"] .panel,body[data-visual-theme="macclassic"] .card,body[data-visual-theme="macclassic"] .desktop-sidebar{box-shadow:inset 2px 2px #fff,inset -1px -1px #97958d,1px 2px 0 #a3a198;}
+body[data-visual-theme="macclassic"] .btn:not(.ghost):not(.secondary),body[data-visual-theme="macclassic"] .card.hero{background:#383a40;color:#fff;}
+body[data-visual-theme="macclassic"] .topbar,body[data-visual-theme="macclassic"] .bottom-nav{background:#eeeae0;}
+
+/* Neon Arcade: brilho contido para manter legibilidade */
+body[data-visual-theme="neon"]{--theme-corner:18px;--theme-button-corner:14px;}
+body[data-visual-theme="neon"]{background:radial-gradient(circle at 90% 0%,#431069 0,transparent 32rem),#0d0920;}
+body[data-visual-theme="neon"] .card,body[data-visual-theme="neon"] .panel{box-shadow:inset 0 0 0 1px #7a44b844,0 7px 24px #04001455;}
+body[data-visual-theme="neon"] .topbar,body[data-visual-theme="neon"] .desktop-sidebar,body[data-visual-theme="neon"] .bottom-nav{background:linear-gradient(155deg,#2a1648,#110b29);}
+body[data-visual-theme="neon"] .btn:not(.ghost):not(.secondary),body[data-visual-theme="neon"] .card.hero{background:linear-gradient(120deg,#6323a9,#2b4c9a);color:white;box-shadow:0 4px 14px #8a3df041;}
+
+/* Galeria + painel, compartilhados entre desktop e mobile */
+.visual-theme-picker[hidden]{display:none!important;}
+.visual-theme-picker{position:fixed;inset:0;z-index:245;display:flex;align-items:center;justify-content:center;padding:20px;isolation:isolate;}
+.visual-theme-backdrop{position:absolute;inset:0;border:0;background:#070c19bd;backdrop-filter:blur(9px);cursor:pointer;}
+.visual-theme-sheet{position:relative;display:flex;flex-direction:column;width:min(96vw,790px);max-height:min(90dvh,920px);min-height:0;border-radius:24px;background:var(--surface);border:1px solid var(--line);box-shadow:0 28px 70px #0006;overflow:hidden;outline:none;}
+.visual-theme-sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:21px 21px 11px;border-bottom:1px solid var(--line);flex-shrink:0;}
+.visual-theme-sheet-head h2{margin:4px 0;font-size:1.5rem;}
+.visual-theme-sheet-head .helper{margin:0 0 8px;}
+.visual-theme-scroll{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:16px 18px 22px;}
+.visual-theme-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+.visual-theme-choice{display:flex;flex-direction:column;min-width:0;gap:8px;text-align:left;padding:9px;background:var(--surface);border:1px solid var(--line);border-radius:16px;color:var(--ink);font:inherit;cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s;}
+.visual-theme-choice:hover{transform:translateY(-2px);border-color:var(--saving);}
+.visual-theme-choice[aria-pressed="true"]{outline:2px solid var(--saving);outline-offset:-2px;background:color-mix(in srgb,var(--saving) 8%,var(--surface));}
+.visual-theme-choice:focus-visible{outline:3px solid var(--saving);outline-offset:2px;}
+.visual-theme-preview{display:grid;grid-template-columns:24% 1fr;gap:5px;padding:7px;height:100px;border-radius:10px;background:var(--preview-bg);border:1px solid var(--preview-line);overflow:hidden;}
+.visual-theme-preview-aside{border-radius:6px;background:var(--preview-brand);padding:6px 4px;display:flex;flex-direction:column;gap:7px;}
+.visual-theme-preview-aside i{display:block;height:5px;border-radius:5px;background:var(--preview-ink);opacity:.65;}
+.visual-theme-preview-aside i:last-child{width:65%;}
+.visual-theme-preview-main{min-width:0;display:flex;flex-direction:column;gap:6px;}
+.visual-theme-preview-bar{height:14px;border-radius:5px;background:var(--preview-surface);border:1px solid var(--preview-line);}
+.visual-theme-preview-cards{display:grid;grid-template-columns:1fr 1fr;gap:5px;min-height:0;flex:1;}
+.visual-theme-preview-cards i{border-radius:6px;background:var(--preview-surface);border:1px solid var(--preview-line);}
+.visual-theme-preview-cards i:first-child{background:var(--preview-brand);}
+.visual-theme-preview-foot{height:7px;border-radius:3px;background:var(--preview-accent);opacity:.8;}
+.visual-theme-name{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.84rem;line-height:1.2;font-weight:850;}
+.visual-theme-name .visual-theme-check{color:var(--saving);font-size:.98rem;opacity:0;}
+.visual-theme-choice[aria-pressed="true"] .visual-theme-check{opacity:1;}
+.visual-theme-meta{font-size:.7rem;line-height:1.25;color:var(--muted);min-height:2.4em;}
+.visual-theme-choice[data-palette="aero"] .visual-theme-preview{background:linear-gradient(150deg,#a2dcf0,#eefeff 55%,#b0e4cf);}
+.visual-theme-choice[data-palette="luna"] .visual-theme-preview-aside,.visual-theme-choice[data-palette="winmobile"] .visual-theme-preview-aside{background:linear-gradient(180deg,#5c9de7,var(--preview-brand));}
+.visual-theme-choice[data-palette="win95"] .visual-theme-preview,.visual-theme-choice[data-palette="win95"] .visual-theme-preview *,.visual-theme-choice[data-palette="macclassic"] .visual-theme-preview *{border-radius:0;}
+.visual-theme-choice[data-palette="y2k"] .visual-theme-preview{background:linear-gradient(140deg,#fdfbff,#dacef0);}
+.visual-theme-choice[data-palette="neon"] .visual-theme-preview{box-shadow:inset 0 0 16px #953baf55;}
+@media(max-width:899px){
+ .visual-theme-picker{padding:0;align-items:flex-end;}
+ .visual-theme-sheet{width:100%;max-height:92dvh;border-radius:24px 24px 0 0;padding-bottom:env(safe-area-inset-bottom);}
+ .visual-theme-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;}
+ .visual-theme-preview{height:78px;}
+ .visual-theme-choice{padding:7px;}
+ .visual-theme-meta{font-size:.69rem;}
+ .visual-theme-sheet-head{padding:17px 16px 10px;}
+ .visual-theme-scroll{padding:14px 11px 20px;}
+}
+@media(max-width:355px){.visual-theme-preview{height:68px}.visual-theme-choice{gap:5px}.visual-theme-name{font-size:.76rem}}
+@media(prefers-reduced-motion:reduce){.visual-theme-choice{transition:none;}.visual-theme-choice:hover{transform:none;}}
+

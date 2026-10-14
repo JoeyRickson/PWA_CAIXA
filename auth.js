@@ -14,8 +14,83 @@ import {
 import { firebaseConfig } from "./firebase-config.js";
 
 const AUTH_MODE_KEY = "saldoplan.authMode.v1";
+const ONBOARDING_KEY = "saldoplan.onboarding.v1";
+
+const ONBOARDING_CONTENT = {
+  mobile: [
+    {
+      icon: "✦", title: "Seu dinheiro, mais claro", text: "No celular, o SaldoPlan mostra o que você tem hoje e o que está previsto para o mês.",
+      bullets: ["Resumo: acompanhe saldo atual, projetado e valores guardados.", "Use a setinha do mês para consultar outras competências."],
+      highlightTitle: "Seu ponto de partida", highlightText: "Comece pelo Resumo e vá preenchendo suas movimentações sem pressa.", preview: "none"
+    },
+    {
+      icon: "☰", title: "Os cinco botões da parte de baixo", text: "A barra inferior é o atalho para as áreas mais usadas, sem precisar rolar o menu para o lado.",
+      bullets: ["Resumo: visão do mês; Lançamentos: entradas e despesas.", "Cartões: faturas e parcelas; Calendário: datas e vencimentos.", "Mais: abra todas as outras ferramentas do SaldoPlan."],
+      highlightTitle: "Toque em Mais", highlightText: "Ali você encontra Guardado, Ciclos, Fixos, Carteira, Importar, Simulações, FGTS, Dados e Sobre.", preview: "mobile"
+    },
+    {
+      icon: "◷", title: "Planeje seus pagamentos", text: "Use Lançamentos para cadastrar valores e Calendário para conferir o que vem pela frente.",
+      bullets: ["Registre entradas e gastos reais ou previstos.", "Veja faturas, recorrências e contas fixas no calendário.", "Use Mais → Dados e backup para exportar ou restaurar seus dados."],
+      highlightTitle: "Dica importante", highlightText: "Dados offline ficam neste aparelho. O login Google não sincroniza lançamentos automaticamente; o backup Drive é um recurso separado.", preview: "mobile"
+    },
+    {
+      icon: "→", title: "Como você quer começar?", text: "Escolha uma forma de entrada. Você poderá trocar de opção depois.",
+      bullets: ["Google: identifica sua conta no app.", "Offline: começa sem login, mantendo dados neste aparelho."],
+      highlightTitle: "Você decide", highlightText: "Backup no Google Drive é opcional e exige autorização própria.", preview: "none"
+    }
+  ],
+  desktop: [
+    {
+      icon: "✦", title: "Organize suas finanças em um só lugar", text: "O SaldoPlan reúne saldo, gastos, guardado, investimentos e projeções no seu computador.",
+      bullets: ["No Resumo, veja entradas, gastos e saldo projetado.", "Use a navegação por mês sem alterar períodos anteriores."],
+      highlightTitle: "Comece pelo Resumo", highlightText: "O painel principal traz uma visão geral sem substituir as análises de cada aba.", preview: "none"
+    },
+    {
+      icon: "≡", title: "Navegue pelo menu lateral", text: "No computador, as funcionalidades ficam organizadas na barra lateral à esquerda.",
+      bullets: ["Clique em Lançamentos, Calendário, Cartões ou Guardado para entrar na área.", "Carteira, Patrimônio e Mercado ficam na barra lateral.", "Na parte inferior ficam Dados e backup e Sobre."],
+      highlightTitle: "Uma tela por assunto", highlightText: "O menu lateral permanece acessível enquanto você consulta seus dados.", preview: "desktop"
+    },
+    {
+      icon: "◫", title: "Controle hoje e planeje amanhã", text: "Registre valores realizados e previstos; depois acompanhe o calendário e os relatórios.",
+      bullets: ["Importe extratos em Importar ou crie lançamentos manualmente.", "Organize cartões, despesas fixas, patrimônio e metas.", "Em Dados e backup você exporta ou restaura seus dados."],
+      highlightTitle: "Onde seus dados ficam", highlightText: "O armazenamento local é por navegador/aparelho. Entrar com Google não sincroniza os dados automaticamente; o Drive precisa ser autorizado separadamente.", preview: "desktop"
+    },
+    {
+      icon: "→", title: "Pronto para começar", text: "Você pode entrar com Google ou continuar sem login neste navegador.",
+      bullets: ["Google: identifica sua conta no aplicativo.", "Offline: guarda os dados localmente neste navegador."],
+      highlightTitle: "Você tem controle", highlightText: "O backup no Google Drive é uma escolha independente do login.", preview: "none"
+    }
+  ]
+};
+
+const ONBOARDING_PREVIEWS = {
+  mobile: `<div class="onboarding-nav-demo"><span>▦<small>Resumo</small></span><span>≡<small>Lançamentos</small></span><span>▰<small>Cartões</small></span><span>▦<small>Calendário</small></span><span class="onboarding-preview-more">☷<small>Mais</small></span></div><div class="onboarding-preview-caption">Barra fixa na parte inferior do celular</div>`,
+  desktop: `<div class="onboarding-sidebar-demo"><b>SaldoPlan</b><span>▦ &nbsp; Resumo</span><span>≡ &nbsp; Lançamentos</span><span>▦ &nbsp; Calendário</span><span>▰ &nbsp; Cartões</span><span>⚙ &nbsp; Dados e backup</span></div><div class="onboarding-preview-caption">Menu lateral do computador</div>`
+};
 
 const $ = (selector) => document.querySelector(selector);
+
+const onboardingGate = $("#onboardingGate");
+const onboardingTitle = $("#onboardingTitle");
+const onboardingText = $("#onboardingText");
+const onboardingBullets = $("#onboardingBullets");
+const onboardingHighlightTitle = $("#onboardingHighlightTitle");
+const onboardingHighlightText = $("#onboardingHighlightText");
+const onboardingStepCounter = $("#onboardingStepCounter");
+const onboardingDots = $("#onboardingDots");
+const onboardingSkipBtn = $("#onboardingSkipBtn");
+const onboardingPrevBtn = $("#onboardingPrevBtn");
+const onboardingNextBtn = $("#onboardingNextBtn");
+const onboardingNav = $("#onboardingNav");
+const onboardingFinishActions = $("#onboardingFinishActions");
+const onboardingGoogleBtn = $("#onboardingGoogleBtn");
+const onboardingOfflineBtn = $("#onboardingOfflineBtn");
+const onboardingReplayBtn = $("#onboardingReplayBtn");
+const onboardingIcon = document.querySelector(".onboarding-icon");
+const onboardingModeLabel = $("#onboardingModeLabel");
+const onboardingPreview = $("#onboardingPreview");
+const onboardingScroll = $("#onboardingScroll");
+const onboardingResumeBtn = $("#onboardingResumeBtn");
 
 const gate = $("#authGate");
 const gateMessage = $("#authGateMessage");
@@ -34,6 +109,11 @@ const accountGoogleBtn = $("#accountGoogleBtn");
 const accountOfflineBtn = $("#accountOfflineBtn");
 const accountSignOutBtn = $("#accountSignOutBtn");
 
+let onboardingStep = 0;
+let onboardingOrigin = "new";
+let lastOnboardingMode = "";
+let startGoogleLogin = async () => {};
+
 function configReady() {
   const required = ["apiKey", "authDomain", "projectId", "appId"];
   return required.every((key) => {
@@ -42,16 +122,129 @@ function configReady() {
   });
 }
 
+function updateModalLock() {
+  const shouldLock = [gate, onboardingGate].some(
+    (element) => element && !element.classList.contains("hidden")
+  );
+  document.body.classList.toggle("auth-gate-open", shouldLock);
+}
+
 function setGateVisible(visible) {
   if (!gate) return;
   gate.classList.toggle("hidden", !visible);
-  document.body.classList.toggle("auth-gate-open", visible);
+  updateModalLock();
+}
+
+function setOnboardingVisible(visible) {
+  if (!onboardingGate) return;
+  onboardingGate.classList.toggle("hidden", !visible);
+  updateModalLock();
 }
 
 function setGateStatus(message = "", error = false) {
   if (!gateMessage) return;
   gateMessage.textContent = message;
   gateMessage.classList.toggle("error-text", error);
+}
+
+function hasCompletedOnboarding() {
+  return localStorage.getItem(ONBOARDING_KEY) === "done";
+}
+
+function completeOnboarding() {
+  localStorage.setItem(ONBOARDING_KEY, "done");
+}
+
+function getOnboardingMode() {
+  // Acompanhar o layout REAL do app, inclusive a opção Compacto no desktop.
+  const effective = document.body.dataset.layoutEffective;
+  if (effective === "compact") return "mobile";
+  if (effective === "desktop") return "desktop";
+  return window.matchMedia("(max-width: 1099px)").matches ? "mobile" : "desktop";
+}
+
+function renderOnboarding() {
+  const mode = getOnboardingMode();
+  const steps = ONBOARDING_CONTENT[mode];
+  const step = steps[onboardingStep] || steps[0];
+  if (onboardingGate) onboardingGate.dataset.onboardingMode = mode;
+  if (onboardingTitle) onboardingTitle.textContent = step.title;
+  if (onboardingText) onboardingText.textContent = step.text;
+  if (onboardingHighlightTitle) onboardingHighlightTitle.textContent = step.highlightTitle;
+  if (onboardingHighlightText) onboardingHighlightText.textContent = step.highlightText;
+  if (onboardingIcon) onboardingIcon.textContent = step.icon;
+  if (onboardingModeLabel) onboardingModeLabel.textContent = mode === "mobile" ? "Guia mobile" : "Guia desktop";
+  if (onboardingStepCounter) onboardingStepCounter.textContent = `${onboardingStep + 1} de ${steps.length}`;
+
+  if (onboardingBullets) {
+    onboardingBullets.replaceChildren(...step.bullets.map((item) => {
+      const li = document.createElement("li");
+      li.textContent = item;
+      return li;
+    }));
+  }
+  if (onboardingDots) {
+    onboardingDots.replaceChildren(...steps.map((_, index) => {
+      const dot = document.createElement("i");
+      if (index === onboardingStep) dot.classList.add("active");
+      return dot;
+    }));
+  }
+  if (onboardingPreview) {
+    const show = step.preview !== "none";
+    onboardingPreview.classList.toggle("hidden", !show);
+    onboardingPreview.innerHTML = show ? ONBOARDING_PREVIEWS[mode] : "";
+  }
+
+  const isLastStep = onboardingStep === steps.length - 1;
+  const isReturningUser = onboardingOrigin === "app";
+  if (onboardingPrevBtn) {
+    onboardingPrevBtn.disabled = onboardingStep === 0;
+    onboardingPrevBtn.setAttribute("aria-label", onboardingStep === 0 ? "Você está na primeira etapa" : "Voltar à etapa anterior");
+  }
+  onboardingNextBtn?.classList.toggle("hidden", isLastStep);
+  onboardingFinishActions?.classList.toggle("hidden", !isLastStep || isReturningUser);
+  onboardingResumeBtn?.classList.toggle("hidden", !isLastStep || !isReturningUser);
+
+  if (mode !== lastOnboardingMode) lastOnboardingMode = mode;
+  if (onboardingScroll) onboardingScroll.scrollTop = 0;
+}
+
+function openOnboarding(step = 0) {
+  const inApp = Boolean(window.saldoPlanAuthUser) || localStorage.getItem(AUTH_MODE_KEY) === "offline";
+  onboardingOrigin = inApp ? "app" : "new";
+  onboardingStep = Math.max(0, Math.min(step, 3));
+  renderOnboarding();
+  setGateVisible(false);
+  setOnboardingVisible(true);
+  onboardingPrevBtn?.focus({preventScroll:true});
+}
+
+function leaveOnboarding() {
+  completeOnboarding();
+  setOnboardingVisible(false);
+  if (onboardingOrigin === "app") return;
+  renderSignedOut();
+}
+
+function refreshOnboardingMode() {
+  if (onboardingGate?.classList.contains("hidden")) return;
+  const mode = getOnboardingMode();
+  if (mode !== lastOnboardingMode) renderOnboarding();
+}
+
+function applyGoogleAvailability() {
+  const disabled = !configReady();
+  [googleButton, accountGoogleBtn, onboardingGoogleBtn].forEach((button) => {
+    if (!button) return;
+    if (disabled) {
+      button.setAttribute("disabled", "disabled");
+      button.title = "Firebase ainda não foi configurado.";
+    } else {
+      button.removeAttribute("disabled");
+      button.removeAttribute("title");
+    }
+  });
 }
 
 function renderAvatar(img, user) {
@@ -83,6 +276,9 @@ function fillDriveEmail(user) {
 }
 
 function renderSignedIn(user) {
+  completeOnboarding();
+  setOnboardingVisible(false);
+
   window.saldoPlanAuthUser = {
     uid: user.uid,
     displayName: user.displayName || "",
@@ -131,6 +327,9 @@ function renderSignedIn(user) {
 }
 
 function renderOffline() {
+  completeOnboarding();
+  setOnboardingVisible(false);
+
   window.saldoPlanAuthUser = null;
   localStorage.setItem(AUTH_MODE_KEY, "offline");
   setGateVisible(false);
@@ -190,23 +389,48 @@ function renderSignedOut() {
   const driveAccountLabel = document.querySelector("#driveAccountLabel");
   if (driveAccountLabel) driveAccountLabel.textContent = "Entre com Google no SaldoPlan";
 
-  if (localStorage.getItem(AUTH_MODE_KEY) !== "offline") {
-    setGateVisible(true);
+  if (!hasCompletedOnboarding()) {
+    setGateVisible(false);
+    openOnboarding(0);
+    return;
   }
+
+  setOnboardingVisible(false);
+  setGateVisible(true);
 }
 
+onboardingReplayBtn?.addEventListener("click", () => openOnboarding(0));
+onboardingSkipBtn?.addEventListener("click", leaveOnboarding);
+onboardingResumeBtn?.addEventListener("click", leaveOnboarding);
+const mobileTourBtn = $("#mobileOnboardingReplayBtn");
+mobileTourBtn?.addEventListener("click", () => {
+  $("#mobileMenuClose")?.click();
+  openOnboarding(0);
+});
+$("#aboutOnboardingReplayBtn")?.addEventListener("click", () => openOnboarding(0));
+window.addEventListener("resize", refreshOnboardingMode, {passive:true});
+const layoutObserver = new MutationObserver(refreshOnboardingMode);
+layoutObserver.observe(document.body,{attributes:true,attributeFilter:["data-layout-effective"]});
+onboardingPrevBtn?.addEventListener("click", () => {
+  onboardingStep = Math.max(0, onboardingStep - 1);
+  renderOnboarding();
+});
+onboardingNextBtn?.addEventListener("click", () => {
+  onboardingStep = Math.min(ONBOARDING_CONTENT[getOnboardingMode()].length - 1, onboardingStep + 1);
+  renderOnboarding();
+});
+onboardingOfflineBtn?.addEventListener("click", renderOffline);
 offlineButton?.addEventListener("click", renderOffline);
 accountOfflineBtn?.addEventListener("click", renderOffline);
 accountQuick?.addEventListener("click", openDataView);
+
+applyGoogleAvailability();
 
 if (!configReady()) {
   setGateStatus(
     "Firebase ainda não foi configurado. Você pode continuar offline.",
     true
   );
-
-  googleButton?.setAttribute("disabled", "disabled");
-  accountGoogleBtn?.setAttribute("disabled", "disabled");
 
   if (localStorage.getItem(AUTH_MODE_KEY) === "offline") {
     renderOffline();
@@ -237,10 +461,15 @@ if (!configReady()) {
       true
     );
   }
-  async function loginWithGoogle() {
+
+  startGoogleLogin = async () => {
+    completeOnboarding();
+    setOnboardingVisible(false);
+    setGateVisible(true);
     setGateStatus("Abrindo o login do Google…");
     googleButton?.setAttribute("disabled", "disabled");
     accountGoogleBtn?.setAttribute("disabled", "disabled");
+    onboardingGoogleBtn?.setAttribute("disabled", "disabled");
 
     try {
       await signInWithPopup(auth, provider);
@@ -250,7 +479,6 @@ if (!configReady()) {
 
       if (error?.code === "auth/popup-blocked") {
         setGateStatus("Pop-up bloqueado. Redirecionando para o Google…");
-
         await signInWithRedirect(auth, provider);
         return;
       }
@@ -275,11 +503,14 @@ if (!configReady()) {
     } finally {
       googleButton?.removeAttribute("disabled");
       accountGoogleBtn?.removeAttribute("disabled");
+      onboardingGoogleBtn?.removeAttribute("disabled");
+      applyGoogleAvailability();
     }
-  }
+  };
 
-  googleButton?.addEventListener("click", loginWithGoogle);
-  accountGoogleBtn?.addEventListener("click", loginWithGoogle);
+  googleButton?.addEventListener("click", startGoogleLogin);
+  onboardingGoogleBtn?.addEventListener("click", startGoogleLogin);
+  accountGoogleBtn?.addEventListener("click", startGoogleLogin);
 
   accountSignOutBtn?.addEventListener("click", async () => {
     await signOut(auth);
