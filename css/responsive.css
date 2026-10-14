@@ -1,0 +1,172 @@
+/* SaldoPlan v2.20.6 — ajustes pontuais de responsividade mobile.
+   Mantem os 14 temas e o desktop. Nenhum dado ou calculo e alterado. */
+@media (max-width: 899px) {
+  body[data-layout-effective="compact"] .app-shell,
+  body[data-layout-effective="compact"] main,
+  body[data-layout-effective="compact"] .view,
+  body[data-layout-effective="compact"] .panel,
+  body[data-layout-effective="compact"] .grid,
+  body[data-layout-effective="compact"] .card,
+  body[data-layout-effective="compact"] .list {
+    min-width: 0;
+    max-width: 100%;
+  }
+  body[data-layout-effective="compact"] main {
+    padding-inline: clamp(10px, 3.6vw, 18px);
+  }
+  body[data-layout-effective="compact"] .grid > *,
+  body[data-layout-effective="compact"] .two-col > *,
+  body[data-layout-effective="compact"] .section-head > *,
+  body[data-layout-effective="compact"] .card > * {
+    min-width: 0;
+  }
+  body[data-layout-effective="compact"] .card :is(strong, small, span),
+  body[data-layout-effective="compact"] .panel :is(h2, h3, p, label) {
+    overflow-wrap: anywhere;
+  }
+  body[data-layout-effective="compact"] .panel :is(input, select, textarea) {
+    max-width: 100%;
+  }
+
+  /* FGTS: informacoes da conta e saldo empilhados, sem terceira coluna infinita. */
+  body[data-layout-effective="compact"] #fgtsAccountList .item {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 6px 11px;
+    align-items: start;
+    max-width: 100%;
+    min-width: 0;
+  }
+  body[data-layout-effective="compact"] #fgtsAccountList .item-icon {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+  body[data-layout-effective="compact"] #fgtsAccountList .item-main {
+    grid-column: 2;
+    min-width: 0;
+    overflow: visible;
+  }
+  body[data-layout-effective="compact"] #fgtsAccountList .item-main strong {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+    line-height: 1.35;
+  }
+  body[data-layout-effective="compact"] #fgtsAccountList .item-main span {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.4;
+  }
+  body[data-layout-effective="compact"] #fgtsAccountList .item-side {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 3px 9px;
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+    text-align: left;
+  }
+  body[data-layout-effective="compact"] #fgtsAccountList .item-side :is(strong, span) {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+  body[data-layout-effective="compact"] #fgtsAccountSelectorWrap,
+  body[data-layout-effective="compact"] #fgtsAccountSelectorWrap select {
+    display: block;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+  body[data-layout-effective="compact"] #fgtsAccountSelectorWrap.hidden {display: none;}
+  body[data-layout-effective="compact"] #view-fgts .kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  body[data-layout-effective="compact"] #view-fgts .kpis .card {
+    min-width: 0;
+    grid-column: auto;
+  }
+  body[data-layout-effective="compact"] #view-fgts .month-row > div {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  body[data-layout-effective="compact"] #view-fgts .fgts-month-row {
+    grid-template-columns: 36px minmax(0,1fr);
+  }
+  body[data-layout-effective="compact"] #view-fgts .fgts-deposit-controls {
+    grid-column: 2;
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+  }
+  body[data-layout-effective="compact"] #view-fgts .fgts-deposit-controls :is(input, select) {
+    min-width: 0;
+    max-width: 100%;
+  }
+  body[data-layout-effective="compact"] #view-fgts .fgts-import-row {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+
+  /* Login legivel mesmo com teclas de navegacao e tela baixa no Android. */
+  .auth-gate {
+    padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .auth-card {
+    width: min(100%, 430px);
+    min-width: 0;
+    max-height: calc(100dvh - 28px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: clamp(16px, 4vw, 22px);
+  }
+  .auth-card h2 {
+    font-size: clamp(1.32rem, 5.2vw, 1.55rem);
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+  .auth-card .auth-intro {
+    margin-bottom: 16px;
+    font-size: .86rem;
+    line-height: 1.4;
+  }
+  .auth-card .auth-logo {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 10px;
+  }
+  .auth-card .auth-privacy-note {
+    margin-top: 14px;
+    overflow-wrap: anywhere;
+  }
+  .auth-card .btn.full {
+    min-height: 44px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .auth-card .auth-replay-btn {
+    display: inline-block;
+    max-width: 100%;
+    line-height: 1.4;
+  }
+}
+@media (max-width: 359px) {
+  body[data-layout-effective="compact"] #view-fgts .fgts-accounts-panel .kpis {
+    grid-template-columns: minmax(0,1fr);
+  }
+  body[data-layout-effective="compact"] #view-fgts .fgts-accounts-panel .kpis .card {
+    min-height: 92px;
+  }
+  .auth-card {padding: 15px 14px;}
+  .auth-privacy-note {padding: 11px;}
+}
+@media (max-height: 650px) and (max-width: 899px) {
+  .auth-gate {align-items: start;}
+  .auth-card {max-height: calc(100dvh - 20px);}
+}

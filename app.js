@@ -1,4 +1,4 @@
-const SALDOPLAN_VERSION='2.20.5';
+const SALDOPLAN_VERSION='2.20.6';
 
 const SALDOPLAN_VIEWS=[
   'dashboard',
