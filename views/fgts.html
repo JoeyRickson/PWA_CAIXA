@@ -1,0 +1,65 @@
+<section id="view-fgts" class="view">
+        <div class="section-head page-head">
+          <div><span class="muted">Depósitos do empregador</span><h2>FGTS</h2></div>
+        </div>
+        <p class="helper">O saldo atual soma os extratos com movimentações confirmadas depois deles. O saldo projetado acrescenta os depósitos estimados ainda não confirmados do vínculo ativo e o FGTS previsto do 13º até dezembro. As estimativas não alteram o saldo atual e param de contar quando você marca o depósito como realizado.</p>
+        <section class="panel fgts-accounts-panel">
+          <div class="section-head"><div><span class="muted">Saldos reais dos extratos</span><h3>Contas FGTS</h3></div></div>
+          <div class="grid kpis compact-kpis">
+            <article class="card"><span>Saldo atual consolidado</span><strong id="fgtsAccountsTotal">R$ 0,00</strong><small id="fgtsAccountsCount">Extratos + movimentações confirmadas</small></article>
+            <article class="card"><span>Saldo projetado até dezembro</span><strong id="fgtsProjectedBalance">R$ 0,00</strong><small>Saldo atual + estimativas pendentes e 13º</small></article>
+          </div>
+          <div id="fgtsAccountList" class="list"></div>
+          <label id="fgtsAccountSelectorWrap" class="hidden">Conta para ver o histórico e a projeção anual<select id="fgtsAccountSelect"></select></label>
+        </section>
+        <div class="month-row slim">
+          <button class="icon-btn" id="prevFgtsYear" aria-label="Ano anterior">‹</button>
+          <div><span class="muted" id="fgtsYearContext">Projeção anual da conta selecionada</span><h3 id="fgtsYearLabel">—</h3></div>
+          <button class="icon-btn" id="nextFgtsYear" aria-label="Próximo ano">›</button>
+        </div>
+        <section class="panel form-panel">
+          <div class="two-col">
+            <label>Mês inicial de trabalho<select id="fgtsStartMonth"></select></label>
+            <label>Mês final de trabalho<select id="fgtsEndMonth"></select></label>
+          </div>
+          <div class="grid kpis compact-kpis">
+            <article class="card"><span>FGTS projetado</span><strong id="fgtsYearTotal">R$ 0,00</strong><small>Depósitos importados + meses estimados</small></article>
+            <article class="card"><span>Depósitos confirmados</span><strong id="fgtsPaidTotal">R$ 0,00</strong><small>Marcados como realizados</small></article>
+            <article class="card"><span>A depositar</span><strong id="fgtsPendingTotal">R$ 0,00</strong><small>Estimado − confirmado</small></article>
+            <article class="card"><span>FGTS sobre 13º</span><strong id="fgtsThirteenthTotal">R$ 0,00</strong><small>Incluído no total anual</small></article>
+            <article class="card"><span>Créditos JAM</span><strong id="fgtsJamTotal">R$ 0,00</strong><small>Atualização informada no extrato</small></article>
+            <article class="card"><span>Saques DEP</span><strong id="fgtsWithdrawalsTotal">R$ 0,00</strong><small>Retiradas informadas/importadas</small></article>
+            <article class="card"><span>Saques JAM</span><strong id="fgtsJamWithdrawalsTotal">R$ 0,00</strong><small>Retiradas da conta JAM</small></article>
+            <article class="card"><span>DEP VERBAS IND</span><strong id="fgtsIndemnityTotal">R$ 0,00</strong><small>Opcional · somente se houver no extrato</small></article>
+            <article class="card"><span>DEP MULTA RESCISÓRIA</span><strong id="fgtsTerminationPenaltyTotal">R$ 0,00</strong><small>Opcional · somente se houver no extrato</small></article>
+            <article class="card"><span>Movimentação líquida</span><strong id="fgtsNetPeriod">R$ 0,00</strong><small>Projeção + créditos − saques, neste período</small></article>
+          </div>
+          <button id="saveFgtsPeriod" class="btn secondary full">Salvar período de trabalho</button>
+        </section>
+        <section class="panel form-panel fgts-import">
+          <div class="section-head"><div><span class="muted">Preenchimento opcional</span><h3>Importar extrato do FGTS</h3></div></div>
+          <p class="helper">Importe um extrato em PDF ou imagem. A leitura é feita neste aparelho. Confira cada competência, tipo e valor da movimentação antes de aplicar; o saldo acumulado mostrado ao lado não é o valor do lançamento. Depósitos, créditos JAM, saques DEP e saques JAM são registrados após sua confirmação. DEP VERBAS IND e DEP MULTA RESCISÓRIA são opcionais: só informe ou mantenha essas linhas se aparecerem no seu extrato. Os meses sem depósito continuam sendo simulados; movimentações futuras são opcionais e podem ser preenchidas manualmente.</p>
+          <label class="btn secondary full file-label">Selecionar extrato (PDF ou imagem)
+            <input id="fgtsImportFile" type="file" accept="application/pdf,image/png,image/jpeg,image/webp,image/bmp,image/gif">
+          </label>
+          <p id="fgtsImportStatus" class="helper small-text" role="status" aria-live="polite">Nenhum extrato importado.</p>
+          <div id="fgtsImportReview" class="hidden">
+            <div class="fgts-import-header"><span>Competência</span><span>Tipo</span><span>Valor (R$)</span><span>Data</span><span></span></div>
+            <div id="fgtsImportRows"></div>
+            <div class="two-col">
+              <button id="addFgtsDepositRow" type="button" class="btn ghost">+ Depósito</button>
+              <button id="addFgtsThirteenthRow" type="button" class="btn ghost">+ Depósito 13º</button>
+              <button id="addFgtsJamRow" type="button" class="btn ghost">+ Crédito JAM</button>
+              <button id="addFgtsWithdrawalRow" type="button" class="btn ghost">+ Saque DEP</button>
+              <button id="addFgtsJamWithdrawalRow" type="button" class="btn ghost">+ Saque JAM</button>
+              <button id="addFgtsIndemnityRow" type="button" class="btn ghost">+ DEP VERBAS IND (opcional)</button>
+              <button id="addFgtsTerminationPenaltyRow" type="button" class="btn ghost">+ DEP MULTA RESCISÓRIA (opcional)</button>
+            </div>
+            <button id="applyFgtsImport" type="button" class="btn full">Conferir e aplicar extrato</button>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="section-head"><div><span class="muted">Competências</span><h3>Depósitos mensais</h3></div></div>
+          <div id="fgtsMonthList" class="list large"></div>
+        </section>
+      </section>

@@ -1,0 +1,45 @@
+<section id="view-thirteenth" class="view">
+        <div class="section-head page-head">
+          <div><span class="muted">Projeção anual</span><h2>13º salário</h2></div>
+        </div>
+        <p class="helper">Ajuste o período trabalhado no ano e confira as parcelas. Ao salvar, elas aparecem nos Lançamentos como previstas ou realizadas; somente parcelas realizadas afetam o saldo disponível.</p>
+        <div class="month-row slim">
+          <button class="icon-btn" id="prevThirteenthYear" aria-label="Ano anterior">‹</button>
+          <div><span class="muted">Ano de referência</span><h3 id="thirteenthYearLabel">—</h3></div>
+          <button class="icon-btn" id="nextThirteenthYear" aria-label="Próximo ano">›</button>
+        </div>
+        <section class="panel form-panel">
+          <div class="section-head"><div><span class="muted">Base do cálculo</span><h3>Meses considerados</h3></div></div>
+          <p id="thirteenthSalaryBase" class="helper"></p>
+          <div class="two-col">
+            <label>Mês inicial<select id="thirteenthStartMonth"></select></label>
+            <label>Mês final<select id="thirteenthEndMonth"></select></label>
+          </div>
+          <p class="helper small-text">Cada mês selecionado conta como 1/12. Considere apenas meses com pelo menos 15 dias trabalhados; ajuste o período se necessário.</p>
+          <div class="pay-grid">
+            <div><span>Meses considerados</span><strong id="thirteenthMonthsCount">0</strong></div>
+            <div><span>Salário proporcional</span><strong id="thirteenthBaseShare">R$ 0,00</strong></div>
+            <div><span>Média mensal de extras · parcela proporcional no 13º</span><strong id="thirteenthExtraShare">R$ 0,00</strong></div>
+            <div><span>13º bruto estimado</span><strong id="thirteenthGross">R$ 0,00</strong></div>
+            <div><span>1ª parcela (50% do salário proporcional)</span><strong id="thirteenthFirstEstimate">R$ 0,00</strong></div>
+            <div><span>2ª parcela após extras, abatimento e descontos</span><strong id="thirteenthSecondEstimate">R$ 0,00</strong></div>
+            <div><span>Descontos estimados no 13º</span><strong id="thirteenthDeductions">R$ 0,00</strong></div>
+          </div>
+          <p id="thirteenthExtrasNote" class="helper"></p>
+        </section>
+        <section class="panel form-panel">
+          <div class="section-head"><div><span class="muted">Pagamentos</span><h3>Parcelas recebidas</h3></div></div>
+          <div class="two-col">
+            <label>Valor da 1ª parcela<div class="money-input"><span>R$</span><input id="thirteenthFirstAmount" inputmode="decimal"></div></label>
+            <label>Data da 1ª parcela<input id="thirteenthFirstDate" type="date"></label>
+          </div>
+          <label class="check-row"><input id="thirteenthFirstPaid" type="checkbox"> 1ª parcela recebida</label>
+          <div class="two-col">
+            <label>Valor da 2ª parcela<div class="money-input"><span>R$</span><input id="thirteenthSecondAmount" inputmode="decimal"></div></label>
+            <label>Data da 2ª parcela<input id="thirteenthSecondDate" type="date"></label>
+          </div>
+          <label class="check-row"><input id="thirteenthSecondPaid" type="checkbox"> 2ª parcela recebida</label>
+          <button id="saveThirteenth" class="btn full">Salvar cálculo e atualizar Lançamentos</button>
+          <p id="thirteenthStatus" class="helper" aria-live="polite">Os meses e o 13º bruto representam o direito estimado e não mudam ao registrar um pagamento. O valor recebido é abatido da estimativa da 2ª parcela.</p>
+        </section>
+      </section>

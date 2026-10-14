@@ -1,0 +1,167 @@
+<section id="view-data" class="view">
+        <div class="page-head"><span class="muted">Segurança e preferências</span><h2>Dados e backup</h2></div>
+
+        <section class="panel account-panel">
+          <div class="section-head">
+            <div>
+              <span class="muted">Sua conta</span>
+              <h3>Login do SaldoPlan</h3>
+            </div>
+            <span id="accountState" class="status-pill">Não conectado</span>
+          </div>
+
+          <div class="account-summary">
+            <div class="account-avatar-wrap">
+              <img id="accountAvatar" class="account-avatar account-avatar-large hidden" alt="" referrerpolicy="no-referrer">
+              <span class="account-avatar-fallback" aria-hidden="true">SP</span>
+            </div>
+
+            <div class="account-copy">
+              <strong id="accountName">Entre com sua conta Google</strong>
+              <span id="accountEmail">
+                O login identifica sua conta. O Google Drive continua separado e opcional.
+              </span>
+            </div>
+          </div>
+
+          <div class="button-stack account-actions">
+            <button id="accountGoogleBtn" class="btn full" type="button">
+              Entrar com Google
+            </button>
+            <button id="accountOfflineBtn" class="btn ghost full" type="button">
+              Usar sem conta
+            </button>
+            <button id="accountSignOutBtn" class="btn ghost full hidden" type="button">
+              Sair da conta
+            </button>
+          </div>
+
+          <p class="helper small-text">
+            Seus lançamentos continuam armazenados localmente neste aparelho.
+            Entrar com Google não envia seus dados financeiros ao Firebase e não conecta o Google Drive automaticamente.
+          </p>
+        </section>
+
+
+        <section class="panel form-panel">
+          <h3>Aparência</h3>
+          <div class="segmented" id="themeSelector">
+            <button data-theme-option="light">☀ Claro</button>
+            <button data-theme-option="dark">☾ Escuro</button>
+          </div>
+        </section>
+
+        <section class="panel form-panel">
+          <label>Meta mensal para guardar/investir
+            <div class="money-input"><span>R$</span><input id="savingGoal" inputmode="decimal" placeholder="500,00"></div>
+          </label>
+          <button id="saveGoalBtn" class="btn full">Salvar meta</button>
+        </section>
+
+        <section class="panel form-panel">
+          <h3>Bônus opcional</h3>
+          <p class="helper">Use este recurso para vale, cartão benefício ou qualquer bônus recebido. Você escolhe o nome ou pode desativá-lo.</p>
+          <label class="check-row"><input id="bonusEnabled" type="checkbox"> Usar bônus no app</label>
+          <label>Nome do bônus<input id="bonusName" placeholder="Ex.: Vale alimentação, cartão benefício"></label>
+          <button id="saveBonusConfig" class="btn full">Salvar configuração do bônus</button>
+        </section>
+
+        <section class="panel cloud-panel">
+          <div class="section-head">
+            <div><span class="muted">Provedor de backup</span><h3>Backup em nuvem</h3></div>
+            <span id="driveStatus" class="status-pill">Desconectado</span>
+          </div>
+          <p id="cloudProviderHelp" class="helper">O login do SaldoPlan e o backup são independentes. Para usar o Drive, basta conectar sua conta e escolher a pasta onde os backups serão guardados.</p>
+
+          <label>Onde guardar o backup
+            <select id="cloudProvider">
+              <option value="google">Google Drive</option>
+              <option value="onedrive">OneDrive</option>
+              <option value="dropbox">Dropbox</option>
+            </select>
+          </label>
+
+          <div id="googleCloudFields">
+            <input id="googleEmailHint" type="hidden">
+            <input id="googleClientId" type="hidden">
+
+            <div class="drive-account-card">
+              <span class="muted">Conta Google</span>
+              <strong id="driveAccountLabel">Use a conta conectada ao SaldoPlan</strong>
+            </div>
+
+            <div class="drive-folder-card">
+              <span class="muted">Pasta de backup</span>
+              <strong id="driveFolderLabel">Nenhuma pasta selecionada</strong>
+              <small id="driveFolderSubtext">Conecte o Google Drive e escolha uma pasta.</small>
+            </div>
+
+            <div class="drive-folder-actions">
+              <button id="chooseDriveFolder" class="btn secondary" type="button">Escolher pasta</button>
+              <button id="createDriveFolder" class="btn ghost" type="button">+ Criar nova pasta</button>
+            </div>
+          </div>
+
+          <div id="otherCloudFields" class="hidden">
+            <label id="cloudAccountLabel">Conta do provedor<input id="cloudAccount" type="email" placeholder="voce@exemplo.com"></label>
+            <label id="cloudClientLabel">Client ID OAuth do provedor<input id="cloudClientId" placeholder="Informe o Client ID do provedor"></label>
+            <p id="cloudProviderStatus" class="helper small-text"></p>
+          </div>
+
+          <label id="driveFolderNameLabel" class="hidden">Pasta de backup
+            <input id="driveFolderName" value="SaldoPlan - Backups">
+          </label>
+
+          <label class="check-row"><input id="driveAutoBackup" type="checkbox"> Fazer backup automático enquanto o Drive estiver conectado</label>
+          <label>Manter backups automáticos por
+            <select id="driveRetentionDays">
+              <option value="10">10 dias</option>
+              <option value="15">15 dias</option>
+              <option value="30">30 dias</option>
+            </select>
+          </label>
+
+          <div class="button-stack">
+            <button id="connectDrive" class="btn full">Conectar ao Google Drive</button>
+            <button id="saveCloudConfig" class="btn secondary full">Salvar preferências</button>
+            <button id="backupDrive" class="btn secondary full">Enviar backup agora</button>
+            <button id="restoreDrive" class="btn ghost full">Restaurar do Drive</button>
+          </div>
+
+          <div id="backupProgress" class="backup-progress hidden" role="status" aria-live="polite">
+            <div class="backup-progress-head"><span id="backupProgressIcon">↗</span><strong id="backupProgressTitle">Preparando backup</strong><span id="backupProgressPercent">0%</span></div>
+            <div class="backup-progress-track"><i id="backupProgressBar"></i></div>
+            <small id="backupProgressDetail">Aguarde enquanto os dados são enviados.</small>
+          </div>
+
+          <p id="driveDetail" class="helper small-text">Conecte o Google Drive e escolha uma pasta para começar.</p>
+          <p class="helper small-text">O SaldoPlan usa somente a permissão necessária para trabalhar com os arquivos e a pasta escolhidos para o backup.</p>
+        </section>
+
+        <section class="panel">
+          <h3>Dados deste aparelho</h3>
+          <p class="helper">Salva suas informações localmente neste celular ou computador. Esse armazenamento funciona offline e não envia os dados para ninguém.</p>
+          <button id="saveLocalData" class="btn full">Salvar informações neste aparelho</button>
+          <p id="localSaveStatus" class="helper small-text">As alterações também são salvas automaticamente ao usar o app.</p>
+        </section>
+
+        <section class="panel">
+          <h3>Backup manual</h3>
+          <p class="helper">O arquivo JSON inclui lançamentos, gastos fixos, valores guardados, horas extras e configurações. Importações antigas da versão 1 também são aceitas.</p>
+          <div class="button-stack">
+            <button id="exportJson" class="btn full">Exportar backup (.json)</button>
+            <button id="exportCsv" class="btn secondary full">Exportar lançamentos (.csv)</button>
+            <button id="exportPdf" class="btn secondary full">Exportar relatório (.pdf)</button>
+            <label class="btn ghost full file-label">Importar backup<input id="importJson" type="file" accept="application/json,.json"></label>
+            <button id="restorePreviousLocal" class="btn ghost full">Restaurar cópia local anterior</button>
+            <button id="undoLastChange" class="btn ghost full">Desfazer última alteração</button>
+          </div>
+          <div id="undoHistory" class="undo-history" aria-live="polite"></div>
+        </section>
+
+        <section class="panel danger-zone">
+          <h3>Limpar dados</h3>
+          <p class="helper">Apaga os dados deste aparelho. Faça um backup antes.</p>
+          <button id="resetData" class="btn danger full">Apagar tudo</button>
+        </section>
+      </section>

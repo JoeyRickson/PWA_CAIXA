@@ -1,0 +1,85 @@
+<section id="view-portfolio" class="view">
+        <div class="section-head page-head">
+          <div>
+            <span class="muted">Patrimônio e investimentos</span>
+            <h2>Carteira</h2>
+          </div>
+          <button id="portfolioNewBtn" type="button" class="btn">+ Investimento</button>
+        </div>
+
+        <p class="helper">
+          Cadastre suas posições para acompanhar valor aplicado, valor atual, vencimentos, instituição, liquidez e cobertura informada.
+        </p>
+
+        <div class="grid kpis compact-kpis portfolio-kpis">
+          <article class="card hero">
+            <span>Valor atual</span>
+            <strong id="portfolioCurrent">R$ 0,00</strong>
+            <small>Somente posições ativas</small>
+          </article>
+
+          <article class="card">
+            <span>Total aplicado</span>
+            <strong id="portfolioInvested">R$ 0,00</strong>
+            <small>Custo das posições ativas</small>
+          </article>
+
+          <article class="card">
+            <span>Resultado</span>
+            <strong id="portfolioGain">R$ 0,00</strong>
+            <small>Valor atual − aplicado</small>
+          </article>
+
+          <article class="card">
+            <span>Rentabilidade</span>
+            <strong id="portfolioReturn">0,00%</strong>
+            <small>Estimativa sobre o custo</small>
+          </article>
+        </div>
+
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <span class="muted">Alocação</span>
+              <h3>Distribuição da carteira</h3>
+            </div>
+          </div>
+          <div id="portfolioAllocation" class="portfolio-allocation">
+            <div class="empty">Cadastre um investimento para começar.</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <span class="muted">Agenda</span>
+              <h3>Próximos vencimentos</h3>
+            </div>
+          </div>
+          <div id="portfolioUpcoming" class="portfolio-upcoming">
+            <div class="empty">Nenhum vencimento cadastrado.</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <span class="muted">Posições</span>
+              <h3>Meus investimentos</h3>
+            </div>
+            <select id="portfolioFilter" class="portfolio-filter" aria-label="Filtrar carteira">
+              <option value="active">Ativos</option>
+              <option value="all">Todos</option>
+              <option value="redeemed">Encerrados</option>
+            </select>
+          </div>
+
+          <div id="portfolioList" class="portfolio-list">
+            <div class="empty">Nenhum investimento cadastrado.</div>
+          </div>
+        </section>
+
+        <p class="helper">
+          Os valores atuais são informados por você nesta versão. O SaldoPlan não executa ordens e não acessa sua corretora ou banco.
+        </p>
+      </section>

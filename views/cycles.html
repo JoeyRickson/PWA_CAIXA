@@ -1,0 +1,27 @@
+<section id="view-cycles" class="view">
+        <div class="page-head">
+          <span class="muted">Salário por período</span>
+          <h2>Ciclos financeiros</h2>
+        </div>
+
+        <div class="month-row slim">
+          <button class="icon-btn" id="prevCycleMonth" aria-label="Mês anterior">‹</button>
+          <div>
+            <span class="muted">Mês analisado</span>
+            <h3 id="cycleMonthLabel">—</h3>
+          </div>
+          <button class="icon-btn" id="nextCycleMonth" aria-label="Próximo mês">›</button>
+        </div>
+
+        <p class="helper cycle-help">
+          A quinzena considera os dias 10 a 18 e o ciclo final os dias 20 até o último dia do mês.
+          Entradas extras aparecem no ciclo correspondente à data e você decide se elas entram ou não no cálculo da sobra.
+        </p>
+
+        <div class="cycle-grid">
+          <section id="cycleFirstCard" class="panel cycle-panel"></section>
+          <section id="cycleSecondCard" class="panel cycle-panel"></section>
+        </div>
+
+        <section id="cycleTotalCard" class="panel cycle-total-panel"></section>
+      </section>

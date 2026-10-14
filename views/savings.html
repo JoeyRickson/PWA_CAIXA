@@ -1,0 +1,21 @@
+<section id="view-savings" class="view">
+        <div class="section-head page-head">
+          <div><span class="muted">Patrimônio pessoal</span><h2>Guardado</h2></div>
+          <button class="btn" data-action="new-saving">+ Movimentar</button>
+        </div>
+        <p class="helper">Registre cada valor que você guardar. Se retirar dinheiro de uma reserva ou investimento, lance uma retirada e o saldo acumulado é atualizado na hora.</p>
+        <div class="grid kpis compact-kpis">
+          <article class="card hero"><span>Total guardado agora</span><strong id="savingBalance">R$ 0,00</strong><small>Depósitos − retiradas</small></article>
+          <article class="card"><span>Guardado neste mês</span><strong id="savingDepositsMonth">R$ 0,00</strong><small>Somente aportes</small></article>
+          <article class="card"><span>Retirado neste mês</span><strong id="savingWithdrawalsMonth">R$ 0,00</strong><small>Saídas das reservas</small></article>
+          <article class="card"><span>Resultado do mês</span><strong id="savingNetMonth">R$ 0,00</strong><small>Aportes − retiradas</small></article>
+        </div>
+        <section class="panel">
+          <div class="section-head"><div><span class="muted">Evolução</span><h3>Saldo acumulado</h3></div></div>
+          <div id="savingChart" class="saving-chart"></div>
+        </section>
+        <section class="panel">
+          <div class="section-head"><div><span class="muted">Histórico</span><h3>Movimentações</h3></div></div>
+          <div id="savingList" class="list large"></div>
+        </section>
+      </section>

@@ -1,0 +1,122 @@
+<section id="view-dashboard" class="view active">
+        <div class="month-row">
+          <button class="icon-btn" id="prevMonth" aria-label="Mês anterior">‹</button>
+          <div>
+            <span class="muted">Mês</span>
+            <h2 id="monthLabel">—</h2>
+          </div>
+          <button class="icon-btn" id="nextMonth" aria-label="Próximo mês">›</button>
+        </div>
+
+        <div id="importNote" class="notice hidden">
+          <section class="panel android-download-card">
+  <div>
+    <span class="muted">Aplicativo Android</span>
+    <h3>SaldoPlan para Android</h3>
+    <p class="helper">
+      Baixe o aplicativo oficial do SaldoPlan para instalar diretamente no Android.
+    </p>
+  </div>
+
+  <a
+    class="btn android-download-btn"
+    href="https://github.com/JoeyRickson/PWA_CAIXA/releases/latest/download/SaldoPlan.apk"
+    download
+  >
+    ↓ Baixar APK
+  </a>
+</section>
+          <div>
+            <strong>Seus dados antigos foram preservados</strong>
+            <p>A versão nova migra os lançamentos da versão anterior e acrescenta Guardado, Simulação, tema e backup em nuvem.</p>
+          </div>
+          <button id="dismissImportNote" class="icon-btn small">×</button>
+        </div>
+
+        <div class="grid kpis">
+          <article class="card hero">
+            <span>Saldo disponível agora</span>
+            <strong id="cashNow">R$ 0,00</strong>
+            <small>Recebido − gastos pagos</small>
+          </article>
+          <article class="card">
+            <span>Saldo projetado</span>
+            <strong id="cashProjected">R$ 0,00</strong>
+            <small>Inclui entradas e contas previstas</small>
+          </article>
+          <article class="card">
+            <span data-bonus-label>Bônus disponível</span>
+            <strong id="flashNow">R$ 0,00</strong>
+            <small id="flashProjected">Projetado: R$ 0,00</small>
+          </article>
+          <article class="card savings-card">
+            <span>Guardado acumulado</span>
+            <strong id="savedTotal">R$ 0,00</strong>
+            <small id="savedMonthText">No mês: R$ 0,00</small>
+          </article>
+          <article class="card accent">
+            <span>Potencial para guardar</span>
+            <strong id="savePotential">R$ 0,00</strong>
+            <small id="goalText">Meta mensal: R$ 0,00</small>
+            <div class="progress"><i id="goalProgress"></i></div>
+          </article>
+        </div>
+
+        <section class="panel">
+          <div class="section-head">
+            <div><span class="muted">Entradas</span><h3>Como o dinheiro entra</h3></div>
+            <button class="btn small" data-action="new-income">+ Entrada</button>
+          </div>
+          <div class="split-grid">
+            <div class="mini-stat"><span>Até dia 15</span><strong id="incomeFirst">R$ 0,00</strong></div>
+            <div class="mini-stat"><span>Final do mês</span><strong id="incomeSecond">R$ 0,00</strong></div>
+            <div class="mini-stat"><span>Extras</span><strong id="incomeExtra">R$ 0,00</strong></div>
+            <div class="mini-stat" data-bonus-visibility><span data-bonus-label>Bônus</span><strong id="incomeFlash">R$ 0,00</strong></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div><span class="muted">Saídas</span><h3>Para onde vai</h3></div>
+            <button class="btn small" data-action="new-expense">+ Gasto</button>
+          </div>
+          <div class="expense-summary">
+            <div><span class="dot fixed"></span><span>Fixos</span><strong id="fixedTotal">R$ 0,00</strong></div>
+            <div><span class="dot variable"></span><span>Variáveis</span><strong id="variableTotal">R$ 0,00</strong></div>
+            <div><span class="dot unplanned"></span><span>Imprevistos</span><strong id="unplannedTotal">R$ 0,00</strong></div>
+          </div>
+          <div id="categoryBars" class="bars"></div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div><span class="muted">Próximos</span><h3>Contas pendentes</h3></div>
+            <button class="text-btn" data-nav="transactions">Ver todos</button>
+          </div>
+          <div id="pendingList" class="list"></div>
+        </section>
+      <section class="panel portfolio-dashboard-panel">
+          <div class="section-head">
+            <div>
+              <span class="muted">Patrimônio investido</span>
+              <h3>Carteira de investimentos</h3>
+            </div>
+            <button type="button" class="text-btn" data-nav="portfolio">Abrir carteira</button>
+          </div>
+
+          <div class="portfolio-dashboard-grid">
+            <div>
+              <span>Valor atual</span>
+              <strong id="dashboardPortfolioCurrent">R$ 0,00</strong>
+            </div>
+            <div>
+              <span>Resultado</span>
+              <strong id="dashboardPortfolioGain">R$ 0,00</strong>
+            </div>
+            <div>
+              <span>Posições ativas</span>
+              <strong id="dashboardPortfolioCount">0</strong>
+            </div>
+          </div>
+        </section>
+</section>

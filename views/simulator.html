@@ -1,0 +1,84 @@
+<section id="view-simulator" class="view">
+        <div class="section-head page-head">
+          <div><span class="muted">Somente seus dados</span><h2>Simulação de folha</h2></div>
+          <button class="btn" data-action="new-extra">+ Hora extra</button>
+        </div>
+        <p class="helper">Simulação pessoal baseada na sua folha e na lógica da planilha de horas extras. É uma estimativa: o fechamento oficial da folha pode ter diferenças de regras, arredondamentos e eventos internos.</p>
+
+        <div class="month-row slim">
+          <button class="icon-btn" id="prevSimMonth" aria-label="Mês anterior">‹</button>
+          <div><span class="muted">Competência simulada</span><h3 id="simMonthLabel">—</h3></div>
+          <button class="icon-btn" id="nextSimMonth" aria-label="Próximo mês">›</button>
+        </div>
+
+        <section class="panel form-panel">
+          <div class="section-head"><div><span class="muted">Parâmetros</span><h3>Sua folha</h3></div><button id="loadJulyReference" class="btn ghost small">Referência jul/26</button></div>
+          <p class="helper">O salário bruto é uma configuração única, usada nas simulações da folha, do 13º e do FGTS. Para simular outra pessoa, informe o salário dela e salve; depois, restaure o seu salário. Ainda não há perfis separados.</p>
+          <div class="two-col">
+            <label>Salário base<div class="money-input"><span>R$</span><input id="simBaseSalary" inputmode="decimal"></div></label>
+            <label>Carga mensal (h)<input id="simMonthlyHours" inputmode="decimal"></label>
+          </div>
+          <div class="two-col">
+            <label>Adiantamento recebido<div class="money-input"><span>R$</span><input id="simAdvance" inputmode="decimal"></div></label>
+            <label>Feriados extras manuais no mês<input id="simHolidayCount" type="number" min="0" max="10" inputmode="numeric"><small class="input-help">Automáticos: nacionais + AM + Manaus.</small></label>
+          </div>
+          <div class="two-col">
+            <label>Adicional noturno (%)<input id="simNightPct" inputmode="decimal"></label>
+            <label>Meta de HE mensal (h)<input id="simExtraGoal" inputmode="decimal"></label>
+          </div>
+          <button id="savePayrollConfig" class="btn full">Salvar parâmetros</button>
+          <section class="payroll-import">
+            <div class="section-head"><div><span class="muted">Preenchimento opcional</span><h3>Importar folha</h3></div></div>
+            <p class="helper">Escolha a competência acima e importe o demonstrativo em PDF ou como imagem. A leitura é feita neste navegador; o arquivo não é enviado. Confira os campos reconhecidos antes de aplicar. Você também pode continuar preenchendo tudo manualmente.</p>
+            <label class="btn secondary full file-label">Selecionar folha (PDF ou imagem)
+              <input id="payrollImportFile" type="file" accept="application/pdf,image/png,image/jpeg,image/webp,image/bmp,image/gif">
+            </label>
+            <p id="payrollImportStatus" class="helper small-text" role="status" aria-live="polite">Nenhuma folha importada para esta competência.</p>
+            <div id="payrollImportReview" class="hidden">
+              <div class="two-col">
+                <label>Salário-base reconhecido<div class="money-input"><span>R$</span><input id="payrollImportBase" inputmode="decimal"></div></label>
+                <label>Remuneração bruta<div class="money-input"><span>R$</span><input id="payrollImportGross" inputmode="decimal"></div></label>
+              </div>
+              <div class="two-col">
+                <label>Adiantamento<div class="money-input"><span>R$</span><input id="payrollImportAdvance" inputmode="decimal"></div></label>
+                <label>INSS<div class="money-input"><span>R$</span><input id="payrollImportInss" inputmode="decimal"></div></label>
+              </div>
+              <div class="two-col">
+                <label>IRRF<div class="money-input"><span>R$</span><input id="payrollImportIrrf" inputmode="decimal"></div></label>
+                <label>Líquido a receber<div class="money-input"><span>R$</span><input id="payrollImportNet" inputmode="decimal"></div></label>
+              </div>
+              <p class="helper small-text">Os valores importados serão usados na competência selecionada. Salário-base e bruto alimentam os cálculos anuais de 13º/FGTS; líquido e adiantamento ficam apenas na estimativa e nos lançamentos.</p>
+              <button id="applyPayrollImport" type="button" class="btn full">Conferir e aplicar valores</button>
+            </div>
+            <button id="clearPayrollImport" type="button" class="btn ghost full hidden">Remover importação desta competência e voltar ao cálculo manual</button>
+          </section>
+        </section>
+
+        <div class="grid kpis compact-kpis">
+          <article class="card"><span>HE 50%</span><strong id="simHours50">0h00</strong><small id="simValue50">R$ 0,00</small></article>
+          <article class="card"><span>HE 100%</span><strong id="simHours100">0h00</strong><small id="simValue100">R$ 0,00</small></article>
+          <article class="card"><span>Adicional noturno</span><strong id="simNightHours">0h00</strong><small id="simNightValue">R$ 0,00</small></article>
+          <article class="card"><span>DSR sobre extras</span><strong id="simDsrValue">R$ 0,00</strong><small id="simDsrDetail">—</small></article>
+        </div>
+
+        <section class="panel payroll-result">
+          <div class="section-head"><div><span class="muted">Estimativa</span><h3>Fechamento da folha</h3></div></div>
+          <div class="pay-grid">
+            <div><span>Salário base</span><strong id="payBase">R$ 0,00</strong></div>
+            <div><span>Extras + adicionais</span><strong id="payExtras">R$ 0,00</strong></div>
+            <div class="total-row"><span>Total bruto</span><strong id="payGross">R$ 0,00</strong></div>
+            <div><span>INSS estimado</span><strong id="payInss" class="negative">− R$ 0,00</strong></div>
+            <div><span>IRRF estimado</span><strong id="payIrrf" class="negative">− R$ 0,00</strong></div>
+            <div><span>Líquido total do mês</span><strong id="payNetMonth">R$ 0,00</strong></div>
+            <div><span>Adiantamento já recebido</span><strong id="payAdvance" class="negative">− R$ 0,00</strong></div>
+            <div class="final-row"><span>Estimativa a receber no final</span><strong id="payFinal">R$ 0,00</strong></div>
+          </div>
+          <button id="useSimulationIncome" class="btn secondary full">Usar valor final como entrada prevista</button>
+          <p id="payrollReferenceNote" class="helper"></p>
+        </section>
+
+        <section class="panel">
+          <div class="section-head"><div><span class="muted">Meus extras</span><h3>Registros do mês</h3></div><button class="btn small" data-action="new-extra">+ Adicionar</button></div>
+          <div id="extraList" class="list large"></div>
+        </section>
+      </section>

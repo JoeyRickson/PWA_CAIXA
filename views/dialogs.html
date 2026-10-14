@@ -1,0 +1,240 @@
+<dialog id="portfolioDialog">
+    <form id="portfolioForm" method="dialog" class="dialog-form">
+      <div class="dialog-head">
+        <div>
+          <span class="muted">CARTEIRA</span>
+          <h2 id="portfolioFormTitle">Novo investimento</h2>
+        </div>
+        <button type="button" class="icon-btn" id="closePortfolioDialog">×</button>
+      </div>
+
+      <input type="hidden" id="portfolioId">
+
+      <div class="two-col">
+        <label>Instituição
+          <input id="portfolioInstitution" required placeholder="Ex.: Nubank, Inter, XP">
+        </label>
+
+        <label>Produto
+          <input id="portfolioProduct" required placeholder="Ex.: CDB 110% CDI">
+        </label>
+      </div>
+
+      <div class="two-col">
+        <label>Tipo
+          <select id="portfolioType">
+            <option value="cdb">CDB</option>
+            <option value="lci">LCI</option>
+            <option value="lca">LCA</option>
+            <option value="treasury">Tesouro Direto</option>
+            <option value="stock">Ação</option>
+            <option value="fii">FII</option>
+            <option value="etf">ETF</option>
+            <option value="fund">Fundo</option>
+            <option value="savings">Poupança</option>
+            <option value="other">Outro</option>
+          </select>
+        </label>
+
+        <label>Status
+          <select id="portfolioStatus">
+            <option value="active">Ativo</option>
+            <option value="redeemed">Encerrado / resgatado</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="two-col">
+        <label>Valor aplicado
+          <div class="money-input"><span>R$</span><input id="portfolioInvestedAmount" required inputmode="decimal"></div>
+        </label>
+
+        <label>Valor atual
+          <div class="money-input"><span>R$</span><input id="portfolioCurrentAmount" inputmode="decimal" placeholder="Se vazio, usa o aplicado"></div>
+        </label>
+      </div>
+
+      <div class="two-col">
+        <label>Data da aplicação
+          <input id="portfolioStartDate" type="date">
+        </label>
+
+        <label>Vencimento
+          <input id="portfolioMaturityDate" type="date">
+        </label>
+      </div>
+
+      <div class="two-col">
+        <label>Referência / indexador
+          <select id="portfolioBenchmark">
+            <option value="cdi">CDI</option>
+            <option value="selic">Selic</option>
+            <option value="ipca">IPCA+</option>
+            <option value="fixed">Prefixado</option>
+            <option value="market">Mercado / cotação</option>
+            <option value="none">Não informado</option>
+          </select>
+        </label>
+
+        <label>Taxa / percentual
+          <input id="portfolioRate" placeholder="Ex.: 110% CDI, IPCA + 6,5%">
+        </label>
+      </div>
+
+      <div class="two-col">
+        <label>Liquidez
+          <select id="portfolioLiquidity">
+            <option value="daily">Diária</option>
+            <option value="maturity">No vencimento</option>
+            <option value="market">Mercado secundário / venda</option>
+            <option value="other">Outra</option>
+          </select>
+        </label>
+
+        <label>FGC informado
+          <select id="portfolioFgc">
+            <option value="yes">Sim</option>
+            <option value="no">Não</option>
+            <option value="na">Não se aplica / não informado</option>
+          </select>
+        </label>
+      </div>
+
+      <label>Observações
+        <textarea id="portfolioNotes" rows="3" placeholder="Ex.: reserva de emergência, objetivo, condições do produto..."></textarea>
+      </label>
+
+      <div class="dialog-actions">
+        <button id="deletePortfolio" type="button" class="btn danger hidden">Excluir</button>
+        <span class="spacer"></span>
+        <button id="cancelPortfolio" type="button" class="btn ghost">Cancelar</button>
+        <button type="submit" class="btn">Salvar</button>
+      </div>
+    </form>
+  </dialog>
+
+<dialog id="entryDialog">
+    <form id="entryForm" method="dialog" class="dialog-form">
+      <div class="dialog-head"><div><span class="muted" id="formEyebrow">LANÇAMENTO</span><h2 id="formTitle">Novo gasto</h2></div><button type="button" class="icon-btn" id="closeDialog">×</button></div>
+      <input type="hidden" id="entryId">
+      <input type="hidden" id="entryKind" value="expense">
+      <input type="hidden" id="fixedTemplateMode" value="0">
+
+      <div id="incomeFields" class="conditional hidden">
+        <label>Tipo de entrada<select id="incomeType"><option value="first">Até dia 15 / quinzena</option><option value="second">Final do mês</option><option value="extra">Extra</option><option value="flash">Crédito Flash</option></select></label>
+      </div>
+
+      <div id="expenseFields" class="conditional">
+        <div class="two-col">
+          <label>Tipo<select id="expenseType"><option value="fixed">Fixo</option><option value="variable">Variável</option><option value="unplanned">Imprevisto</option></select></label>
+          <label>Pago com<select id="paySource"><option value="cash">Salário / conta</option><option value="flash">Flash</option></select></label>
+        </div>
+        <label>Categoria<input id="category" list="categoryOptions" placeholder="Ex.: Moradia"></label>
+        <datalist id="categoryOptions"><option>Moradia</option><option>Internet</option><option>Telefone</option><option>Educação</option><option>Cartão</option><option>Alimentação</option><option>Mercado</option><option>Transporte</option><option>Saúde</option><option>Lazer</option><option>Assinaturas</option><option>Outros</option></datalist>
+      </div>
+
+      <label>Descrição <span class="field-note">(opcional)</span><input id="description" placeholder="Ex.: Aluguel, salário, fatura..."><small class="input-help">Se deixar em branco, o app preenche automaticamente conforme o tipo.</small></label>
+      <label>Valor<div class="money-input"><span>R$</span><input id="amount" required inputmode="decimal" placeholder="0,00"></div></label>
+      <div class="two-col">
+        <label>Data<input id="entryDate" type="date" required></label>
+        <label>Status<select id="entryStatus"><option value="realized">Recebido / pago</option><option value="planned">Previsto / pendente</option></select></label>
+      </div>
+      <label id="repeatLabel" class="check-row"><input id="repeatMonthly" type="checkbox"> Repetir automaticamente todo mês</label>
+      <div id="repeatRangeFields" class="recurrence-box hidden">
+        <span class="recurrence-title">Período da repetição</span>
+
+        <div class="two-col">
+          <label>Começa em
+            <input id="repeatStartMonth" type="month" disabled>
+          </label>
+
+          <label>Repetir até
+            <input id="repeatEndMonth" type="month">
+          </label>
+        </div>
+
+        <label class="check-row recurrence-no-end">
+          <input id="repeatNoEnd" type="checkbox">
+          Continuar sem data final
+        </label>
+
+        <small class="input-help">
+          Você pode digitar o mês/ano ou usar o seletor. Meses anteriores ao início não são alterados.
+        </small>
+      </div>
+      <div class="dialog-actions"><button type="button" id="deleteEntry" class="btn danger ghost hidden">Excluir</button><button type="submit" class="btn">Salvar</button></div>
+    </form>
+  </dialog>
+
+<dialog id="savingDialog">
+    <form id="savingForm" method="dialog" class="dialog-form">
+      <div class="dialog-head"><div><span class="muted">GUARDADO</span><h2 id="savingFormTitle">Nova movimentação</h2></div><button type="button" class="icon-btn" id="closeSavingDialog">×</button></div>
+      <input type="hidden" id="savingId">
+      <div class="two-col">
+        <label>Movimento<select id="savingType"><option value="deposit">Guardar / aportar</option><option value="withdrawal">Retirar</option></select></label>
+        <label>Data<input id="savingDate" type="date" required></label>
+      </div>
+      <label>Onde está guardado<input id="savingAccount" list="savingAccountOptions" placeholder="Ex.: Reserva, CDB, Poupança"></label>
+      <datalist id="savingAccountOptions"><option>Reserva de emergência</option><option>Investimentos</option><option>Poupança</option><option>CDB</option><option>Conta separada</option></datalist>
+      <label>Descrição<input id="savingDescription" required placeholder="Ex.: Aporte setembro"></label>
+      <label>Valor<div class="money-input"><span>R$</span><input id="savingAmount" required inputmode="decimal" placeholder="0,00"></div></label>
+      <div class="two-col">
+        <label>Status
+          <select id="savingStatus">
+            <option value="realized">Realizado</option>
+            <option value="planned">Previsto</option>
+          </select>
+        </label>
+
+        <label id="savingRepeatLabel" class="check-row saving-repeat-check">
+          <input id="savingRepeatMonthly" type="checkbox">
+          Repetir mensalmente
+        </label>
+      </div>
+
+      <div id="savingRepeatRangeFields" class="recurrence-box hidden">
+        <span class="recurrence-title">Período da repetição</span>
+
+        <div class="two-col">
+          <label>De
+            <input id="savingRepeatStartMonth" type="month">
+          </label>
+
+          <label>Até
+            <input id="savingRepeatEndMonth" type="month">
+          </label>
+        </div>
+
+        <label class="check-row recurrence-no-end">
+          <input id="savingRepeatNoEnd" type="checkbox">
+          Continuar sem data final
+        </label>
+
+        <small class="input-help">
+          Aportes futuros são criados como previstos e só entram no total guardado quando forem marcados como realizados.
+        </small>
+      </div>
+      <div class="dialog-actions"><button type="button" id="deleteSaving" class="btn danger ghost hidden">Excluir</button><button type="submit" class="btn">Salvar</button></div>
+    </form>
+  </dialog>
+
+<dialog id="extraDialog">
+    <form id="extraForm" method="dialog" class="dialog-form">
+      <div class="dialog-head"><div><span class="muted">MEUS EXTRAS</span><h2 id="extraFormTitle">Novo registro</h2></div><button type="button" class="icon-btn" id="closeExtraDialog">×</button></div>
+      <input type="hidden" id="extraId">
+      <label>Data<input id="extraDate" type="date" required></label>
+      <label>Descrição / motivo<input id="extraDescription" required placeholder="Ex.: Manutenção de firewall"></label>
+      <div class="two-col">
+        <label>Início<input id="extraStart" type="time" required></label>
+        <label>Fim<input id="extraEnd" type="time" required></label>
+      </div>
+      <label class="check-row"><input id="extraDeductLunch" type="checkbox"> Descontar intervalo/almoço</label>
+      <div id="lunchFields" class="two-col hidden">
+        <label>Início intervalo<input id="extraLunchStart" type="time"></label>
+        <label>Fim intervalo<input id="extraLunchEnd" type="time"></label>
+      </div>
+      <label class="check-row"><input id="extraHoliday" type="checkbox"> Considerar feriado / HE 100%</label>
+      <div id="extraPreview" class="preview-box">Total calculado: —</div>
+      <div class="dialog-actions"><button type="button" id="deleteExtra" class="btn danger ghost hidden">Excluir</button><button type="submit" class="btn">Salvar</button></div>
+    </form>
+  </dialog>
