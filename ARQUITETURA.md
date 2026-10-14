@@ -1,4 +1,4 @@
-# SaldoPlan — Arquitetura modular v2.19.3
+# SaldoPlan — Arquitetura modular v2.20.0
 
 Esta versão inicia a modularização estrutural do projeto sem trocar framework e sem alterar o formato dos dados.
 
@@ -80,3 +80,13 @@ A projeção de 30/60/90 dias considera lançamentos futuros, recorrências mens
 - `state.importHistory`: resumo das últimas importações.
 
 A importação é totalmente local no navegador. Nenhum arquivo de extrato é enviado para uma API do SaldoPlan. Os itens são revisados antes de entrar em `state.transactions`, e duplicados ficam desmarcados por padrão.
+
+
+## Calendário, alertas e fechamento v2.20
+
+- `views/calendar.html`: agenda mensal, central de alertas e fechamento do mês;
+- `js/calendar.js`: consolida lançamentos, Guardado, cartões, metas, dívidas e vencimentos em uma agenda única;
+- `css/calendar.css`: calendário desktop, agenda mobile e painéis de fechamento;
+- `state.monthlyClosings`: snapshots manuais dos fechamentos mensais, com até 60 registros.
+
+Os alertas são calculados localmente a partir do estado atual. O fechamento mensal não bloqueia o mês: ele salva uma fotografia dos valores realizados e pode ser atualizado ou excluído com rollback normal.

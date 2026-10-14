@@ -98,6 +98,7 @@ const seed={
   liabilities:[],
   financialGoals:[],
   netWorthSnapshots:[],
+  monthlyClosings:[],
   fixedTemplates:[],
   savingTemplates:[],
   savings:[],
@@ -228,6 +229,9 @@ function migrateState(raw){
     :[];
   migrated.netWorthSnapshots=Array.isArray(raw.netWorthSnapshots)
     ?raw.netWorthSnapshots.filter(item=>item&&/^\d{4}-\d{2}-\d{2}$/.test(String(item.date||''))).slice(-730)
+    :[];
+  migrated.monthlyClosings=Array.isArray(raw.monthlyClosings)
+    ?raw.monthlyClosings.filter(item=>item&&/^\d{4}-\d{2}$/.test(String(item.month||''))).slice(-60)
     :[];
   migrated.transactions=Array.isArray(raw.transactions)?raw.transactions:base.transactions;
   migrated.transactions=migrated.transactions.map(x=>x.description==='Crédito Flash'?{...x,description:migrated.settings.bonusName||'Bônus'}:x);

@@ -1,0 +1,101 @@
+<section id="view-calendar" class="view">
+  <div class="page-head calendar-page-head">
+    <div>
+      <span class="muted">Agenda, alertas e fechamento</span>
+      <h2>Calendário financeiro</h2>
+    </div>
+    <button type="button" class="btn ghost" data-nav="transactions">Ver lançamentos</button>
+  </div>
+
+  <div class="month-row slim calendar-month-row">
+    <button class="icon-btn" id="prevCalendarMonth" aria-label="Mês anterior">‹</button>
+    <div>
+      <span class="muted">Mês analisado</span>
+      <h3 id="calendarMonthLabel">—</h3>
+    </div>
+    <button class="icon-btn" id="nextCalendarMonth" aria-label="Próximo mês">›</button>
+  </div>
+
+  <div class="grid calendar-kpis">
+    <article class="card">
+      <span>Eventos no mês</span>
+      <strong id="calendarEventCount">0</strong>
+      <small>Lançamentos, metas, dívidas e vencimentos</small>
+    </article>
+    <article class="card">
+      <span>Entradas previstas</span>
+      <strong id="calendarExpectedIncome">R$ 0,00</strong>
+      <small>Realizadas + previstas</small>
+    </article>
+    <article class="card">
+      <span>Saídas previstas</span>
+      <strong id="calendarExpectedExpense">R$ 0,00</strong>
+      <small>Realizadas + pendentes</small>
+    </article>
+    <article class="card calendar-alert-kpi">
+      <span>Alertas ativos</span>
+      <strong id="calendarAlertCount">0</strong>
+      <small id="calendarAlertSummary">Nenhum alerta importante</small>
+    </article>
+  </div>
+
+  <section class="panel calendar-main-panel">
+    <div class="section-head">
+      <div><span class="muted">Visão mensal</span><h3>Agenda financeira</h3></div>
+      <span id="calendarTodayBadge" class="status-pill">Hoje</span>
+    </div>
+
+    <div class="calendar-grid-scroll">
+      <div class="financial-calendar" id="financialCalendar"></div>
+    </div>
+    <div class="calendar-mobile-agenda" id="calendarMobileAgenda"></div>
+  </section>
+
+  <section class="panel calendar-alerts-panel">
+    <div class="section-head">
+      <div><span class="muted">Atenção</span><h3>Central de alertas</h3></div>
+      <span id="calendarAlertBadge" class="status-pill">0 alertas</span>
+    </div>
+    <p class="helper">Contas pendentes, faturas, vencimentos de investimentos, dívidas, metas e recorrências próximas do fim.</p>
+    <div id="calendarAlerts" class="calendar-alert-list"></div>
+  </section>
+
+  <section class="panel monthly-closing-panel">
+    <div class="section-head">
+      <div><span class="muted">Fechamento</span><h3 id="monthlyClosingTitle">Resumo do mês</h3></div>
+      <button id="saveMonthlyClosing" type="button" class="btn secondary">Salvar fechamento</button>
+    </div>
+
+    <div class="calendar-closing-kpis">
+      <div><span>Entradas realizadas</span><strong id="closingIncome">R$ 0,00</strong></div>
+      <div><span>Gastos realizados</span><strong id="closingExpenses">R$ 0,00</strong></div>
+      <div><span>Resultado realizado</span><strong id="closingResult">R$ 0,00</strong></div>
+      <div><span>Aportes líquidos</span><strong id="closingSavings">R$ 0,00</strong></div>
+      <div><span>Taxa de aporte</span><strong id="closingSavingsRate">0,0%</strong></div>
+      <div><span>Contas pendentes</span><strong id="closingPending">R$ 0,00</strong></div>
+    </div>
+
+    <div class="calendar-closing-grid">
+      <div class="calendar-closing-block">
+        <span class="muted">Comparação</span>
+        <h4>Resultado vs. mês anterior</h4>
+        <div id="closingComparison" class="calendar-comparison"></div>
+      </div>
+      <div class="calendar-closing-block">
+        <span class="muted">Categorias</span>
+        <h4>Maiores gastos realizados</h4>
+        <div id="closingCategories" class="calendar-closing-categories"></div>
+      </div>
+    </div>
+
+    <div id="monthlyClosingSavedState" class="calendar-saved-closing"></div>
+  </section>
+
+  <section class="panel">
+    <div class="section-head">
+      <div><span class="muted">Histórico</span><h3>Fechamentos salvos</h3></div>
+      <span id="monthlyClosingCount" class="status-pill">0</span>
+    </div>
+    <div id="monthlyClosingHistory" class="calendar-closing-history"></div>
+  </section>
+</section>

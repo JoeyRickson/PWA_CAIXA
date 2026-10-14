@@ -95,6 +95,23 @@
           </div>
           <div id="pendingList" class="list"></div>
         </section>
+
+      <section class="panel calendar-dashboard-panel">
+        <div class="section-head">
+          <div>
+            <span class="muted">Agenda e atenção</span>
+            <h3>Calendário financeiro</h3>
+          </div>
+          <button type="button" class="text-btn" data-nav="calendar">Abrir calendário</button>
+        </div>
+        <div class="calendar-dashboard-grid">
+          <div><span>Alertas ativos</span><strong id="dashboardCalendarAlertCount">0</strong></div>
+          <div><span>Urgentes</span><strong id="dashboardCalendarUrgent">0</strong></div>
+          <div><span>Fechamento do mês</span><strong id="dashboardCalendarClosing">Pendente</strong></div>
+        </div>
+        <div id="calendarDashboardAlerts" class="calendar-dashboard-list"></div>
+      </section>
+
       <section class="panel cards-dashboard-panel">
         <div class="section-head">
           <div>

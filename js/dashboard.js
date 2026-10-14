@@ -10,6 +10,7 @@ function renderDashboard(){
   setMoney('fixedTotal',sum(m.exp.filter(x=>x.expenseType==='fixed')));setMoney('variableTotal',sum(m.exp.filter(x=>x.expenseType==='variable')));setMoney('unplannedTotal',sum(m.exp.filter(x=>x.expenseType==='unplanned')));
   renderBars(m.exp);renderPending(m.exp);document.querySelector('#importNote').classList.toggle('hidden',!state.importNote);
   if(typeof renderPatrimonyDashboard==='function')renderPatrimonyDashboard();
+  if(typeof renderCalendarDashboard==='function')renderCalendarDashboard();
 }
 function renderBars(exp){
   const by={};exp.forEach(x=>by[x.category||'Sem categoria']=(by[x.category||'Sem categoria']||0)+Number(x.amount||0));
