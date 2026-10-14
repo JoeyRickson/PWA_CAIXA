@@ -1,8 +1,9 @@
-const SALDOPLAN_VERSION='2.18.0';
+const SALDOPLAN_VERSION='2.19.1';
 
 const SALDOPLAN_VIEWS=[
   'dashboard',
   'transactions',
+  'importer',
   'cycles',
   'portfolio',
   'patrimony',
@@ -21,6 +22,7 @@ const SALDOPLAN_SCRIPTS=[
   'core',
   'recurrence',
   'history',
+  'importer',
   'cards',
   'market',
   'portfolio',

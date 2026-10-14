@@ -109,7 +109,8 @@ function describeStateChange(previousText,nextText){
       collectionChange(previous,current,'creditCards','Cartão',item=>item?.name||item?.institution||'cartão'),
       collectionChange(previous,current,'cardPurchases','Compra no cartão',item=>item?.description||'compra'),
       collectionChange(previous,current,'liabilities','Dívida',item=>item?.name||item?.institution||'dívida'),
-      collectionChange(previous,current,'financialGoals','Meta financeira',item=>item?.name||'meta')
+      collectionChange(previous,current,'financialGoals','Meta financeira',item=>item?.name||'meta'),
+      collectionChange(previous,current,'importRules','Regra de importação',item=>item?.pattern||'regra')
     ].find(Boolean);
 
     if(checks)return checks;

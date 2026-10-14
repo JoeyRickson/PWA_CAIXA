@@ -1,0 +1,171 @@
+<section id="view-importer" class="view">
+  <div class="section-head page-head">
+    <div>
+      <span class="muted">Extratos bancários</span>
+      <h2>Importar movimentações</h2>
+    </div>
+    <button class="btn ghost" type="button" data-nav="transactions">Ver lançamentos</button>
+  </div>
+
+  <section class="panel import-upload-panel">
+    <div class="section-head">
+      <div>
+        <span class="muted">PDF / OFX / QFX / CSV</span>
+        <h3>Selecionar extrato</h3>
+      </div>
+      <span id="importFormatBadge" class="status-pill">Aguardando arquivo</span>
+    </div>
+
+    <p class="helper">
+      Importe o extrato, revise as sugestões e escolha exatamente o que deve entrar no SaldoPlan.
+      Nenhum lançamento é salvo antes da sua confirmação.
+    </p>
+
+    <div class="import-file-row">
+      <label class="btn secondary full file-label import-file-label">
+        Escolher arquivo
+        <input id="statementFile" type="file" accept=".pdf,.ofx,.qfx,.csv,.txt,application/pdf,text/csv,application/x-ofx">
+      </label>
+
+      <label>Conta / origem
+        <input id="importAccountName" placeholder="Ex.: Bradesco, Nubank, Itaú">
+      </label>
+    </div>
+
+    <p id="importFileStatus" class="helper small-text">Nenhum arquivo selecionado.</p>
+  </section>
+
+  <section id="csvMappingPanel" class="panel hidden">
+    <div class="section-head">
+      <div>
+        <span class="muted">Mapeamento CSV</span>
+        <h3>Identificar colunas</h3>
+      </div>
+      <span id="csvDelimiterBadge" class="status-pill">—</span>
+    </div>
+
+    <p class="helper">
+      Este painel aparece apenas para CSV. O SaldoPlan tenta reconhecer as colunas automaticamente. Ajuste apenas se o banco usar outro formato.
+    </p>
+
+    <div class="import-mapping-grid">
+      <label>Data
+        <select id="importDateColumn"></select>
+      </label>
+
+      <label>Descrição
+        <select id="importDescriptionColumn"></select>
+      </label>
+
+      <label>Valor único
+        <select id="importAmountColumn"></select>
+      </label>
+
+      <label>Débito
+        <select id="importDebitColumn"></select>
+      </label>
+
+      <label>Crédito
+        <select id="importCreditColumn"></select>
+      </label>
+
+      <label>Tipo / natureza
+        <select id="importTypeColumn"></select>
+      </label>
+    </div>
+
+    <div class="import-mapping-footer">
+      <label>Quando o valor único for positivo
+        <select id="importPositiveKind">
+          <option value="expense">Tratar como gasto</option>
+          <option value="income">Tratar como entrada</option>
+        </select>
+      </label>
+
+      <button id="rebuildImportPreview" class="btn secondary" type="button">Atualizar prévia</button>
+    </div>
+  </section>
+
+  <section id="importPreviewPanel" class="panel hidden">
+    <div class="section-head">
+      <div>
+        <span class="muted">Pré-visualização</span>
+        <h3>Revisar antes de importar</h3>
+      </div>
+      <span id="importPreviewCounter" class="status-pill">0 selecionados</span>
+    </div>
+
+    <div class="import-kpis">
+      <div class="mini-stat"><span>Encontrados</span><strong id="importFoundCount">0</strong></div>
+      <div class="mini-stat"><span>Novos</span><strong id="importNewCount">0</strong></div>
+      <div class="mini-stat"><span>Possíveis duplicados</span><strong id="importDuplicateCount">0</strong></div>
+      <div class="mini-stat"><span>Selecionados</span><strong id="importSelectedCount">0</strong></div>
+    </div>
+
+    <div class="import-preview-toolbar">
+      <button id="selectNewImportRows" class="btn ghost small" type="button">Selecionar novos</button>
+      <button id="selectAllImportRows" class="btn ghost small" type="button">Selecionar todos</button>
+      <button id="clearImportRows" class="btn ghost small" type="button">Limpar seleção</button>
+      <label class="check-row">
+        <input id="learnImportRules" type="checkbox">
+        Aprender categorias ao importar
+      </label>
+    </div>
+
+    <div id="importPreviewList" class="import-preview-list"></div>
+
+    <div class="import-confirm-bar">
+      <div>
+        <span class="muted">Importação</span>
+        <strong id="importConfirmText">Selecione os lançamentos desejados.</strong>
+      </div>
+      <button id="confirmStatementImport" class="btn" type="button" disabled>Importar selecionados</button>
+    </div>
+  </section>
+
+  <section class="panel import-rules-panel">
+    <div class="section-head">
+      <div>
+        <span class="muted">Classificação inteligente</span>
+        <h3>Regras aprendidas</h3>
+      </div>
+      <span id="importRulesCount" class="status-pill">0 regras</span>
+    </div>
+
+    <p class="helper">
+      Exemplo: <strong>UBER</strong> → Transporte. Na próxima importação, descrições semelhantes recebem a categoria automaticamente.
+    </p>
+
+    <div class="import-rule-form">
+      <label>Texto encontrado
+        <input id="importRulePattern" placeholder="Ex.: UBER, CLARO, SMART FIT">
+      </label>
+
+      <label>Categoria
+        <input id="importRuleCategory" list="categoryOptions" placeholder="Ex.: Transporte">
+      </label>
+
+      <label>Aplicar em
+        <select id="importRuleKind">
+          <option value="all">Entradas e gastos</option>
+          <option value="expense">Somente gastos</option>
+          <option value="income">Somente entradas</option>
+        </select>
+      </label>
+
+      <button id="addImportRule" class="btn secondary" type="button">Adicionar regra</button>
+    </div>
+
+    <div id="importRulesList" class="import-rules-list"></div>
+  </section>
+
+  <section class="panel">
+    <div class="section-head">
+      <div>
+        <span class="muted">Auditoria</span>
+        <h3>Últimas importações</h3>
+      </div>
+    </div>
+    <div id="importHistoryList" class="import-history-list"></div>
+  </section>
+</section>

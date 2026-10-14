@@ -82,6 +82,9 @@ const seed={
   importNote:true,
   settings:{theme:'light',bonusEnabled:true,bonusName:'Bônus'},
   historySettings:{enabled:true,limit:20},
+  importSettings:{learnCategories:true,positiveValueKind:'income',lastAccount:''},
+  importRules:[],
+  importHistory:[],
   cloud:{provider:'google',emailHint:'',clientId:'',account:'',providerClientId:'',folderName:'SaldoPlan - Backups',folderId:'',autoBackup:false,retentionDays:30,lastBackupAt:null,lastFileId:null},
   payrollConfig:{baseSalary:5000,monthlyHours:220,advance:2000,nightPct:20,extraGoal:40},
   payrollMonths:{},
@@ -127,6 +130,24 @@ function migrateState(raw){
   migrated.historySettings={...base.historySettings,...(raw.historySettings||{})};
   migrated.historySettings.enabled=migrated.historySettings.enabled!==false;
   migrated.historySettings.limit=Math.min(30,Math.max(5,Number(migrated.historySettings.limit||20)));
+  migrated.importSettings={...base.importSettings,...(raw.importSettings||{})};
+  migrated.importSettings.learnCategories=migrated.importSettings.learnCategories!==false;
+  migrated.importSettings.positiveValueKind=migrated.importSettings.positiveValueKind==='income'?'income':'expense';
+  migrated.importSettings.lastAccount=String(migrated.importSettings.lastAccount||'');
+  migrated.importRules=Array.isArray(raw.importRules)
+    ?raw.importRules.filter(rule=>rule&&typeof rule==='object').map(rule=>({
+      ...rule,
+      id:rule.id||uid(),
+      pattern:String(rule.pattern||'').trim(),
+      category:String(rule.category||'Outros').trim()||'Outros',
+      kind:['income','expense'].includes(rule.kind)?rule.kind:'all',
+      usageCount:Math.max(0,Number(rule.usageCount||0)),
+      learned:rule.learned===true
+    })).filter(rule=>rule.pattern)
+    :[];
+  migrated.importHistory=Array.isArray(raw.importHistory)
+    ?raw.importHistory.filter(item=>item&&typeof item==='object').slice(-50)
+    :[];
   migrated.cloud={...base.cloud,...(raw.cloud||{})};
   if(migrated.cloud.folderName==='Meu Caixa - Backups')migrated.cloud.folderName='SaldoPlan - Backups';
   migrated.payrollConfig={...base.payrollConfig,...(raw.payrollConfig||{})};

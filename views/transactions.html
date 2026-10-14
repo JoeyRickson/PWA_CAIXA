@@ -1,7 +1,10 @@
 <section id="view-transactions" class="view">
         <div class="section-head page-head">
           <div><span class="muted">Mês selecionado</span><h2>Lançamentos</h2></div>
-          <button class="btn" data-action="new-expense">+ Novo</button>
+          <div class="page-head-actions">
+            <button class="btn ghost" type="button" data-nav="importer">⇩ Importar</button>
+            <button class="btn" data-action="new-expense">+ Novo</button>
+          </div>
         </div>
         <div class="month-row slim transaction-month-row" aria-label="Mês dos lançamentos">
           <button class="icon-btn" id="prevTransactionMonth" type="button" aria-label="Mês anterior">‹</button>

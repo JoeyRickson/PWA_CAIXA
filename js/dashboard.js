@@ -25,9 +25,12 @@ function defaultExpenseDescription(t,category){const c=String(category||'').trim
 function itemHtml(x){
   const isInc=x.kind==='income',flash=isInc?x.incomeType==='flash':x.paySource==='flash';
   const card=x.cardId&&typeof creditCardById==='function'?creditCardById(x.cardId):null;
-  const label=x.cardPurchaseId
+  const baseLabel=x.cardPurchaseId
     ?`Cartão · ${card?.name||'Cartão'} · ${x.cardInstallmentIndex||'?'} / ${x.cardInstallmentCount||'?'}`
     :isInc?incomeLabel(x.incomeType):`${expenseLabel(x.expenseType)} · ${x.category||'Sem categoria'}`;
+  const label=x.imported
+    ?`Importado · ${x.importSource||x.importFile||'extrato'} · ${baseLabel}`
+    :baseLabel;
   const action=x.cardPurchaseId?`data-card-purchase="${x.cardPurchaseId}"`:`data-edit="${x.id}"`;
   return `<button class="item" ${action} style="width:100%;text-align:left;cursor:pointer"><span class="item-icon ${flash?'flash':''}">${isInc?'+':'−'}</span><span class="item-main"><strong>${escapeHtml(x.description)}</strong><span>${formatDate(x.date)} · ${escapeHtml(label)}</span></span><span class="item-side"><strong class="${isInc?'positive':'negative'}">${isInc?'+ ':'− '}${fmt.format(x.amount)}</strong><span class="${x.status==='planned'?'pending':''}">${x.status==='planned'?'Previsto':'Realizado'}</span></span></button>`;
 }

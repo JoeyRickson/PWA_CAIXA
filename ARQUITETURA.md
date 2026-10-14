@@ -1,4 +1,4 @@
-# SaldoPlan — Arquitetura modular v2.18.0
+# SaldoPlan — Arquitetura modular v2.19.3
 
 Esta versão inicia a modularização estrutural do projeto sem trocar framework e sem alterar o formato dos dados.
 
@@ -68,3 +68,15 @@ Cada parcela é materializada também em `state.transactions`, com metadados `ca
 - `state.netWorthSnapshots`: histórico diário do patrimônio líquido.
 
 A projeção de 30/60/90 dias considera lançamentos futuros, recorrências mensais e movimentações previstas de Guardado. Pagamentos de parcelas reduzem caixa e dívida do cartão simultaneamente, evitando dupla redução do patrimônio.
+
+
+## Importação e inteligência v2.19
+
+- `views/importer.html`: seleção de PDF/OFX/QFX/CSV, mapeamento de colunas, prévia e auditoria;
+- `js/importer.js`: parser de PDF/OFX/CSV, detecção de duplicados, revisão e criação de lançamentos;
+- `css/importer.css`: layout responsivo da área de importação;
+- `state.importSettings`: preferências de aprendizado e origem da última importação;
+- `state.importRules`: regras locais de categorização por texto;
+- `state.importHistory`: resumo das últimas importações.
+
+A importação é totalmente local no navegador. Nenhum arquivo de extrato é enviado para uma API do SaldoPlan. Os itens são revisados antes de entrar em `state.transactions`, e duplicados ficam desmarcados por padrão.
