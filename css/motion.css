@@ -1,0 +1,89 @@
+/* SaldoPlan 2.20.8 — Movimento contextual, sem alterar fluxo, dados ou layout. */
+#spStartup {
+  background:var(--bg,#0d1421);
+  color:var(--ink,#f6f9ff);
+  overflow:hidden;
+  isolation:isolate;
+  transition:opacity .3s ease,visibility .3s ease;
+}
+#spStartup.sp-startup-leaving{opacity:0;visibility:hidden;pointer-events:none}
+.sp-startup-brand{display:flex;align-items:center;gap:16px;margin-bottom:22px}
+.sp-startup-mark{display:grid;place-items:center;width:58px;height:58px;flex:0 0 58px;border-radius:19px;background:var(--surface,#18263b);border:1px solid var(--line,#314057);color:var(--saving,#34bfd5);box-shadow:0 12px 32px #0002}
+.sp-startup-mark svg{width:36px;height:36px}
+#spStartup .sp-startup-title{margin:0 0 5px;letter-spacing:-.04em}
+#spStartup .sp-startup-caption{margin:0;color:var(--muted,#a5b2c4);line-height:1.4}
+.sp-startup-mobile{display:none}
+.sp-startup-desktop{display:grid;grid-template-columns:185px minmax(0,1fr);gap:18px;min-height:340px}
+.sp-startup-sidebar,.sp-startup-workspace{min-width:0;display:grid;align-content:start;gap:14px}
+.sp-startup-sidebar{padding:22px 14px;border-radius:20px;background:var(--surface,#141c2b);border:1px solid var(--line,#2d3848)}
+.sp-startup-sidebar>i{height:24px;border-radius:8px;width:86%;background:var(--surface-2,#283244)}
+.sp-startup-sidebar>i:first-child{height:44px;width:72%;margin-bottom:15px}
+.sp-startup-sidebar>i:nth-child(odd){width:69%}
+.sp-skeleton-desktop-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.sp-skeleton-desktop-kpis>i{height:120px;border-radius:18px;min-width:0}
+.sp-skeleton-desktop-panel{height:155px;border-radius:20px}
+.sp-skeleton-desktop-panel.short{height:80px}
+.sp-skeleton-desktop-kpis>i,.sp-skeleton-desktop-panel,.sp-skeleton-grid>i,.sp-skeleton-wide{
+  display:block;position:relative;overflow:hidden;background:var(--surface-2,#263346);border:1px solid var(--line,#354457)
+}
+.sp-skeleton-desktop-kpis>i::after,.sp-skeleton-desktop-panel::after,.sp-skeleton-grid>i::after,.sp-skeleton-wide::after{
+  content:"";position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(95deg,transparent,color-mix(in srgb,var(--ink,#fff) 9%,transparent),transparent);
+  animation:sp-shimmer 1.7s linear infinite;
+}
+#spStartup .sp-startup-retry{margin:20px auto 0;display:block;border-radius:12px;padding:12px 16px;background:var(--accent,#508fff);color:#fff;border:0;font-weight:750;cursor:pointer}
+#spStartup .sp-startup-retry[hidden]{display:none!important}
+@keyframes sp-shimmer{to{transform:translateX(100%)}}
+
+/* Animação curta de entrada ao ativar qualquer uma das 16 views. */
+body.sp-motion-ready .view.active{animation:sp-view-desktop .28s cubic-bezier(.2,.75,.25,1) both}
+body.sp-motion-ready .view.active > :is(.page-head,.section-head,.month-row,.kpis,.panel,.card,.two-col,.split-grid,.compact-kpis){animation:sp-piece-desktop .34s cubic-bezier(.2,.8,.2,1) both}
+body.sp-motion-ready .view.active > :is(.page-head,.section-head,.month-row,.kpis,.panel,.card,.two-col,.split-grid,.compact-kpis):nth-child(2){animation-delay:35ms}
+body.sp-motion-ready .view.active > :is(.page-head,.section-head,.month-row,.kpis,.panel,.card,.two-col,.split-grid,.compact-kpis):nth-child(3){animation-delay:65ms}
+body.sp-motion-ready .view.active > :is(.page-head,.section-head,.month-row,.kpis,.panel,.card,.two-col,.split-grid,.compact-kpis):nth-child(4){animation-delay:85ms}
+@keyframes sp-view-desktop{from{opacity:.72;transform:translateX(10px)}to{opacity:1;transform:none}}
+@keyframes sp-piece-desktop{from{opacity:.55;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Refrescos intencionais: trocar mês/ano, filtros e categoria (não ao digitar). */
+body.sp-motion-ready .view.active.sp-content-swap :is(.kpis,.calendar-grid,.panel,.list,.cards-grid,.portfolio-grid,.cycle-stats,.chart-wrap){animation:sp-content-refresh .24s ease-out both}
+@keyframes sp-content-refresh{from{opacity:.56;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* Formulários e janelas conservam o comportamento nativo e o foco. */
+body.sp-motion-ready dialog[open] .dialog-form{animation:sp-dialog .2s cubic-bezier(.16,1,.3,1) both}
+body.sp-motion-ready .visual-theme-sheet,body.sp-motion-ready .mobile-menu-sheet{will-change:auto}
+body.sp-motion-ready :is(.btn,.icon-btn,.nav-item,.chip):focus-visible{outline-offset:3px}
+body.sp-motion-ready .bottom-nav .nav-item.active .mobile-nav-svg{transition:transform .19s cubic-bezier(.2,.8,.2,1)}
+body.sp-motion-ready .bottom-nav .nav-item:active .mobile-nav-svg{transform:scale(.9)}
+@keyframes sp-dialog{from{opacity:.55;transform:translateY(9px) scale(.992)}to{opacity:1;transform:none}}
+
+/* Experiência no celular: marca mais expressiva, cartões sobem delicadamente. */
+@media(max-width:899px){
+  #spStartup{padding:24px;place-items:center}
+  .sp-startup-inner{max-width:410px}
+  .sp-startup-brand{flex-direction:column;text-align:center;gap:11px}
+  .sp-startup-mark{width:72px;height:72px;flex-basis:72px;border-radius:23px;animation:sp-mobile-mark 1.6s ease-in-out infinite}
+  .sp-startup-mark svg{width:42px;height:42px}
+  .sp-startup-mobile{display:block}
+  .sp-startup-desktop{display:none}
+  .sp-startup-pulse{height:32px;display:flex;gap:7px;align-items:center;justify-content:center;margin-bottom:19px}
+  .sp-startup-pulse span{width:7px;height:7px;border-radius:50%;background:var(--saving,#36bfce);animation:sp-pulse 1s ease-in-out infinite}
+  .sp-startup-pulse span:nth-child(2){animation-delay:.15s}
+  .sp-startup-pulse span:nth-child(3){animation-delay:.3s}
+  .sp-skeleton-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .sp-skeleton-grid>i{height:104px;border-radius:18px}
+  .sp-skeleton-wide{height:86px;margin-top:12px;border-radius:18px}
+  body.sp-motion-ready .view.active{animation:sp-view-mobile .27s cubic-bezier(.2,.75,.25,1) both}
+  body.sp-motion-ready .view.active > :is(.page-head,.section-head,.month-row,.kpis,.panel,.card,.two-col,.split-grid,.compact-kpis){animation-name:sp-piece-mobile;animation-duration:.3s}
+}
+@keyframes sp-view-mobile{from{opacity:.7;transform:translateY(11px)}to{opacity:1;transform:none}}
+@keyframes sp-piece-mobile{from{opacity:.5;transform:translateY(13px)}to{opacity:1;transform:none}}
+@keyframes sp-mobile-mark{50%{transform:translateY(-5px);box-shadow:0 18px 32px #0002}}
+@keyframes sp-pulse{0%,100%{opacity:.35;transform:scale(.85)}50%{opacity:1;transform:scale(1.18)}}
+
+/* Acessibilidade: não impor movimento a quem o desativou no sistema. */
+@media(prefers-reduced-motion:reduce){
+  #spStartup{transition:none!important}
+  #spStartup *,#spStartup *::before,#spStartup *::after{animation:none!important;transition:none!important}
+  body.sp-motion-ready .view.active,body.sp-motion-ready .view.active *,body.sp-motion-ready dialog[open] .dialog-form{animation:none!important;transition-duration:0s!important}
+  body.sp-motion-ready .view.active.sp-content-swap *{animation:none!important}
+}

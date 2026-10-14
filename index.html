@@ -20,10 +20,42 @@
   sizes="180x180"
   href="icons/apple-touch-icon.png"
 />
-  <link rel="stylesheet" href="styles.css?v=2.20.7" />
+  <link rel="stylesheet" href="styles.css?v=2.20.8" />
+  <style id="spStartupCritical">
+    #spStartup{position:fixed;inset:0;z-index:240;display:grid;place-items:center;background:#0d1421;color:#f6f9ff;padding:20px;box-sizing:border-box;font-family:system-ui,sans-serif}
+    #spStartup[hidden]{display:none!important}
+    #spStartup .sp-startup-inner{width:min(100%,960px)}
+    #spStartup .sp-startup-title{font-size:clamp(1.35rem,4vw,1.8rem);font-weight:800;margin:10px 0 5px}
+    #spStartup .sp-startup-caption{opacity:.76;margin:0 0 23px}
+  </style>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
+  <!-- Primeiro paint: encobre o dashboard enquanto as views e os dados são inicializados. -->
+  <div id="spStartup" role="status" aria-live="polite" aria-label="Carregando SaldoPlan">
+    <div class="sp-startup-inner">
+      <div class="sp-startup-brand">
+        <div class="sp-startup-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="36" height="36" rx="12"/><path d="M12 32l8-9 7 4 9-13"/><path d="M29 14h7v7"/></svg>
+        </div>
+        <div><div class="sp-startup-title">SaldoPlan</div><p id="spStartupStatus" class="sp-startup-caption">Preparando suas finanças…</p></div>
+      </div>
+      <div class="sp-startup-mobile" aria-hidden="true">
+        <div class="sp-startup-pulse"><span></span><span></span><span></span></div>
+        <div class="sp-skeleton-grid"><i></i><i></i><i></i><i></i></div>
+        <div class="sp-skeleton-wide"></div>
+      </div>
+      <div class="sp-startup-desktop" aria-hidden="true">
+        <div class="sp-startup-sidebar"><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="sp-startup-workspace">
+          <div class="sp-skeleton-desktop-kpis"><i></i><i></i><i></i><i></i></div>
+          <div class="sp-skeleton-desktop-panel"></div>
+          <div class="sp-skeleton-desktop-panel short"></div>
+        </div>
+      </div>
+      <button id="spStartupRetry" class="sp-startup-retry" type="button" hidden>Recarregar o SaldoPlan</button>
+    </div>
+  </div>
 
   <div id="onboardingGate" class="onboarding-gate hidden" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
     <section class="onboarding-card">
@@ -144,7 +176,7 @@
       <div class="mobile-brand-mark" aria-hidden="true">S</div>
       <div class="topbar-brand">
         <p class="eyebrow">CONTROLE FINANCEIRO</p>
-        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.20.7</small></h1>
+        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v2.20.8</small></h1>
       </div>
       <div class="top-actions">
 
@@ -218,7 +250,7 @@
       </div>
     </header>
 
-    <main id="appMain">
+    <main id="appMain" aria-busy="true">
       <div class="view-loading" role="status" aria-live="polite">Carregando SaldoPlan…</div>
     </main>
 
@@ -299,6 +331,6 @@
 
 
 <script src="drive-config.js?v=2.20.3"></script>
-<script src="app.js?v=2.20.7"></script>
+<script src="app.js?v=2.20.8"></script>
 </body>
 </html>

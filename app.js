@@ -1,4 +1,4 @@
-const SALDOPLAN_VERSION='2.20.7';
+const SALDOPLAN_VERSION='2.20.8';
 
 const SALDOPLAN_VIEWS=[
   'dashboard',
@@ -39,7 +39,8 @@ const SALDOPLAN_SCRIPTS=[
   'drive',
   'pwa',
   'mobile-nav',
-  'themes'
+  'themes',
+  'motion'
 ];
 
 async function saldoPlanFetchPartial(path){
@@ -80,10 +81,14 @@ async function saldoPlanBootstrap(){
   }
 
   await saldoPlanLoadScript(`auth.js?v=${SALDOPLAN_VERSION}`,{module:true});
+  window.saldoPlanMotion?.finishStartup();
 }
 
 saldoPlanBootstrap().catch(error=>{
   console.error(error);
+  window.saldoPlanMotion?.finishStartup();
+  document.getElementById('spStartup')?.remove();
+  document.getElementById('appMain')?.removeAttribute('aria-busy');
   const main=document.querySelector('#appMain');
   if(main){
     main.innerHTML=`
@@ -95,3 +100,14 @@ saldoPlanBootstrap().catch(error=>{
     `;
   }
 });
+
+// Um carregamento travado nunca deixa o usuário sem saída.
+const spStartupTimeout=setTimeout(()=>{
+  const splash=document.getElementById('spStartup');
+  if(!splash||splash.classList.contains('sp-startup-leaving'))return;
+  const status=splash.querySelector('#spStartupStatus');
+  if(status)status.textContent='O carregamento está demorando. Verifique sua conexão.';
+  const retry=splash.querySelector('#spStartupRetry');
+  if(retry)retry.hidden=false;
+},12000);
+document.getElementById('spStartupRetry')?.addEventListener('click',()=>location.reload());
