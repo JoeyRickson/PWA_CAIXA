@@ -1,5 +1,13 @@
 # Histórico de versões — SaldoPlan
 
+## 3.1.6 — Botão Google integrado aos temas
+
+- Ajuste exclusivamente visual no Android: mantém o botão oficial Google Identity Services, agora com variante `filled_black` nos temas escuros e `outline` nos claros, formato arredondado e contorno alinhado ao tema ativo.
+- O botão acompanha alterações de tema durante a sessão; o visual é renderizado pelo SDK oficial do Google, sem editar o conteúdo do iframe.
+- Em **Dados e backup**, oculta o botão de **Entrar com Google** quando a conta já está conectada, evitando uma ação redundante. Ao sair, o botão volta a aparecer.
+- Preserva o fluxo de autenticação, IDs OAuth, backups, Firestore, chaves, armazenamento financeiro e login desktop.
+- Atualiza versão e cache PWA para `3.1.6`.
+
 ## 3.1.5 — Entrada simplificada no Android
 
 - Android: oculta o cartão **Última conta usada** na tela de entrada. O login usa exclusivamente o seletor oficial Google Identity Services ou a opção offline.

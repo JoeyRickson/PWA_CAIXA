@@ -348,6 +348,8 @@ function renderSignedIn(user) {
   renderAvatar(accountAvatar, user);
 
   accountGoogleBtn?.classList.add("hidden");
+  accountGoogleBtn?.nextElementSibling?.classList.contains("sp314-google-identity") &&
+    accountGoogleBtn.nextElementSibling.classList.add("hidden");
   accountOfflineBtn?.classList.add("hidden");
   accountSignOutBtn?.classList.remove("hidden");
 
@@ -389,6 +391,12 @@ function renderOffline() {
   accountAvatar?.classList.add("hidden");
 
   accountGoogleBtn?.classList.remove("hidden");
+  accountGoogleBtn?.nextElementSibling?.classList.contains("sp314-google-identity") &&
+    accountGoogleBtn.nextElementSibling.classList.remove("hidden");
+  // Quando o GIS oficial existe no Android, o botao HTML antigo permanece oculto.
+  if (IS_ANDROID && accountGoogleBtn?.nextElementSibling?.classList.contains("sp314-google-identity")) {
+    accountGoogleBtn.classList.add("hidden");
+  }
   accountOfflineBtn?.classList.add("hidden");
   accountSignOutBtn?.classList.add("hidden");
 
@@ -418,6 +426,11 @@ function renderSignedOut() {
   accountAvatar?.classList.add("hidden");
 
   accountGoogleBtn?.classList.remove("hidden");
+  accountGoogleBtn?.nextElementSibling?.classList.contains("sp314-google-identity") &&
+    accountGoogleBtn.nextElementSibling.classList.remove("hidden");
+  if (IS_ANDROID && accountGoogleBtn?.nextElementSibling?.classList.contains("sp314-google-identity")) {
+    accountGoogleBtn.classList.add("hidden");
+  }
   accountOfflineBtn?.classList.remove("hidden");
   accountSignOutBtn?.classList.add("hidden");
 
@@ -481,6 +494,44 @@ if (!configReady()) {
   // Evita redirecionamento e sessionStorage (erro "missing initial state").
   const useAndroidGIS = IS_ANDROID;
   let googleIdentityReady = false;
+  let googleThemeObserver = null;
+  // O visual do botao oficial acompanha o tema, sem mudar a credencial ou o login.
+  function renderGoogleIdentityButtons(gis) {
+    const googleTheme = document.body.dataset.theme === "dark" ? "filled_black" : "outline";
+    for (const button of [googleButton, onboardingGoogleBtn, accountGoogleBtn]) {
+      if (!button) continue;
+      let holder = button.nextElementSibling;
+      if (!holder?.classList.contains("sp314-google-identity")) {
+        holder = document.createElement("div");
+        holder.className = "sp314-google-identity sp316-themed-google";
+        holder.setAttribute("aria-label", "Entrar com Google — botao oficial");
+        button.insertAdjacentElement("afterend", holder);
+      }
+      holder.classList.add("sp316-themed-google");
+      if (holder.dataset.googleTheme !== googleTheme || !holder.children.length) {
+        holder.replaceChildren();
+        const available = button.parentElement?.clientWidth || 320;
+        const width = Math.min(400, Math.max(200, available - 24));
+        gis.renderButton(holder, {
+          type: "standard", theme: googleTheme, size: "large",
+          shape: "pill", text: "continue_with", width
+        });
+        if (holder.querySelector("iframe") || holder.children.length) {
+          holder.dataset.googleTheme = googleTheme;
+          button.dataset.gisReady = "true";
+          button.classList.add("hidden");
+        } else {
+          holder.remove();
+          button.dataset.gisReady = "false";
+          button.classList.remove("hidden");
+          continue;
+        }
+      }
+      // Em Dados e backup, uma conta ja autenticada nao precisa do botao de entrada.
+      if (button === accountGoogleBtn) holder.classList.toggle("hidden", Boolean(auth.currentUser));
+    }
+  }
+
 
   function setLoginButtonsBusy(busy) {
     [googleButton, lastAccountButton, accountGoogleBtn, onboardingGoogleBtn].forEach(button => {
@@ -550,26 +601,17 @@ if (!configReady()) {
         button_auto_select: false
       });
       googleIdentityReady = true;
-      for (const button of [googleButton, onboardingGoogleBtn, accountGoogleBtn]) {
-        if (!button || button.dataset.gisReady === "true") continue;
-        const holder = document.createElement("div");
-        holder.className = "sp314-google-identity";
-        holder.setAttribute("aria-label", "Entrar com Google — seleção oficial de conta");
-        button.insertAdjacentElement("afterend", holder);
-        const width = Math.min(380, Math.max(220, button.parentElement?.clientWidth || 300));
-        gis.renderButton(holder, {
-          type: "standard", theme: "filled_blue", size: "large",
-          shape: "rectangular", text: "continue_with", width
+      renderGoogleIdentityButtons(gis);
+      // O Google renderiza em um iframe: mudancas de tema exigem renderizacao oficial.
+      if (!googleThemeObserver && typeof MutationObserver !== "undefined") {
+        googleThemeObserver = new MutationObserver(records => {
+          if (!records.some(record => record.attributeName === "data-theme")) return;
+          if (!googleIdentityReady || loginInProgress) return;
+          renderGoogleIdentityButtons(gis);
         });
-        button.dataset.gisReady = "true";
-        // A versao oficial do botao e o unico disparador de login no Android.
-        // Se a renderizacao falhar, o botao original continua visivel para aviso.
-        if (holder.querySelector("iframe") || holder.children.length) {
-          button.classList.add("hidden");
-        } else {
-          holder.remove();
-          button.dataset.gisReady = "false";
-        }
+        googleThemeObserver.observe(document.body, {
+          attributes: true, attributeFilter: ["data-theme"]
+        });
       }
     } catch (error) {
       console.error("Google Identity Services indisponivel:", error);

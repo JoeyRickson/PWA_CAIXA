@@ -281,3 +281,21 @@ body[data-theme="dark"] .onboarding-highlight{background:color-mix(in srgb,var(-
 /* v3.1.4: botao Google oficial no Android, sem popup/redirect Firebase. */
 .sp314-google-identity {display:flex;align-items:center;justify-content:center;width:100%;min-height:42px;overflow:hidden;margin:4px 0 10px}
 .sp314-google-identity iframe {max-width:100%!important}
+
+/* v3.1.6 — Google Identity Services: o iframe oficial respeita sua identidade;
+   apenas seu contorno e espaco sao coordenados pelos temas do SaldoPlan. */
+.sp314-google-identity.sp316-themed-google {
+  box-sizing:border-box;
+  width:100%;max-width:100%;min-height:62px;
+  display:flex;align-items:center;justify-content:center;
+  margin:8px 0 12px;padding:9px 12px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:var(--surface-2);
+  overflow:hidden;
+}
+.sp314-google-identity.sp316-themed-google.hidden {display:none!important;}
+.sp316-themed-google iframe {max-width:100%!important;}
+@media(max-width:520px){
+  .sp314-google-identity.sp316-themed-google {padding:9px 8px;border-radius:15px;min-height:60px;}
+}

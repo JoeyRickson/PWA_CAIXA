@@ -195,3 +195,11 @@ A tela `views/data.html` diferencia o **salvamento automático local** (não é 
 - Essa decisão preserva o fluxo funcional de autenticação por Google Identity Services no Android, sem depender de dados de e-mail lembrados ou abrir novamente redirecionamentos Firebase.
 - O desktop continua a oferecer o atalho existente. Os dados locais não passam a ser segregados por login Google; essa limitação não foi alterada.
 - Versão/cache `3.1.5` com nova URL de `auth.js`. Nenhuma modificação de `meuCaixa.v1`, Drive, Firestore ou regras de autenticação.
+
+## v3.1.6 — Apresentação do botão oficial de login Google
+
+- Para Android, `auth.js` usa `google.accounts.id.renderButton` com `shape: "pill"` e `theme: "filled_black"` ou `"outline"` conforme `body.dataset.theme`. Não envolve alterações nas credenciais ou no método de entrada por `signInWithCredential`.
+- Um `MutationObserver` observa apenas a mudança de atributo `body[data-theme]` e solicita a renderização oficial com as cores apropriadas; não altera o iframe do Google e não opera sobre dados financeiros.
+- `.sp316-themed-google` em `css/auth.css` ajusta apenas espaço, bordas, fundo e largura do contêiner do botão oficial. O provedor mantém sua própria marca.
+- Se o usuário já estiver conectado, o botão oficial é ocultado em **Dados e backup**; reaparece quando não houver sessão Firebase.
+- Nenhuma mudança em chaves `localStorage`, dados, Firebase Auth, Google Drive, Firestore ou formatos de backup. `CACHE` e versão `3.1.6`.
