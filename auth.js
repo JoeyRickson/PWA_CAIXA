@@ -3,8 +3,7 @@ import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithCredential,
   signOut,
   onAuthStateChanged,
   setPersistence,
@@ -15,7 +14,8 @@ import { firebaseConfig } from "./firebase-config.js";
 
 const AUTH_MODE_KEY = "saldoplan.authMode.v1";
 const LAST_GOOGLE_ACCOUNT_KEY = "saldoplan.lastGoogleAccount.v1";
-const GOOGLE_REDIRECT_PENDING_KEY = "saldoplan.googleRedirectPending.v1";
+// Cliente Web do Firebase Authentication, NAO o cliente de backup do Google Drive.
+const FIREBASE_GOOGLE_WEB_CLIENT_ID = "292722512495-nlagmuoao494du6ve34jlevje0v5cor0.apps.googleusercontent.com";
 const ONBOARDING_KEY = "saldoplan.onboarding.v1";
 
 const ONBOARDING_CONTENT = {
@@ -475,14 +475,10 @@ if (!configReady()) {
   const auth = getAuth(firebaseApp);
   let loginInProgress = false;
 
-  // O pop-up pode ser interpretado como fechado pelo Chrome/PWA Android.
-  // Em produção, o projeto já faz proxy de /__/auth/ pelo mesmo domínio.
-  function useMobileRedirect() {
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || "");
-    const sameOriginHelper = location.protocol === "https:" &&
-      firebaseConfig.authDomain === location.hostname;
-    return isMobile && sameOriginHelper;
-  }
+  // Android: autenticar diretamente com token de ID do Google Identity Services.
+  // Evita redirecionamento e sessionStorage (erro "missing initial state").
+  const useAndroidGIS = /Android/i.test(navigator.userAgent || "");
+  let googleIdentityReady = false;
 
   function setLoginButtonsBusy(busy) {
     [googleButton, lastAccountButton, accountGoogleBtn, onboardingGoogleBtn].forEach(button => {
@@ -500,7 +496,9 @@ if (!configReady()) {
       "auth/invalid-continue-uri": "O retorno do Google não está autorizado. Verifique a configuração OAuth.",
       "auth/operation-not-supported-in-this-environment": "Este navegador não permite concluir este tipo de login.",
       "auth/network-request-failed": "Não foi possível acessar o Google. Verifique sua conexão.",
-      "auth/web-storage-unsupported": "Ative o armazenamento deste site para manter o login."
+      "auth/web-storage-unsupported": "Ative o armazenamento deste site para manter o login.",
+      "auth/invalid-credential": "O Google não conseguiu validar sua conta. Tente escolher novamente.",
+      "auth/account-exists-with-different-credential": "Esta conta usa outro método de acesso. Confira no Firebase Authentication."
     };
     return messages[error?.code] || "Não foi possível concluir a entrada com Google. Tente novamente.";
   }
@@ -519,23 +517,72 @@ if (!configReady()) {
     console.warn("Persistência do login não pôde ser configurada:", error);
   }
 
-  // Primeiro recupera a sessão de redirecionamento; não dispara um segundo login.
-  let wasRedirectPending = false;
-  try {
-    wasRedirectPending = Boolean(sessionStorage.getItem(GOOGLE_REDIRECT_PENDING_KEY));
-  } catch {}
-  try {
-    const result = await getRedirectResult(auth);
-    if (result?.user) {
-      renderSignedIn(result.user);
-    } else if (wasRedirectPending && !auth.currentUser) {
-      setGateStatus("A entrada não foi concluída. Tente novamente pelo botão Google.", true);
+  // O SDK conserva a sessão Firebase no navegador. Nao reiniciar login ao abrir a pagina.
+  // O cliente Google Identity Services so recebe o token no callback oficial do Google.
+  function setupGoogleIdentity() {
+    if (!useAndroidGIS || googleIdentityReady) return;
+    const gis = window.google?.accounts?.id;
+    if (!gis || typeof gis.initialize !== "function") return;
+    try {
+      gis.initialize({
+        client_id: FIREBASE_GOOGLE_WEB_CLIENT_ID,
+        callback: async (response) => {
+          const token = response?.credential;
+          if (!token || loginInProgress) return;
+          loginInProgress = true;
+          setLoginButtonsBusy(true);
+          setGateStatus("Conectando sua conta Google…");
+          try {
+            const result = await signInWithCredential(auth, GoogleAuthProvider.credential(token));
+            renderSignedIn(result.user);
+          } catch (error) {
+            console.error("Erro ao autenticar credencial do Google:", error?.code || error);
+            setGateStatus(readableLoginError(error), true);
+          } finally {
+            loginInProgress = false;
+            setLoginButtonsBusy(false);
+          }
+        },
+        auto_select: false,
+        use_fedcm_for_button: true,
+        button_auto_select: false
+      });
+      googleIdentityReady = true;
+      for (const button of [googleButton, onboardingGoogleBtn, accountGoogleBtn]) {
+        if (!button || button.dataset.gisReady === "true") continue;
+        const holder = document.createElement("div");
+        holder.className = "sp314-google-identity";
+        holder.setAttribute("aria-label", "Entrar com Google — seleção oficial de conta");
+        button.insertAdjacentElement("afterend", holder);
+        const width = Math.min(380, Math.max(220, button.parentElement?.clientWidth || 300));
+        gis.renderButton(holder, {
+          type: "standard", theme: "filled_blue", size: "large",
+          shape: "rectangular", text: "continue_with", width
+        });
+        button.dataset.gisReady = "true";
+        // A versao oficial do botao e o unico disparador de login no Android.
+        // Se a renderizacao falhar, o botao original continua visivel para aviso.
+        if (holder.querySelector("iframe") || holder.children.length) {
+          button.classList.add("hidden");
+        } else {
+          holder.remove();
+          button.dataset.gisReady = "false";
+        }
+      }
+    } catch (error) {
+      console.error("Google Identity Services indisponivel:", error);
+      googleIdentityReady = false;
+      setGateStatus("Não foi possível carregar o seletor Google. Abra no Chrome e tente novamente.", true);
     }
-  } catch (error) {
-    console.error("Falha ao concluir o redirecionamento Google:", error);
-    setGateStatus(readableLoginError(error), true);
-  } finally {
-    try { sessionStorage.removeItem(GOOGLE_REDIRECT_PENDING_KEY); } catch {}
+  }
+
+  if (useAndroidGIS) {
+    setupGoogleIdentity();
+    const gisScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+    gisScript?.addEventListener("load", setupGoogleIdentity, {once:true});
+    gisScript?.addEventListener("error", () => {
+      setGateStatus("O seletor Google não carregou. Verifique a conexão ou abra no Chrome.", true);
+    }, {once:true});
   }
 
   startGoogleLogin = async (useLastAccount=false) => {
@@ -548,41 +595,34 @@ if (!configReady()) {
       renderSignedIn(auth.currentUser);
       return;
     }
+    if (useAndroidGIS) {
+      completeOnboarding();
+      setOnboardingVisible(false);
+      setGateVisible(true);
+      if (!googleIdentityReady) setupGoogleIdentity();
+      if (!googleIdentityReady) {
+        setGateStatus("O seletor Google ainda não carregou. Use o Chrome e verifique a conexão.", true);
+        return;
+      }
+      // O Google decide se exibe seletor ou apenas o botão oficial visível.
+      // Nunca forçar popup do Firebase ou redirecionamento no Android.
+      setGateStatus("Escolha sua conta pelo botão oficial Continuar com Google.");
+      try { window.google.accounts.id.prompt(); } catch {}
+      return;
+    }
     const provider = makeGoogleProvider(last?.email || "");
     loginInProgress = true;
     completeOnboarding();
     setOnboardingVisible(false);
     setGateVisible(true);
-    setGateStatus(useMobileRedirect()
-      ? "Abrindo o Google para continuar neste mesmo aparelho…"
-      : "Abrindo o login do Google…");
+    setGateStatus("Abrindo o login do Google…");
     setLoginButtonsBusy(true);
 
     try {
-      if (useMobileRedirect()) {
-        try {
-          sessionStorage.setItem(GOOGLE_REDIRECT_PENDING_KEY, String(Date.now()));
-        } catch {}
-        await signInWithRedirect(auth, provider);
-        return;
-      }
       await signInWithPopup(auth, provider);
       setGateStatus("");
     } catch (error) {
       console.error("Falha no login Google:", error);
-      if (error?.code === "auth/popup-blocked" &&
-          location.protocol === "https:" && firebaseConfig.authDomain === location.hostname) {
-        try { sessionStorage.setItem(GOOGLE_REDIRECT_PENDING_KEY, String(Date.now())); } catch {}
-        setGateStatus("Abrindo o Google na mesma tela…");
-        try {
-          await signInWithRedirect(auth, provider);
-          return;
-        } catch (redirectError) {
-          error = redirectError;
-          console.error("Falha no redirecionamento Google:", redirectError);
-        }
-      }
-      try { sessionStorage.removeItem(GOOGLE_REDIRECT_PENDING_KEY); } catch {}
       setGateStatus(readableLoginError(error), true);
     } finally {
       loginInProgress = false;
@@ -600,6 +640,9 @@ if (!configReady()) {
   });
 
   accountSignOutBtn?.addEventListener("click", async () => {
+    if (useAndroidGIS) {
+      try { window.google?.accounts?.id?.disableAutoSelect(); } catch {}
+    }
     await signOut(auth);
     localStorage.removeItem(AUTH_MODE_KEY);
     renderSignedOut();

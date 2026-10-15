@@ -1,5 +1,12 @@
 # Histórico de versões — SaldoPlan
 
+## 3.1.4 — Login Google sem redirecionamento no Android
+- Corrigido o fluxo Android para usar o botão oficial Google Identity Services e o ID token diretamente no Firebase (`signInWithCredential`), evitando o erro `missing initial state`.
+- Sessões Firebase continuam reutilizadas sem login repetido enquanto válidas.
+- Desktop mantém login por pop-up; o Google Drive mantém seu cliente OAuth separado.
+- Cache PWA atualizado e documentação de OAuth esclarecida.
+- Testes simulados e sintaxe validados; login real no Android pendente de homologação.
+
 ## 3.1.3 — Correção do login Google no Android
 - No Android, autenticação com redirecionamento Google em vez do pop-up suscetível ao erro `popup-closed-by-user`.
 - Reaproveitamento da sessão Firebase válida e bloqueio de tentativas simultâneas.

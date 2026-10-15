@@ -178,3 +178,13 @@ A tela `views/data.html` diferencia o **salvamento automático local** (não é 
 - O atalho de última conta aproveita `auth.currentUser` quando for a mesma conta, mas **um e-mail lembrado não equivale a uma sessão autenticada**. Não há armazenamento local de senhas ou tokens Google adicional.
 - O Service Worker não intercepta ` /__/auth/ ` nem ` /__/firebase/ `; o projeto Vercel já possui proxy de autenticação sob o domínio principal.
 - Sem alterações na chave financeira `meuCaixa.v1`, histórico, Firestore, Drive, APIs ou criptografia.
+
+## v3.1.4 — Google Login no Android via Google Identity Services
+
+- Cliente OAuth Web usado pelo **Firebase Authentication**: `292722512495-nlagmuoao494du6ve34jlevje0v5cor0.apps.googleusercontent.com`. O projeto Drive `PWACAIXA` e seu cliente `699291733242-...` permanecem inalterados.
+- Android: botão oficial Google Identity Services; credencial retornada pelo Google é convertida usando `GoogleAuthProvider.credential(idToken)` e enviada ao Firebase via `signInWithCredential`. Não utiliza mais `signInWithRedirect` e não depende de `sessionStorage` entre domínios para autenticar.
+- A seleção depende das contas disponíveis para o navegador Google, não de uma leitura direta das contas do Android. O Google pode solicitar MFA ou validação quando necessário.
+- Desktop: mantém `signInWithPopup`. Sessões válidas continuam armazenadas pelo Firebase via `browserLocalPersistence`; nenhum token Google é persistido manualmente.
+- Na indisponibilidade da API do Google, a interface instrui o usuário a abrir no Chrome, sem repetir o redirecionamento que causou `missing initial state`.
+- Dados financeiros locais continuam compartilhados por navegador (`meuCaixa.v1`) independentemente de qual conta Google esteja autenticada. Não há isolamento de perfis locais nesta versão.
+- Backups, Google Drive, Firestore, sincronização criptografada e formatos de dados não são alterados.
