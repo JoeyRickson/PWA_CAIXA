@@ -324,6 +324,7 @@ function renderSignedIn(user) {
 
   const driveAccountLabel = document.querySelector("#driveAccountLabel");
   if (driveAccountLabel) driveAccountLabel.textContent = user.email || displayName;
+  window.saldoPlanSyncAuthChanged?.(user.uid);
 }
 
 function renderOffline() {
@@ -362,10 +363,12 @@ function renderOffline() {
 
   const driveAccountLabel = document.querySelector("#driveAccountLabel");
   if (driveAccountLabel) driveAccountLabel.textContent = "Modo offline";
+  window.saldoPlanSyncAuthChanged?.(null);
 }
 
 function renderSignedOut() {
   window.saldoPlanAuthUser = null;
+  window.saldoPlanSyncAuthChanged?.(null);
   accountQuick?.classList.add("hidden");
 
   if (accountState) {

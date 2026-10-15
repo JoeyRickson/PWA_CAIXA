@@ -1,5 +1,16 @@
 # Histórico de versões — SaldoPlan
 
+## 3.1.0 — Desbloqueio por dispositivo e sincronização com proteção de conflito
+
+- Opção **Lembrar desbloqueio neste aparelho**, associada ao UID do login Google: chave AES-GCM **não exportável** criada pelo Web Crypto e guardada no IndexedDB com a senha encapsulada em forma cifrada. A senha **não** é gravada em texto no `localStorage`, enviada ao Firestore ou compartilhada entre aparelhos.
+- Após primeiro desbloqueio com sucesso, aparelhos pessoais autorizados podem enviar e verificar cópias sem redigitar a senha, inclusive após recarregar e autenticar novamente na mesma conta.
+- Ação **Esquecer desbloqueio deste aparelho**: remove a chave local, bloqueia a sessão e desativa a sincronização automática sem apagar backups ou dados.
+- Abertura de sessão automática confere a impressão digital remota antes do primeiro envio e **pausa em divergência**, preservando alterações locais e remotas. Atualizações usam a pré-condição `updateTime` do Firestore.
+- Antes de sobrescrever um snapshot existente, valida que a senha usada realmente consegue descriptografar a cópia atual. A restauração continua pedindo confirmação e criando uma proteção local anterior.
+- Documentação `ARQUITETURA.md` e `FIRESTORE-SETUP.md` atualizadas; PWA e cache passam à v3.1.0.
+
+**Limites de segurança:** lembrar a senha não equivale a cofre de hardware ou autenticação biométrica: JavaScript executado sob a mesma origem pode usar a chave enquanto este perfil do navegador estiver desbloqueado. Use apenas em dispositivo pessoal. Se apagar os dados do navegador, será necessário informar a senha original. Ao entrar pela primeira vez em outro dispositivo, também é necessário informá-la. **Não há mesclagem automática** de edições concorrentes e o envio automático funciona somente enquanto a aplicação está aberta.
+
 ## 3.0.0 — Financial Intelligence (candidato para homologação)
 
 - Área **Inteligência financeira**, com limites mensais de orçamento por categoria, progresso e indicadores de excesso.

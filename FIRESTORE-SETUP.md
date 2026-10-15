@@ -51,3 +51,17 @@ service cloud.firestore {
 
 - Os protocolos de suporte da v3 são armazenados **no aparelho** que enviou a solicitação. O e-mail recebido pelo desenvolvedor contém o mesmo protocolo. Não há painel de alterações de status remoto nesta versão.
 - Notificações desta versão são notificações de navegador **enquanto o app estiver aberto**. Notificações push com o app fechado exigem subscriptions, armazenamento seguro no backend e serviço de disparo, não inclusos neste pacote.
+
+## Atualização v3.1.0 — desbloqueio por dispositivo
+
+### Segurança da opção Lembrar desbloqueio
+
+- **Somente por aparelho/navegador e conta Firebase (UID)**. Mesma conta em aparelho novo não libera a senha sem cadastrá-la naquele dispositivo.
+- O `CryptoKey` AES-GCM persistido no IndexedDB é **não exportável**; a senha é armazenada como dado criptografado com IV aleatório e `additionalData` vinculado ao UID e ao projeto. Não há armazenamento em texto puro em `localStorage`/Firestore.
+- A proteção é voltada a evitar exposição casual dos segredos salvos. **Não protege contra código malicioso ou XSS executado no mesmo domínio**, invasão do navegador ou acesso a um perfil desbloqueado. Não é biometria, não equivale a keystore de sistema operacional.
+- Ao sair da conta, o segredo em memória é invalidado; o registro local persistente permanece até o usuário escolher **Esquecer** ou limpar dados do navegador, para facilitar novo login autorizado.
+- Não ative Lembrar em computadores compartilhados. Mantenha o arquivo JSON/backup Drive e uma cópia da senha segura fora do navegador.
+
+### Estratégia de conflito
+
+A v3.1 continua usando **um documento por UID** (`data`, `salt`, `iv`, `hash`). Na abertura de uma sessão automática, se o hash remoto divergir dos dados locais, **não existe envio automático**. O usuário deve abrir **Verificar / restaurar** para aceitar a cópia remota, ou iniciar um envio **manual** e confirmar a substituição. Cada PATCH valida a revisão `updateTime` do Firestore; alterações concorrentes resultam em bloqueio. Não existe mesclagem de alterações entre aparelhos.

@@ -142,3 +142,13 @@ A comunicação Firestore exige `getIdToken()` de conta Firebase conectada; o ba
 6. Para Firestore: ambiente de teste com duas contas/aparelhos, confirmação de conflitos, restauração cancelada, senha errada e rede indisponível. **Não use dados reais no primeiro teste.**
 7. Confirme Resend/Firebase na produção antes de marcar o suporte como homologado.
 8. Publique a versão somente após homologação completa. Nenhum instalador automatiza `git commit` ou `git push`.
+
+## Sincronização protegida v3.1.0
+
+A implementação em `js/sp3-sync.js` mantém o modelo `saldoplanSync/{uid}` do Firestore e o formato cifrado v3.0 (`data`, `salt`, `iv`, `hash`), sem migração de dados remotos e sem alterar a chave local `meuCaixa.v1`. A autorização continua sendo Firebase Authentication com regras por UID.
+
+**Memória de chave opt-in:** a pessoa insere a senha de 12+ caracteres pelo menos uma vez em cada navegador. Ao escolher **Lembrar desbloqueio neste aparelho**, o app gera uma chave AES-GCM 256 **não exportável** via `SubtleCrypto.generateKey`, cifra a senha com IV aleatório e vinculação criptográfica ao UID/projeto (AAD), e guarda o registro no IndexedDB `SaldoPlanSyncDeviceV31`, coleção `deviceKeys`. O login confirmado para o mesmo UID permite recuperar a senha cifrada após atualização da página; logout apaga apenas a sessão em memória. A ação **Esquecer** remove o registro e desativa o automático. Não são salvos segredos em texto puro no Firestore ou no `localStorage`.
+
+**Modelo de segurança:** armazenamento local não substitui biometria, TPM nem proteção contra XSS; scripts com acesso à mesma origem podem utilizar chaves do IndexedDB. Destina-se exclusivamente a dispositivos pessoais. A mesma conta em outro aparelho precisa da senha original uma vez. O app não consegue recuperar senha perdida.
+
+**Conflitos:** uploads automáticos só ocorrem com guia aberta, conta correta, credencial desbloqueada e revisão remota reconhecida. Na primeira sessão automática, o hash local é comparado ao remoto; uma divergência pausa o envio. Em PATCH, a pré-condição `currentDocument.updateTime` (ou `exists=false`) impede corridas concorrentes. A restauração requer confirmação, grava snapshot e não mescla alterações de aparelhos distintos. Antes de sobrescrever um documento existente, o app valida a senha descriptografando a cópia remota. O Google Drive segue como backup independente.

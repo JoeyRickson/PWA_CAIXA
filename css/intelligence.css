@@ -102,3 +102,8 @@ body[data-layout-effective="desktop"] .desktop-sidebar .nav-item > span:not(.des
     font-size: .75rem;
   }
 }
+
+/* v3.1 — estado de desbloqueio na sincronização. */
+#sp31SyncLockStatus { margin: 8px 0 14px; font-size: .82rem; line-height: 1.5; overflow-wrap: anywhere; opacity: .88; }
+#sp31SyncForget { margin: 0 0 12px; }
+#sp3SyncPanel .check-row { min-height: 24px; }

@@ -197,12 +197,15 @@
         </section>
       
         <section class="panel" id="sp3SyncPanel">
-          <div class="section-head"><div><span class="muted">Opcional · criptografia no navegador</span><h3>Sincronização protegida entre aparelhos (beta)</h3></div></div>
-          <p class="helper">Compartilhe uma cópia criptografada entre computadores e celulares na mesma conta Google, usando Firestore. Requer ativação do Firestore e regras de segurança conforme o guia da v3.0.0. Não substitui o backup no Drive.</p>
-          <label>Senha de criptografia (mínimo 12 caracteres, não é a senha Google)<input id="sp3SyncPass" type="password" autocomplete="new-password" minlength="12" placeholder="Informe a mesma senha em cada aparelho"></label>
+          <div class="section-head"><div><span class="muted">Opcional · criptografia no navegador</span><h3>Sincronização protegida entre aparelhos</h3></div></div>
+          <p class="helper">Compartilhe uma cópia criptografada entre computadores e celulares na mesma conta Google, usando Firestore. Requer Firestore configurado. A mesma conta Google pode lembrar o desbloqueio neste aparelho, sem solicitar a senha a cada acesso. Não substitui o backup no Drive.</p>
+          <label>Senha de criptografia (12+ caracteres, apenas no primeiro uso deste aparelho)<input id="sp3SyncPass" type="password" autocomplete="new-password" minlength="12" placeholder="Deixe vazio quando este aparelho já estiver desbloqueado"></label>
+          <label class="check-row"><input id="sp31SyncRemember" type="checkbox"> Lembrar desbloqueio neste aparelho pessoal (opcional)</label>
+          <div class="sp31-device-status" id="sp31SyncLockStatus" role="status" aria-live="polite">Entre com Google para configurar este aparelho.</div>
+          <button class="btn ghost full" type="button" id="sp31SyncForget">Esquecer desbloqueio deste aparelho</button>
           <label class="check-row"><input id="sp3SyncAuto" type="checkbox"> Sincronizar automaticamente enquanto esta sessão estiver desbloqueada</label>
           <div class="sp3-tools-grid"><button class="btn" type="button" id="sp3SyncUpload">Enviar cópia criptografada</button><button class="btn secondary" type="button" id="sp3SyncDownload">Verificar / restaurar cópia de outro aparelho</button></div>
-          <p class="sp3-note">A senha permanece somente em memória nesta guia. Se for perdida, a cópia criptografada não poderá ser recuperada. Em conflitos, o app interrompe o envio automático; nunca substitui silenciosamente os dados de outro aparelho.</p>
+          <p class="sp3-note">Quando você escolhe Lembrar, a senha é guardada cifrada com uma chave não exportável deste navegador, vinculada à sua conta. Use apenas em dispositivos pessoais. Em outros aparelhos, informe-a uma vez. Sem a senha original não é possível recuperar a cópia caso a chave local seja perdida. Envios automáticos pausam em conflitos; nenhuma alteração remota será sobrescrita silenciosamente.</p>
           <div id="sp3SyncStatus" class="sp3-status" role="status" aria-live="polite">Aguardando autorização e configuração do Firestore.</div>
         </section>
         <section class="panel" id="sp3NotificationPanel">
