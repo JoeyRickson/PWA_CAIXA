@@ -188,3 +188,10 @@ A tela `views/data.html` diferencia o **salvamento automático local** (não é 
 - Na indisponibilidade da API do Google, a interface instrui o usuário a abrir no Chrome, sem repetir o redirecionamento que causou `missing initial state`.
 - Dados financeiros locais continuam compartilhados por navegador (`meuCaixa.v1`) independentemente de qual conta Google esteja autenticada. Não há isolamento de perfis locais nesta versão.
 - Backups, Google Drive, Firestore, sincronização criptografada e formatos de dados não são alterados.
+
+## v3.1.5 — Entrada Android sem atalho redundante
+
+- A apresentação de **Última conta usada** permanece exclusiva do desktop. No Android, o elemento `#authLastAccount` mantém a classe `hidden` mesmo se existir e-mail salvo em `saldoplan.lastGoogleAccount.v1`.
+- Essa decisão preserva o fluxo funcional de autenticação por Google Identity Services no Android, sem depender de dados de e-mail lembrados ou abrir novamente redirecionamentos Firebase.
+- O desktop continua a oferecer o atalho existente. Os dados locais não passam a ser segregados por login Google; essa limitação não foi alterada.
+- Versão/cache `3.1.5` com nova URL de `auth.js`. Nenhuma modificação de `meuCaixa.v1`, Drive, Firestore ou regras de autenticação.

@@ -1,5 +1,12 @@
 # Histórico de versões — SaldoPlan
 
+## 3.1.5 — Entrada simplificada no Android
+
+- Android: oculta o cartão **Última conta usada** na tela de entrada. O login usa exclusivamente o seletor oficial Google Identity Services ou a opção offline.
+- Computador: mantém o cartão e o atalho da última conta, sem alterar o login via Firebase popup.
+- A conta ainda pode ser lembrada internamente para o desktop, mas a informação não é usada como autenticação no Android.
+- Atualiza o carregamento de `auth.js` e o cache do Service Worker para `3.1.5`. Sem alterações no Drive, Firestore, dados financeiros ou formatos de backup.
+
 ## 3.1.4 — Login Google sem redirecionamento no Android
 - Corrigido o fluxo Android para usar o botão oficial Google Identity Services e o ID token diretamente no Firebase (`signInWithCredential`), evitando o erro `missing initial state`.
 - Sessões Firebase continuam reutilizadas sem login repetido enquanto válidas.

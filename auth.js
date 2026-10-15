@@ -14,6 +14,8 @@ import { firebaseConfig } from "./firebase-config.js";
 
 const AUTH_MODE_KEY = "saldoplan.authMode.v1";
 const LAST_GOOGLE_ACCOUNT_KEY = "saldoplan.lastGoogleAccount.v1";
+// No Android usamos exclusivamente o seletor oficial GIS, não o atalho de e-mail salvo.
+const IS_ANDROID = /Android/i.test(navigator.userAgent || "");
 // Cliente Web do Firebase Authentication, NAO o cliente de backup do Google Drive.
 const FIREBASE_GOOGLE_WEB_CLIENT_ID = "292722512495-nlagmuoao494du6ve34jlevje0v5cor0.apps.googleusercontent.com";
 const ONBOARDING_KEY = "saldoplan.onboarding.v1";
@@ -295,7 +297,7 @@ function getLastGoogleAccount() {
 
 function refreshLastGoogleAccount() {
   const saved=getLastGoogleAccount();
-  lastAccountCard?.classList.toggle('hidden',!saved);
+  lastAccountCard?.classList.toggle('hidden', !saved || IS_ANDROID);
   if(lastAccountName)lastAccountName.textContent=saved?.name||'';
   if(lastAccountEmail)lastAccountEmail.textContent=saved?.email||'';
 }
@@ -477,7 +479,7 @@ if (!configReady()) {
 
   // Android: autenticar diretamente com token de ID do Google Identity Services.
   // Evita redirecionamento e sessionStorage (erro "missing initial state").
-  const useAndroidGIS = /Android/i.test(navigator.userAgent || "");
+  const useAndroidGIS = IS_ANDROID;
   let googleIdentityReady = false;
 
   function setLoginButtonsBusy(busy) {
