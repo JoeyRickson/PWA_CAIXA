@@ -1,5 +1,15 @@
 # Histórico de versões — SaldoPlan
 
+## v4.0.0 — Reorganização da aba Backups (homologação)
+
+- Movidos **Backup entre aparelhos** e **Verificar dados e backups** da aba Segurança para **Backups**.
+- Criada a seção **Recuperação e verificação**, exibida após os backups na nuvem e os backups manuais, com cartões responsivos e altura natural.
+- A aba **Segurança** permanece dedicada a diagnóstico, notificações e limpeza dos dados.
+- Preservados IDs, botões, senha lembrada, backups, dados financeiros, autenticação, Firestore e todas as funções existentes.
+- Atualizado o cache PWA e a arquitetura documentada; nenhuma mudança de lógica de sincronização.
+
+
+
 ## v4.0.0 — Correção de contraste entre temas (homologação)
 
 - Corrigidos fundo, borda e texto do painel **Segurança e diagnóstico** em temas claros e escuros.

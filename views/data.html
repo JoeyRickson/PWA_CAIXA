@@ -6,7 +6,7 @@
 
 
 <div aria-label="Seções de Dados e backup" class="sp4-settings-tabs" id="sp4SettingsTabs" role="tablist"><button aria-controls="sp4PaneBackup" aria-selected="true" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabBackup" role="tab" tabindex="0" title="Suas cópias e restaurações" type="button"><span>Backups</span></button><button aria-controls="sp4PaneAppearance" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabAppearance" role="tab" tabindex="-1" title="Temas e preferências" type="button"><span>Aparência</span></button><button aria-controls="sp4PaneFinance" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabFinance" role="tab" tabindex="-1" title="Meta mensal e bônus" type="button"><span>Finanças</span></button><button aria-controls="sp4PaneSecurity" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabSecurity" role="tab" tabindex="-1" title="Proteção e notificações" type="button"><span>Segurança</span></button><button aria-controls="sp4PaneAccount" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabAccount" role="tab" tabindex="-1" title="Conta e perfis separados" type="button"><span>Minha conta</span></button></div><div aria-labelledby="sp4TabBackup" class="sp4-tab-panel" id="sp4PaneBackup" role="tabpanel" tabindex="0"><div aria-label="Seus backups" class="sp4-section-group sp4-storage-layout" role="group">
-<div class="sp4-layout-title"><div><span class="muted">Dados e backup</span><h3>Seus backups</h3><p class="helper">Arquivos e cópias de segurança para recuperar seus dados.</p></div></div>
+<div class="sp4-layout-title"><div><span class="muted">Dados e backup</span><h3>Seus backups</h3><p class="helper">Salve, verifique e recupere suas cópias em um só lugar.</p></div></div>
 <div class="sp4-storage-columns">
 <section class="panel cloud-panel">
 <div class="section-head">
@@ -117,6 +117,42 @@
 </section>
 </div>
 </div>
+<div class="sp4-backup-tools" aria-label="Recuperação e verificação de backups" role="group">
+  <div class="sp4-backup-tools-title">
+    <span class="muted">Proteja e confira suas cópias</span>
+    <h3>Recuperação e verificação</h3>
+    <p class="helper">Use a mesma conta Google para recuperar seus dados em outro aparelho e confira um arquivo antes de restaurar.</p>
+  </div>
+  <div class="sp4-backup-tools-grid">
+<section aria-labelledby="sp311SyncHeading" class="panel" id="sp3SyncPanel">
+<div class="section-head"><div><span class="muted">Uma cópia para seus dispositivos</span><h3 id="sp311SyncHeading">Backup entre aparelhos</h3></div></div>
+<p class="helper">Guarde uma cópia protegida para recuperar seus dados no celular ou computador usando a mesma conta Google. Funciona sem conectar o Drive.</p>
+<label>Senha de proteção <span class="sp311-inline-muted">(mínimo 8 caracteres)</span>
+<input aria-describedby="sp311PasswordHelp" autocomplete="new-password" id="sp3SyncPass" minlength="8" placeholder="Digite apenas se este aparelho pedir a senha" type="password"/>
+</label>
+<p class="helper small-text sp311-hint" id="sp311PasswordHelp">Crie uma senha diferente da senha do Google. Quanto maior, mais protegida fica sua cópia.</p>
+<label class="check-row"><input id="sp31SyncRemember" type="checkbox"/> Lembrar a senha neste aparelho pessoal</label>
+<div aria-live="polite" class="sp31-device-status" id="sp31SyncLockStatus" role="status">Entre com Google para usar o backup entre aparelhos.</div>
+<button class="btn ghost full" id="sp31SyncForget" type="button">Esquecer senha lembrada neste aparelho</button>
+<label class="check-row"><input id="sp3SyncAuto" type="checkbox"/> Atualizar o backup automaticamente com o SaldoPlan aberto</label>
+<div class="sp3-tools-grid"><button class="btn" id="sp3SyncUpload" type="button">Fazer backup agora</button><button class="btn secondary" id="sp3SyncDownload" type="button">Conferir ou recuperar backup</button></div>
+<p class="helper small-text sp311-important">Atenção: se você alterar dados em dois aparelhos, será necessário escolher qual cópia manter. O SaldoPlan não junta as mudanças automaticamente.</p>
+<details class="sp311-more">
+<summary>Como funciona e como meus dados são protegidos?</summary>
+<p>O backup entre aparelhos é guardado de forma criptografada no Firebase da sua conta. A senha de proteção não é enviada ao servidor. Em um aparelho novo, você precisará informá-la uma vez; depois, pode optar por lembrá-la neste navegador pessoal.</p>
+<p>O envio automático funciona com o aplicativo aberto e pausa quando encontra cópias diferentes. Não substitui o backup manual nem o Google Drive. Se perder a senha e não tiver um aparelho autorizado, esta cópia não poderá ser recuperada.</p>
+</details>
+<div aria-live="polite" class="sp3-status" id="sp3SyncStatus" role="status">Entre com Google e faça seu primeiro backup entre aparelhos.</div>
+</section>
+<section class="panel" id="sp3IntegrityPanel">
+<div class="section-head"><div><span class="muted">Conferência de segurança</span><h3>Verificar dados e backups</h3></div></div>
+<p class="helper">Confira se seus dados estão íntegros ou examine um arquivo de backup antes de restaurar. A verificação não altera suas informações.</p>
+<div class="sp3-tools-grid"><button class="btn secondary" id="sp3IntegrityCheck" type="button">Verificar dados atuais</button><label class="btn ghost file-label" style="text-align:center;cursor:pointer">Examinar backup JSON<input accept=".json,application/json" id="sp3IntegrityFile" type="file"/></label></div>
+<div aria-live="polite" class="sp3-status" id="sp3IntegrityStatus" role="status">Nenhuma análise realizada.</div>
+</section>
+  </div>
+</div>
+
 </div></div><div aria-labelledby="sp4TabAppearance" class="sp4-tab-panel" hidden="" id="sp4PaneAppearance" role="tabpanel" tabindex="0"><div aria-label="Aparência" class="sp4-section-group sp4-preferences-layout" role="group">
 <div class="sp4-layout-title"><div><span class="muted">Dados e backup</span><h3>Aparência</h3><p class="helper">Escolha o visual do SaldoPlan. As preferências financeiras estão na aba Finanças.</p></div></div>
 <div class="sp4-preferences-columns">
@@ -146,7 +182,7 @@
 </section>
 </div>
 </div></div><div aria-labelledby="sp4TabSecurity" class="sp4-tab-panel" hidden="" id="sp4PaneSecurity" role="tabpanel" tabindex="0"><div aria-label="Segurança e notificações" class="sp4-section-group sp4-security-layout" role="group">
-<div class="sp4-layout-title"><div><span class="muted">Dados e backup</span><h3>Segurança e notificações</h3><p class="helper">Diagnósticos, alertas e proteção das informações.</p></div></div>
+<div class="sp4-layout-title"><div><span class="muted">Dados e backup</span><h3>Segurança e notificações</h3><p class="helper">Diagnóstico do aplicativo, alertas e controles de privacidade. Suas cópias e verificações ficam em Backups.</p></div></div>
 <div class="sp4-security-columns">
 <div class="sp4-column">
 <section class="panel sp4-diagnostic" id="sp4Diagnostics">
@@ -154,26 +190,6 @@
 <p class="helper">Confira o estado local do aplicativo sem enviar seus lançamentos. O histórico e os backups continuam independentes.</p>
 <dl><dt>Status</dt><dd>Aguardando verificação</dd></dl>
 <div class="sp3-tools-grid"><button class="btn secondary" id="sp4Inspect" type="button">Verificar agora</button><button class="btn ghost" id="sp4ExportDiagnostics" type="button">Baixar diagnóstico</button></div>
-</section>
-<section aria-labelledby="sp311SyncHeading" class="panel" id="sp3SyncPanel">
-<div class="section-head"><div><span class="muted">Uma cópia para seus dispositivos</span><h3 id="sp311SyncHeading">Backup entre aparelhos</h3></div></div>
-<p class="helper">Guarde uma cópia protegida para recuperar seus dados no celular ou computador usando a mesma conta Google. Funciona sem conectar o Drive.</p>
-<label>Senha de proteção <span class="sp311-inline-muted">(mínimo 8 caracteres)</span>
-<input aria-describedby="sp311PasswordHelp" autocomplete="new-password" id="sp3SyncPass" minlength="8" placeholder="Digite apenas se este aparelho pedir a senha" type="password"/>
-</label>
-<p class="helper small-text sp311-hint" id="sp311PasswordHelp">Crie uma senha diferente da senha do Google. Quanto maior, mais protegida fica sua cópia.</p>
-<label class="check-row"><input id="sp31SyncRemember" type="checkbox"/> Lembrar a senha neste aparelho pessoal</label>
-<div aria-live="polite" class="sp31-device-status" id="sp31SyncLockStatus" role="status">Entre com Google para usar o backup entre aparelhos.</div>
-<button class="btn ghost full" id="sp31SyncForget" type="button">Esquecer senha lembrada neste aparelho</button>
-<label class="check-row"><input id="sp3SyncAuto" type="checkbox"/> Atualizar o backup automaticamente com o SaldoPlan aberto</label>
-<div class="sp3-tools-grid"><button class="btn" id="sp3SyncUpload" type="button">Fazer backup agora</button><button class="btn secondary" id="sp3SyncDownload" type="button">Conferir ou recuperar backup</button></div>
-<p class="helper small-text sp311-important">Atenção: se você alterar dados em dois aparelhos, será necessário escolher qual cópia manter. O SaldoPlan não junta as mudanças automaticamente.</p>
-<details class="sp311-more">
-<summary>Como funciona e como meus dados são protegidos?</summary>
-<p>O backup entre aparelhos é guardado de forma criptografada no Firebase da sua conta. A senha de proteção não é enviada ao servidor. Em um aparelho novo, você precisará informá-la uma vez; depois, pode optar por lembrá-la neste navegador pessoal.</p>
-<p>O envio automático funciona com o aplicativo aberto e pausa quando encontra cópias diferentes. Não substitui o backup manual nem o Google Drive. Se perder a senha e não tiver um aparelho autorizado, esta cópia não poderá ser recuperada.</p>
-</details>
-<div aria-live="polite" class="sp3-status" id="sp3SyncStatus" role="status">Entre com Google e faça seu primeiro backup entre aparelhos.</div>
 </section>
 <section class="panel" id="sp3NotificationPanel">
 <div class="section-head"><div><span class="muted">Alertas sob seu controle</span><h3>Notificações do aplicativo</h3></div></div>
@@ -189,12 +205,6 @@
 <p class="helper">Receba um aviso genérico em dias com compromissos previstos, mesmo sem abrir o SaldoPlan. Requer permissão, suporte do navegador e configuração do serviço push na Vercel. Nenhum valor ou descrição de transação é enviado.</p>
 <div class="sp3-tools-grid"><button class="btn secondary" id="sp4PushEnable" type="button">Ativar lembretes push</button><button class="btn ghost" id="sp4PushDisable" type="button">Desativar neste aparelho</button></div>
 <p aria-live="polite" class="helper small-text" id="sp4PushStatus">Serviço aguardando configuração.</p>
-</section>
-<section class="panel" id="sp3IntegrityPanel">
-<div class="section-head"><div><span class="muted">Conferência de segurança</span><h3>Verificar dados e backups</h3></div></div>
-<p class="helper">Confira se seus dados estão íntegros ou examine um arquivo de backup antes de restaurar. A verificação não altera suas informações.</p>
-<div class="sp3-tools-grid"><button class="btn secondary" id="sp3IntegrityCheck" type="button">Verificar dados atuais</button><label class="btn ghost file-label" style="text-align:center;cursor:pointer">Examinar backup JSON<input accept=".json,application/json" id="sp3IntegrityFile" type="file"/></label></div>
-<div aria-live="polite" class="sp3-status" id="sp3IntegrityStatus" role="status">Nenhuma análise realizada.</div>
 </section>
 <section class="panel danger-zone">
 <h3>Limpar dados</h3>

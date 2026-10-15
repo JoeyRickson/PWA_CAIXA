@@ -268,3 +268,44 @@ body[data-layout-effective="desktop"] #view-data.active {
   outline:3px solid var(--accent);
   outline-offset:2px;
 }
+
+/* v4.0.0 — Organizar todas as cópias e verificações na aba Backups.
+   Somente apresentação: preserva os IDs dos controles e a lógica de segurança. */
+#view-data #sp4PaneBackup .sp4-backup-tools {
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:12px;
+  width:100%;
+  min-width:0;
+  margin-top:4px;
+}
+#view-data #sp4PaneBackup .sp4-backup-tools-title {
+  padding:2px 1px;
+  min-width:0;
+}
+#view-data #sp4PaneBackup .sp4-backup-tools-title h3 {
+  font-size:clamp(.98rem,1.1vw,1.14rem);
+  margin:2px 0 4px;
+}
+#view-data #sp4PaneBackup .sp4-backup-tools-title .helper {margin:0;}
+#view-data #sp4PaneBackup .sp4-backup-tools-grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:start;
+  gap:16px;
+  min-width:0;
+}
+#view-data #sp4PaneBackup .sp4-backup-tools-grid > .panel {
+  margin:0;
+  min-width:0;
+  width:100%;
+  max-width:100%;
+  height:auto;
+  align-self:start;
+}
+@media (max-width:1099px) {
+  #view-data #sp4PaneBackup .sp4-backup-tools-grid {
+    grid-template-columns:minmax(0,1fr);
+    gap:13px;
+  }
+}

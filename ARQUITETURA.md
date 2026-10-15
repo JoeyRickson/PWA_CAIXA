@@ -260,3 +260,13 @@ A página foi dividida em quatro abas acessíveis: Backups, Aparência, Seguran�
 - Corrigidos `#sp4Diagnostics`, `.sp4-profile-note`, `.sp4-fast-menu`, `.sp4-shortcut` e `.sp4-tag`, eliminando fallbacks fixos escuros de tokens inexistentes (`--panel`, `--text`, `--border`).
 - Os botões de diagnóstico secundários e de contorno preservam contraste entre fundo e rótulo, inclusive nos temas claros, e componentes interativos exibem foco visível.
 - A atualização não modifica estado, IDs, dados financeiros, Firestore, login, servidor ou lógica de backup. Novas revisões exigem cache renovado do Service Worker para o CSS.
+
+
+## v4.0.0 — Backups agrupados na mesma aba (ajuste de homologação)
+
+- A aba **Backups**, em `views/data.html`, reúne agora: backup na nuvem, salvamento local, arquivo JSON/manual, histórico, **Backup entre aparelhos** (`#sp3SyncPanel`) e **Verificar dados e backups** (`#sp3IntegrityPanel`).
+- Os dois últimos painéis antes estavam em **Segurança**. Foram movidos como elementos HTML existentes; nenhum `id`, formulário, tipo de input, ação de botão ou comportamento do JavaScript foi alterado.
+- A aba **Segurança** concentra diagnóstico local, notificações (com app aberto ou fechado, conforme configuração) e limpeza dos dados do dispositivo.
+- `css/v4.css` define `.sp4-backup-tools-grid` com dois cartões em desktop e um em telas menores, com altura natural e usando apenas variáveis dos 14 temas.
+- `styles.css`, `index.html` e `sw.js` renovam a versão do CSS/cache sem apagar dados ou alterar os formatos de backup, Firestore ou Google Drive.
+- A sincronização criptografada segue baseada em cópias completas; conflitos permanecem sujeitos à escolha explícita do usuário.

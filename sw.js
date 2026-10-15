@@ -1,9 +1,9 @@
-const CACHE='saldoplan-v4.0.0-theme-fix';
+const CACHE='saldoplan-v4.0.0-backup-sections';
 
 const ASSETS=[
   "./",
   "./index.html",
-  "./styles.css?v=4.0.0-theme-fix",
+  "./styles.css?v=4.0.0-backup-sections",
   "./drive-config.js?v=4.0.0",
   "./app.js?v=4.0.0",
   "./auth.js?v=4.0.0",
@@ -74,7 +74,7 @@ const ASSETS=[
   "./js/sp3-tickets.js?v=4.0.0",
   "./views/intelligence.html?v=4.0.0",
   "./push-config.js?v=4.0.0",
-  "./css/v4.css?v=4.0.0-theme-fix",
+  "./css/v4.css?v=4.0.0-backup-sections",
   "./js/v4-features.js?v=4.0.0",
   "./js/v4-push.js?v=4.0.0",
   "./js/v4-settings-tabs.js?v=4.0.0-tabs",
