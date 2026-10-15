@@ -79,3 +79,19 @@ body[data-layout-effective="desktop"] #view-transactions .transaction-month-row{
 body[data-layout-effective="desktop"] #view-data .history-settings{
   grid-column:1 / -1;
 }
+
+/* v3.1.2: histórico compacto em linha do tempo; nenhuma versão é apagada ao recolher. */
+#view-data .sp312-history-head {margin-top:16px;display:grid;gap:3px;min-width:0}
+#view-data .sp312-history-head h3 {margin:5px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#view-data .sp312-history-head .helper {margin:0 0 6px}
+#view-data .sp312-history-settings {display:block;margin:4px 0 0;padding:0;background:var(--surface-2)}
+#view-data .sp312-history-settings summary {cursor:pointer;padding:12px 14px;color:var(--ink);font-weight:700;font-size:.84rem;list-style-position:inside}
+#view-data .sp312-history-settings .sp312-history-options {display:grid;gap:10px;padding:0 14px 14px}
+#view-data .sp312-history-settings label {display:grid;gap:7px;font-size:.83rem}
+#view-data .sp312-timeline {display:grid;gap:0;padding-left:10px;border-left:2px solid var(--line);margin-left:7px}
+#view-data .sp312-day {padding:9px 0 5px 10px;color:var(--muted);font-size:.74rem;font-weight:800}
+#view-data .sp312-timeline-item {margin:0 0 7px 9px;position:relative;padding:9px 10px;min-width:0}
+#view-data .sp312-timeline-item::before {content:'';position:absolute;left:-17px;top:17px;width:8px;height:8px;background:var(--brand);border:2px solid var(--surface);border-radius:50%}
+#view-data .sp312-timeline-item .undo-copy strong {font-size:.78rem}
+#view-data .sp312-history-toggle {margin-top:8px;width:100%;background:var(--surface-2)}
+@media(max-width:520px){#view-data .sp312-timeline-item {align-items:center}#view-data .sp312-timeline-item .btn {flex-shrink:0}}

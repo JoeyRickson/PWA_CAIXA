@@ -152,3 +152,21 @@ A implementação em `js/sp3-sync.js` mantém o modelo `saldoplanSync/{uid}` do 
 **Modelo de segurança:** armazenamento local não substitui biometria, TPM nem proteção contra XSS; scripts com acesso à mesma origem podem utilizar chaves do IndexedDB. Destina-se exclusivamente a dispositivos pessoais. A mesma conta em outro aparelho precisa da senha original uma vez. O app não consegue recuperar senha perdida.
 
 **Conflitos:** uploads automáticos só ocorrem com guia aberta, conta correta, credencial desbloqueada e revisão remota reconhecida. Na primeira sessão automática, o hash local é comparado ao remoto; uma divergência pausa o envio. Em PATCH, a pré-condição `currentDocument.updateTime` (ou `exists=false`) impede corridas concorrentes. A restauração requer confirmação, grava snapshot e não mescla alterações de aparelhos distintos. Antes de sobrescrever um documento existente, o app valida a senha descriptografando a cópia remota. O Google Drive segue como backup independente.
+
+## Backup simplificado e acessibilidade v3.1.1
+
+A tela `views/data.html` diferencia o **salvamento automático local** (não é backup externo), o **backup manual (.json)**, o **backup em arquivos na nuvem** (Google Drive ou serviço configurado) e o **backup entre aparelhos** (cópia cifrada no Firestore). As operações continuam independentes.
+
+- A interface utiliza nomes acessíveis, descrições curtas e ajuda técnica recolhida em `<details>`, com controles de senha identificados e avisos `aria-live`. IDs de elementos, fluxos e chaves de armazenamento não mudaram.
+- O mínimo da senha de proteção passa de 12 para **8 caracteres** tanto no atributo HTML quanto na validação de `js/sp3-sync.js`, inclusive na recuperação de segredo local lembrado. Senhas já existentes de 12+ caracteres permanecem válidas; os documentos remotos AES-GCM/PBKDF2 continuam compatíveis e não são migrados ou descriptografados automaticamente.
+- O mínimo de 8 reduz a resistência a adivinhação offline caso o documento criptografado seja obtido; o usuário recebe orientação para escolher uma frase maior. A criptografia não substitui um backup JSON/Drive e continua opcional.
+- O PWA atualiza seu cache para `v3.1.1`, evitando exibir formulários obsoletos.
+- A cópia remota continua sendo um snapshot completo por conta: **sem mesclagem de alterações concorrentes**, com verificação e confirmação antes da substituição. A opção Lembrar segue voluntária, somente para dispositivos pessoais, com chave não exportável no IndexedDB.
+
+## v3.1.2 — Backup e acesso simplificados
+
+- A seção de backup em serviços externos passa a chamar-se **Backup na nuvem** e mantém as opções Google Drive, OneDrive e Dropbox. A restauração integrada permanece disponível apenas para Google Drive; nos outros dois provedores, a recuperação usa o JSON exportado.
+- O histórico local de restauração continua armazenado em `meuCaixa.undoHistory.v3` com o limite existente. A interface mostra as três versões mais recentes, agrupadas por dia, e permite expandir todas. A configuração e limpeza do histórico ficam recolhidas.
+- O login mantém `browserLocalPersistence` no Firebase Auth. Após um login bem-sucedido, o aplicativo guarda **apenas nome e e-mail** da última conta no `localStorage` (`saldoplan.lastGoogleAccount.v1`) para exibir um atalho naquele navegador. Não armazena senha, token ou lista de contas Android. O usuário pode remover o atalho, e o login sempre passa pelos fluxos oficiais do Google (popup/redirecionamento).
+- O botão **Escolher outra conta Google** utiliza `prompt: select_account`; o atalho da última conta utiliza `login_hint` e pode continuar exigindo autenticação por decisão do provedor.
+- Não há alteração nos formatos financeiros, na criptografia Firestore, nas rotinas de backup nem nas regras do banco de dados.

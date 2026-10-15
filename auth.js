@@ -14,6 +14,7 @@ import {
 import { firebaseConfig } from "./firebase-config.js";
 
 const AUTH_MODE_KEY = "saldoplan.authMode.v1";
+const LAST_GOOGLE_ACCOUNT_KEY = "saldoplan.lastGoogleAccount.v1";
 const ONBOARDING_KEY = "saldoplan.onboarding.v1";
 
 const ONBOARDING_CONTENT = {
@@ -95,6 +96,12 @@ const onboardingResumeBtn = $("#onboardingResumeBtn");
 const gate = $("#authGate");
 const gateMessage = $("#authGateMessage");
 const googleButton = $("#authGoogleBtn");
+const lastAccountCard = $("#authLastAccount");
+const lastAccountButton = $("#authLastAccountBtn");
+const lastAccountName = $("#authLastAccountName");
+const lastAccountEmail = $("#authLastAccountEmail");
+const forgetLastAccountButton = $("#authForgetLastAccount");
+
 const offlineButton = $("#authOfflineBtn");
 
 const accountQuick = $("#accountQuickBtn");
@@ -235,7 +242,7 @@ function refreshOnboardingMode() {
 
 function applyGoogleAvailability() {
   const disabled = !configReady();
-  [googleButton, accountGoogleBtn, onboardingGoogleBtn].forEach((button) => {
+  [googleButton, accountGoogleBtn, onboardingGoogleBtn, lastAccountButton].forEach((button) => {
     if (!button) return;
     if (disabled) {
       button.setAttribute("disabled", "disabled");
@@ -275,6 +282,23 @@ function fillDriveEmail(user) {
   }
 }
 
+function getLastGoogleAccount() {
+  try {
+    const saved=JSON.parse(localStorage.getItem(LAST_GOOGLE_ACCOUNT_KEY)||'null');
+    if(saved && typeof saved.email==='string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(saved.email)) {
+      return {email:saved.email,name:String(saved.name||saved.email).slice(0,100)};
+    }
+  } catch {}
+  return null;
+}
+
+function refreshLastGoogleAccount() {
+  const saved=getLastGoogleAccount();
+  lastAccountCard?.classList.toggle('hidden',!saved);
+  if(lastAccountName)lastAccountName.textContent=saved?.name||'';
+  if(lastAccountEmail)lastAccountEmail.textContent=saved?.email||'';
+}
+
 function renderSignedIn(user) {
   completeOnboarding();
   setOnboardingVisible(false);
@@ -292,6 +316,10 @@ function renderSignedIn(user) {
     "Conta Google";
 
   localStorage.setItem(AUTH_MODE_KEY, "google");
+  if(user.email){
+    try {localStorage.setItem(LAST_GOOGLE_ACCOUNT_KEY,JSON.stringify({email:user.email,name:displayName}));} catch {}
+  }
+  refreshLastGoogleAccount();
   setGateVisible(false);
   setGateStatus("");
 
@@ -367,6 +395,7 @@ function renderOffline() {
 }
 
 function renderSignedOut() {
+  refreshLastGoogleAccount();
   window.saldoPlanAuthUser = null;
   window.saldoPlanSyncAuthChanged?.(null);
   accountQuick?.classList.add("hidden");
@@ -380,7 +409,7 @@ function renderSignedOut() {
 
   if (accountEmail) {
     accountEmail.textContent =
-      "O login identifica sua conta. O Google Drive continua separado e opcional.";
+      "Seu login identifica a conta. O backup na nuvem é opcional.";
   }
 
   accountAvatar?.classList.add("hidden");
@@ -446,8 +475,11 @@ if (!configReady()) {
 
   auth.useDeviceLanguage();
 
-  const provider = new GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: "select_account" });
+  function makeGoogleProvider(lastEmail='') {
+    const provider=new GoogleAuthProvider();
+    provider.setCustomParameters(lastEmail?{login_hint:lastEmail}:{prompt:'select_account'});
+    return provider;
+  }
 
   try {
     await setPersistence(auth, browserLocalPersistence);
@@ -465,12 +497,15 @@ if (!configReady()) {
     );
   }
 
-  startGoogleLogin = async () => {
+  startGoogleLogin = async (useLastAccount=false) => {
+    const last=useLastAccount?getLastGoogleAccount():null;
+    const provider=makeGoogleProvider(last?.email||'');
     completeOnboarding();
     setOnboardingVisible(false);
     setGateVisible(true);
     setGateStatus("Abrindo o login do Google…");
     googleButton?.setAttribute("disabled", "disabled");
+    lastAccountButton?.setAttribute("disabled", "disabled");
     accountGoogleBtn?.setAttribute("disabled", "disabled");
     onboardingGoogleBtn?.setAttribute("disabled", "disabled");
 
@@ -505,15 +540,21 @@ if (!configReady()) {
       );
     } finally {
       googleButton?.removeAttribute("disabled");
+      lastAccountButton?.removeAttribute("disabled");
       accountGoogleBtn?.removeAttribute("disabled");
       onboardingGoogleBtn?.removeAttribute("disabled");
       applyGoogleAvailability();
     }
   };
 
-  googleButton?.addEventListener("click", startGoogleLogin);
-  onboardingGoogleBtn?.addEventListener("click", startGoogleLogin);
-  accountGoogleBtn?.addEventListener("click", startGoogleLogin);
+  googleButton?.addEventListener("click", () => startGoogleLogin(false));
+  onboardingGoogleBtn?.addEventListener("click", () => startGoogleLogin(false));
+  accountGoogleBtn?.addEventListener("click", () => startGoogleLogin(false));
+  lastAccountButton?.addEventListener('click',()=>startGoogleLogin(true));
+  forgetLastAccountButton?.addEventListener('click',()=>{
+    localStorage.removeItem(LAST_GOOGLE_ACCOUNT_KEY);
+    refreshLastGoogleAccount();
+  });
 
   accountSignOutBtn?.addEventListener("click", async () => {
     await signOut(auth);

@@ -20,7 +20,7 @@
   sizes="180x180"
   href="icons/apple-touch-icon.png"
 />
-  <link rel="stylesheet" href="styles.css?v=2.21.0" />
+  <link rel="stylesheet" href="styles.css?v=3.1.2" />
   <style id="spStartupCritical">
     #spStartup{position:fixed;inset:0;z-index:240;display:grid;place-items:center;background:#0d1421;color:#f6f9ff;padding:20px;box-sizing:border-box;font-family:system-ui,sans-serif}
     #spStartup[hidden]{display:none!important}
@@ -111,9 +111,18 @@
         Entre para identificar sua conta ou continue usando seus dados somente neste aparelho.
       </p>
 
+      <div id="authLastAccount" class="sp312-last-account hidden" aria-label="Última conta usada neste navegador">
+        <div class="sp312-last-account-head">Última conta usada neste navegador</div>
+        <button type="button" class="sp312-last-account-button" id="authLastAccountBtn">
+          <span class="sp312-last-account-icon" aria-hidden="true">G</span>
+          <span class="sp312-last-account-copy"><strong id="authLastAccountName"></strong><small id="authLastAccountEmail"></small></span>
+          <span aria-hidden="true">→</span>
+        </button>
+        <button type="button" class="ghost-link sp312-forget-account" id="authForgetLastAccount">Não mostrar esta conta novamente</button>
+      </div>
       <button id="authGoogleBtn" class="btn full auth-google" type="button">
         <span class="google-g" aria-hidden="true">G</span>
-        Entrar com Google
+        Escolher outra conta Google
       </button>
 
       <button id="authOfflineBtn" class="btn ghost full" type="button">
@@ -125,9 +134,9 @@
       <button id="onboardingReplayBtn" class="ghost-link auth-replay-btn" type="button">Ver apresentação rápida</button>
 
       <div class="auth-privacy-note">
-        <strong>Login e Google Drive são separados.</strong>
+        <strong>Login e backup na nuvem são separados.</strong>
         <span>
-          Entrar não dá acesso ao seu Drive. O backup só é autorizado quando você escolher conectar o Google Drive.
+          O SaldoPlan não lê as contas cadastradas no Android. O Google pode apresentar um seletor de contas ao entrar. Atenção: trocar de conta não separa os dados financeiros já salvos neste navegador.
         </span>
       </div>
     </section>
@@ -178,7 +187,7 @@
       <div class="mobile-brand-mark" aria-hidden="true">S</div>
       <div class="topbar-brand">
         <p class="eyebrow">CONTROLE FINANCEIRO</p>
-        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v3.1.0</small></h1>
+        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v3.1.1</small></h1>
       </div>
       <div class="top-actions">
 
@@ -334,7 +343,7 @@
 
 
 
-<script src="drive-config.js?v=3.1.0"></script>
-<script src="app.js?v=3.1.0"></script>
+<script src="drive-config.js?v=3.1.1"></script>
+<script src="app.js?v=3.1.1"></script>
 </body>
 </html>

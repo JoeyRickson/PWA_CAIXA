@@ -1,5 +1,19 @@
 # Histórico de versões — SaldoPlan
 
+## 3.1.2 — Backup e acesso simplificados
+- Nome neutro **Backup na nuvem** para Google Drive, OneDrive e Dropbox; descrições esclarecem diferenças de restauração.
+- Histórico local compacto com linha do tempo por data, prévia das 3 últimas versões, expansão e preferências recolhidas.
+- Tela de entrada com atalho para a última conta Google utilizada neste navegador, opção de selecionar outra conta e remoção do atalho. Mantém persistência do Firebase e não acessa a lista de contas do Android.
+- Sem alterações no armazenamento financeiro, APIs, formatos de backup e sincronização protegida.
+
+## 3.1.1 — Backup simplificado e mensagens acessíveis
+
+- Telas distinguem dados salvos no aparelho, backup manual em arquivo, backup no Drive/outro serviço e backup protegido entre dispositivos.
+- Sincronização apresentada como **Backup entre aparelhos**, com ajuda técnica expansível, botões claros e avisos de conflito visíveis.
+- Campo agora aceita **senha de proteção a partir de 8 caracteres**, recomendando senhas longas; o formato criptografado do Firestore e a proteção por conta permanecem inalterados.
+- Texto de status mais simples e cache PWA atualizado para v3.1.1.
+- Nenhuma mudança de dados financeiros, autenticação Google, regras Firestore, Google Drive ou mecanismo de recuperação.
+
 ## 3.1.0 — Desbloqueio por dispositivo e sincronização com proteção de conflito
 
 - Opção **Lembrar desbloqueio neste aparelho**, associada ao UID do login Google: chave AES-GCM **não exportável** criada pelo Web Crypto e guardada no IndexedDB com a senha encapsulada em forma cifrada. A senha **não** é gravada em texto no `localStorage`, enviada ao Firestore ou compartilhada entre aparelhos.

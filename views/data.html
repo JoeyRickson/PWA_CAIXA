@@ -19,7 +19,7 @@
             <div class="account-copy">
               <strong id="accountName">Entre com sua conta Google</strong>
               <span id="accountEmail">
-                O login identifica sua conta. O Google Drive continua separado e opcional.
+                Sua conta identifica seu perfil. O backup na nuvem é separado e opcional.
               </span>
             </div>
           </div>
@@ -67,12 +67,12 @@
 
         <section class="panel cloud-panel">
           <div class="section-head">
-            <div><span class="muted">Provedor de backup</span><h3>Backup em nuvem</h3></div>
+            <div><span class="muted">Arquivos de segurança</span><h3>Backup na nuvem</h3></div>
             <span id="driveStatus" class="status-pill">Desconectado</span>
           </div>
-          <p id="cloudProviderHelp" class="helper">O login do SaldoPlan e o backup são independentes. Para usar o Drive, basta conectar sua conta e escolher a pasta onde os backups serão guardados.</p>
+          <p id="cloudProviderHelp" class="helper">Escolha onde guardar uma cópia dos seus dados: Google Drive, OneDrive ou Dropbox. Alguns serviços precisam de configuração adicional para conectar.</p>
 
-          <label>Onde guardar o backup
+          <label>Serviço para guardar o backup
             <select id="cloudProvider">
               <option value="google">Google Drive</option>
               <option value="onedrive">OneDrive</option>
@@ -112,7 +112,7 @@
             <input id="driveFolderName" value="SaldoPlan - Backups">
           </label>
 
-          <label class="check-row"><input id="driveAutoBackup" type="checkbox"> Fazer backup automático enquanto o Drive estiver conectado</label>
+          <label class="check-row"><input id="driveAutoBackup" type="checkbox"> Fazer backup automático enquanto o serviço estiver conectado</label>
           <p class="helper small-text">Quando habilitado, alterações ficam pendentes e são agrupadas. O envio automático ocorre após alguns minutos sem novas mudanças; se o último backup tiver mais de 24 horas, o próximo envio é antecipado.</p>
           <label>Manter backups automáticos por
             <select id="driveRetentionDays">
@@ -126,7 +126,7 @@
             <button id="connectDrive" class="btn full">Conectar ao Google Drive</button>
             <button id="saveCloudConfig" class="btn secondary full">Salvar preferências</button>
             <button id="backupDrive" class="btn secondary full">Enviar backup agora</button>
-            <button id="restoreDrive" class="btn ghost full">Restaurar do Drive</button>
+            <button id="restoreDrive" class="btn ghost full">Recuperar backup da nuvem</button>
           </div>
 
           <div id="backupProgress" class="backup-progress hidden" role="status" aria-live="polite">
@@ -135,57 +135,54 @@
             <small id="backupProgressDetail">Aguarde enquanto os dados são enviados.</small>
           </div>
 
-          <p id="driveDetail" class="helper small-text">Conecte o Google Drive e escolha uma pasta para começar.</p>
-          <p class="helper small-text">O SaldoPlan usa somente a permissão necessária para trabalhar com os arquivos e a pasta escolhidos para o backup.</p>
+          <p id="driveDetail" class="helper small-text">Selecione e conecte um serviço para começar.</p>
+          <p class="helper small-text">Google Drive permite envio e restauração pelo aplicativo. OneDrive e Dropbox permitem envio após configurar sua conexão; para recuperar, use o arquivo JSON baixado do serviço. O SaldoPlan solicita as permissões necessárias à conexão escolhida.</p>
         </section>
 
         <section class="panel">
-          <h3>Dados deste aparelho</h3>
-          <p class="helper">Salva suas informações localmente neste celular ou computador. Esse armazenamento funciona offline e não envia os dados para ninguém.</p>
-          <button id="saveLocalData" class="btn full">Salvar informações neste aparelho</button>
+          <h3>Salvamento neste aparelho</h3>
+          <p class="helper">Seus dados são salvos automaticamente aqui, inclusive sem internet. Para protegê-los se perder o aparelho, faça também um backup.</p>
+          <button id="saveLocalData" class="btn full">Salvar agora neste aparelho</button>
           <p id="localSaveStatus" class="helper small-text">As alterações também são salvas automaticamente ao usar o app.</p>
         </section>
 
         <section class="panel">
-          <h3>Backup manual</h3>
-          <p class="helper">O arquivo JSON inclui lançamentos, gastos fixos, valores guardados, horas extras e configurações. Importações antigas da versão 1 também são aceitas.</p>
+          <h3>Backup manual (arquivo)</h3>
+          <p class="helper">Baixe um arquivo com seus dados para guardar onde preferir. Depois, você poderá restaurá-lo neste ou em outro aparelho.</p>
           <div class="button-stack">
-            <button id="exportJson" class="btn full">Exportar backup (.json)</button>
+            <button id="exportJson" class="btn full">Baixar arquivo de backup (.json)</button>
             <button id="exportCsv" class="btn secondary full">Exportar lançamentos (.csv)</button>
             <button id="exportPdf" class="btn secondary full">Exportar relatório (.pdf)</button>
-            <label class="btn ghost full file-label">Importar backup<input id="importJson" type="file" accept="application/json,.json"></label>
+            <label class="btn ghost full file-label">Restaurar de um arquivo<input id="importJson" type="file" accept="application/json,.json"></label>
             <button id="restorePreviousLocal" class="btn ghost full">Restaurar cópia local anterior</button>
             <button id="undoLastChange" class="btn ghost full">Desfazer última alteração</button>
           </div>
 
-          <div class="history-settings">
-            <div class="section-head">
-              <div>
-                <span class="muted">Proteção contra erros</span>
-                <h3>Histórico e restauração</h3>
-              </div>
-              <span id="undoHistoryCount" class="status-pill">0/20</span>
+          <div class="sp312-history-head">
+            <div>
+              <span class="muted">Proteção contra erros · neste aparelho</span>
+              <h3>Versões anteriores <span id="undoHistoryCount" class="status-pill">0/20</span></h3>
             </div>
-
-            <label class="check-row">
-              <input id="historyEnabled" type="checkbox">
-              Criar snapshot local antes de alterações importantes
-            </label>
-
-            <label>Quantidade de versões locais
-              <select id="historyLimit">
-                <option value="10">10 versões</option>
-                <option value="20">20 versões</option>
-                <option value="30">30 versões</option>
-              </select>
-            </label>
-
-            <p class="helper small-text">
-              Os snapshots ficam somente neste aparelho. Antes de restaurar uma versão, o estado atual também é protegido para permitir desfazer a restauração.
-            </p>
-
-            <button id="clearUndoHistory" class="btn ghost full" type="button">Limpar histórico local</button>
+            <p class="helper small-text">As últimas alterações aparecem abaixo. Abra o histórico completo apenas quando precisar restaurar.</p>
           </div>
+          <details class="history-settings sp312-history-settings">
+            <summary>Configurar histórico local</summary>
+            <div class="sp312-history-options">
+              <label class="check-row">
+                <input id="historyEnabled" type="checkbox">
+                Guardar versões anteriores das alterações importantes
+              </label>
+              <label>Quantidade de versões locais
+                <select id="historyLimit">
+                  <option value="10">10 versões</option>
+                  <option value="20">20 versões</option>
+                  <option value="30">30 versões</option>
+                </select>
+              </label>
+              <p class="helper small-text">Esse histórico fica somente neste aparelho. Antes de restaurar, o estado atual também é protegido para permitir desfazer.</p>
+              <button id="clearUndoHistory" class="btn ghost full" type="button">Limpar histórico local</button>
+            </div>
+          </details>
 
           <div id="undoHistory" class="undo-history" aria-live="polite"></div>
         </section>
@@ -196,17 +193,25 @@
           <button id="resetData" class="btn danger full">Apagar tudo</button>
         </section>
       
-        <section class="panel" id="sp3SyncPanel">
-          <div class="section-head"><div><span class="muted">Opcional · criptografia no navegador</span><h3>Sincronização protegida entre aparelhos</h3></div></div>
-          <p class="helper">Compartilhe uma cópia criptografada entre computadores e celulares na mesma conta Google, usando Firestore. Requer Firestore configurado. A mesma conta Google pode lembrar o desbloqueio neste aparelho, sem solicitar a senha a cada acesso. Não substitui o backup no Drive.</p>
-          <label>Senha de criptografia (12+ caracteres, apenas no primeiro uso deste aparelho)<input id="sp3SyncPass" type="password" autocomplete="new-password" minlength="12" placeholder="Deixe vazio quando este aparelho já estiver desbloqueado"></label>
-          <label class="check-row"><input id="sp31SyncRemember" type="checkbox"> Lembrar desbloqueio neste aparelho pessoal (opcional)</label>
-          <div class="sp31-device-status" id="sp31SyncLockStatus" role="status" aria-live="polite">Entre com Google para configurar este aparelho.</div>
-          <button class="btn ghost full" type="button" id="sp31SyncForget">Esquecer desbloqueio deste aparelho</button>
-          <label class="check-row"><input id="sp3SyncAuto" type="checkbox"> Sincronizar automaticamente enquanto esta sessão estiver desbloqueada</label>
-          <div class="sp3-tools-grid"><button class="btn" type="button" id="sp3SyncUpload">Enviar cópia criptografada</button><button class="btn secondary" type="button" id="sp3SyncDownload">Verificar / restaurar cópia de outro aparelho</button></div>
-          <p class="sp3-note">Quando você escolhe Lembrar, a senha é guardada cifrada com uma chave não exportável deste navegador, vinculada à sua conta. Use apenas em dispositivos pessoais. Em outros aparelhos, informe-a uma vez. Sem a senha original não é possível recuperar a cópia caso a chave local seja perdida. Envios automáticos pausam em conflitos; nenhuma alteração remota será sobrescrita silenciosamente.</p>
-          <div id="sp3SyncStatus" class="sp3-status" role="status" aria-live="polite">Aguardando autorização e configuração do Firestore.</div>
+        <section class="panel" id="sp3SyncPanel" aria-labelledby="sp311SyncHeading">
+          <div class="section-head"><div><span class="muted">Uma cópia para seus dispositivos</span><h3 id="sp311SyncHeading">Backup entre aparelhos</h3></div></div>
+          <p class="helper">Guarde uma cópia protegida para recuperar seus dados no celular ou computador usando a mesma conta Google. Funciona sem conectar o Drive.</p>
+          <label>Senha de proteção <span class="sp311-inline-muted">(mínimo 8 caracteres)</span>
+            <input id="sp3SyncPass" type="password" autocomplete="new-password" minlength="8" aria-describedby="sp311PasswordHelp" placeholder="Digite apenas se este aparelho pedir a senha">
+          </label>
+          <p id="sp311PasswordHelp" class="helper small-text sp311-hint">Crie uma senha diferente da senha do Google. Quanto maior, mais protegida fica sua cópia.</p>
+          <label class="check-row"><input id="sp31SyncRemember" type="checkbox"> Lembrar a senha neste aparelho pessoal</label>
+          <div class="sp31-device-status" id="sp31SyncLockStatus" role="status" aria-live="polite">Entre com Google para usar o backup entre aparelhos.</div>
+          <button class="btn ghost full" type="button" id="sp31SyncForget">Esquecer senha lembrada neste aparelho</button>
+          <label class="check-row"><input id="sp3SyncAuto" type="checkbox"> Atualizar o backup automaticamente com o SaldoPlan aberto</label>
+          <div class="sp3-tools-grid"><button class="btn" type="button" id="sp3SyncUpload">Fazer backup agora</button><button class="btn secondary" type="button" id="sp3SyncDownload">Conferir ou recuperar backup</button></div>
+          <p class="helper small-text sp311-important">Atenção: se você alterar dados em dois aparelhos, será necessário escolher qual cópia manter. O SaldoPlan não junta as mudanças automaticamente.</p>
+          <details class="sp311-more">
+            <summary>Como funciona e como meus dados são protegidos?</summary>
+            <p>O backup entre aparelhos é guardado de forma criptografada no Firebase da sua conta. A senha de proteção não é enviada ao servidor. Em um aparelho novo, você precisará informá-la uma vez; depois, pode optar por lembrá-la neste navegador pessoal.</p>
+            <p>O envio automático funciona com o aplicativo aberto e pausa quando encontra cópias diferentes. Não substitui o backup manual nem o Google Drive. Se perder a senha e não tiver um aparelho autorizado, esta cópia não poderá ser recuperada.</p>
+          </details>
+          <div id="sp3SyncStatus" class="sp3-status" role="status" aria-live="polite">Entre com Google e faça seu primeiro backup entre aparelhos.</div>
         </section>
         <section class="panel" id="sp3NotificationPanel">
           <div class="section-head"><div><span class="muted">Alertas sob seu controle</span><h3>Notificações do aplicativo</h3></div></div>
@@ -216,8 +221,8 @@
           <div id="sp3NotifyStatus" class="sp3-status" role="status" aria-live="polite">Notificações não configuradas.</div>
         </section>
         <section class="panel" id="sp3IntegrityPanel">
-          <div class="section-head"><div><span class="muted">Auditoria local</span><h3>Integridade dos dados e backups</h3></div></div>
-          <p class="helper">Calcule a impressão digital SHA-256 do estado financeiro atual. Também é possível verificar um backup JSON antes de restaurá-lo, sem modificar dados.</p>
+          <div class="section-head"><div><span class="muted">Conferência de segurança</span><h3>Verificar dados e backups</h3></div></div>
+          <p class="helper">Confira se seus dados estão íntegros ou examine um arquivo de backup antes de restaurar. A verificação não altera suas informações.</p>
           <div class="sp3-tools-grid"><button type="button" class="btn secondary" id="sp3IntegrityCheck">Verificar dados atuais</button><label class="btn ghost file-label" style="text-align:center;cursor:pointer">Examinar backup JSON<input id="sp3IntegrityFile" type="file" accept=".json,application/json"></label></div>
           <div id="sp3IntegrityStatus" class="sp3-status" role="status" aria-live="polite">Nenhuma análise realizada.</div>
         </section>

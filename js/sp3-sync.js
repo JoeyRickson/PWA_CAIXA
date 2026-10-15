@@ -82,7 +82,7 @@
     if(!record.key||!record.iv||!record.wrapped)throw new Error('O desbloqueio salvo está incompleto. Remova e configure novamente.');
     const result=await crypto.subtle.decrypt({name:'AES-GCM',iv:decode(record.iv),additionalData:aad(uid)},record.key,decode(record.wrapped));
     const pass=decoder.decode(result);
-    if(pass.length<12)throw new Error('A chave salva é inválida.');
+    if(pass.length<8)throw new Error('A senha de proteção salva é inválida.');
     return pass;
   }
   function clearSession(){
@@ -95,7 +95,7 @@
   }
   async function credentials(){
     const uid=loggedUid();
-    if(!uid)throw new Error('Entre com Google no SaldoPlan antes de sincronizar.');
+    if(!uid)throw new Error('Entre com sua conta Google antes de usar o backup entre aparelhos.');
     const [{getApps,getApp},{getAuth}]=await Promise.all([
       import('https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js'),
       import('https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js')
@@ -124,7 +124,7 @@
   function isValidRemote(remote){return !!(remote?.data&&remote.salt&&remote.iv&&remote.hash);}
   function typedOrUnlocked(){
     const pass=input.value||sessionPassword;
-    if(!pass||pass.length<12)throw new Error('Informe a senha de criptografia uma vez neste aparelho (mínimo 12 caracteres).');
+    if(!pass||pass.length<8)throw new Error('Crie ou informe a senha de proteção (mínimo 8 caracteres). Neste aparelho pessoal, você pode escolher Lembrar a senha.');
     return pass;
   }
   async function preserveUnlocked(uid,pass){
@@ -142,11 +142,11 @@
     if(remote&&!isValidRemote(remote))throw new Error('Cópia remota incompleta. Envio automático bloqueado.');
     if(remote&&remote.hash!==localHash){
       conflict=true;
-      info('Há alterações diferentes neste aparelho e na nuvem. Sincronização automática pausada. Use Verificar / restaurar e decida qual cópia manter.','error');
+      info('Há alterações diferentes neste aparelho e na nuvem. Backup automático pausado. Use Conferir ou recuperar backup para decidir qual cópia manter.','error');
       return false;
     }
     adoptRemote(uid,remote);
-    info(remote?'Cópias conferidas. Sincronização automática pronta para futuras alterações.':'Não há cópia na nuvem. O primeiro envio automático ocorrerá após uma alteração.','success');
+    info(remote?'Cópias conferidas. Backup automático pronto para futuras alterações.':'Não há cópia na nuvem. O primeiro envio automático ocorrerá após uma alteração.','success');
     return true;
   }
   async function uploadCopy({automatic=false}={}){
@@ -162,7 +162,7 @@
     if(remote?.hash===localHash){
       adoptRemote(uid,remote);
       await preserveUnlocked(uid,pass);
-      info('Os dados já estão atualizados na nuvem. Nenhum novo envio foi necessário.','success');
+      info('Seu backup entre aparelhos já está atualizado. Nenhum novo envio foi necessário.','success');
       return;
     }
     if(remote){
@@ -170,7 +170,7 @@
       await decrypt(pass,remote);
       if(automatic&&(!knownUpdatedAt||remote.updatedAt!==knownUpdatedAt)){
         conflict=true;
-        throw new Error('Outro aparelho pode ter alterado a cópia. Envio automático pausado. Verifique antes de substituir.');
+        throw new Error('Outro aparelho pode ter alterado a cópia. Backup automático pausado. Confira a cópia antes de substituir.');
       }
       if(!automatic&&(!knownUpdatedAt||remote.updatedAt!==knownUpdatedAt)){
         if(!confirm('A cópia em nuvem está diferente desta sessão. Enviar os dados deste aparelho substituirá o snapshot remoto, sem mesclar lançamentos. Faça um backup JSON antes. Deseja continuar?')){
@@ -184,7 +184,7 @@
     const result=await request(endpoint(uid)+suffix,token,'PATCH',{fields});
     adoptRemote(uid,{updatedAt:result.updateTime||null});
     await preserveUnlocked(uid,pass);
-    info(automatic?'Cópia criptografada atualizada automaticamente.':'Cópia criptografada enviada. Dados locais preservados.','success');
+    info(automatic?'Backup entre aparelhos atualizado automaticamente.':'Backup entre aparelhos salvo. Seus dados neste aparelho foram preservados.','success');
   }
   async function downloadCopy(){
     const pass=typedOrUnlocked(),{uid,token}=await credentials();
@@ -222,19 +222,19 @@
     clearSession();
     remember.checked=false;
     forget.disabled=true;
-    if(!uid){lockInfo('Entre com Google para desbloquear a sincronização.');info('Conecte sua conta Google para sincronizar.');return;}
+    if(!uid){lockInfo('Entre com Google para desbloquear o backup entre aparelhos.');info('Conecte sua conta Google para usar o backup entre aparelhos.');return;}
     lockInfo('Verificando se este aparelho já foi autorizado…');
     try{
       const pass=await localPassword(uid);
       if(epoch!==authEpoch||loggedUid()!==uid)return;
       if(pass){
         sessionPassword=pass;knownUid=uid;remember.checked=true;forget.disabled=false;
-        lockInfo('Desbloqueado automaticamente para esta conta neste aparelho.');
-        info('Conta reconhecida. A senha não precisa ser digitada novamente neste aparelho.','success');
+        lockInfo('Backup desbloqueado neste aparelho para esta conta Google.');
+        info('Conta reconhecida. Não é preciso digitar a senha novamente neste aparelho.','success');
         if(auto.checked)run(async()=>{const {uid:verified,token}=await credentials();if(verified===uid)await inspectBaseline(uid,token);});
       }else{
-        lockInfo('Primeiro uso neste aparelho: digite a senha e marque Lembrar, se for um dispositivo pessoal.');
-        info('Aguardando senha de criptografia para esta conta.');
+        lockInfo('Primeiro uso neste aparelho: informe a senha e marque Lembrar a senha se for seu aparelho pessoal.');
+        info('Aguardando a senha de proteção para esta conta.');
       }
     }catch(e){
       if(epoch!==authEpoch)return;
@@ -249,8 +249,8 @@
   auto.addEventListener('change',()=>{
     localStorage.setItem(AUTO_PREF,String(auto.checked));
     clearTimeout(timer);
-    if(!auto.checked){info('Sincronização automática desativada.');return;}
-    if(!sessionPassword){info('Desbloqueie com a senha para ativar os envios automáticos.','error');return;}
+    if(!auto.checked){info('Backup automático desativado.');return;}
+    if(!sessionPassword){info('Informe a senha de proteção para ativar os backups automáticos.','error');return;}
     run(async()=>{const {uid,token}=await credentials();await inspectBaseline(uid,token);});
   });
   remember.addEventListener('change',()=>{
@@ -273,7 +273,7 @@
       clearSession();auto.checked=false;remember.checked=false;forget.disabled=true;
       localStorage.setItem(AUTO_PREF,'false');
       lockInfo('Senha esquecida neste aparelho. Dados locais e nuvem preservados.');
-      info('Desbloqueio local removido. Para sincronizar novamente, informe a senha de criptografia.','success');
+      info('Desbloqueio local removido. Para usar o backup entre aparelhos novamente, informe a senha de proteção.','success');
     });
   });
   window.saldoPlanSyncMarkDirty=()=>{

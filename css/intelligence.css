@@ -107,3 +107,13 @@ body[data-layout-effective="desktop"] .desktop-sidebar .nav-item > span:not(.des
 #sp31SyncLockStatus { margin: 8px 0 14px; font-size: .82rem; line-height: 1.5; overflow-wrap: anywhere; opacity: .88; }
 #sp31SyncForget { margin: 0 0 12px; }
 #sp3SyncPanel .check-row { min-height: 24px; }
+
+/* v3.1.1 — Backup simplificado: instruções curtas, explicações sob demanda. */
+#sp3SyncPanel .sp311-inline-muted{font-weight:400;color:var(--muted)}
+#sp3SyncPanel .sp311-hint{margin:-6px 0 8px;line-height:1.45}
+#sp3SyncPanel .sp311-important{margin:12px 0;line-height:1.5}
+#sp3SyncPanel .sp311-more{margin:8px 0 15px;border:1px solid var(--line);border-radius:12px;padding:11px 12px;max-width:100%;overflow-wrap:anywhere}
+#sp3SyncPanel .sp311-more summary{cursor:pointer;color:var(--ink);font-weight:650;font-size:.83rem;line-height:1.5;min-height:30px}
+#sp3SyncPanel .sp311-more summary:focus-visible{outline:2px solid var(--saving);outline-offset:3px;border-radius:4px}
+#sp3SyncPanel .sp311-more p{margin:11px 0 2px;color:var(--muted);font-size:.81rem;line-height:1.58}
+#sp3SyncPanel #sp3SyncPass{min-height:44px}

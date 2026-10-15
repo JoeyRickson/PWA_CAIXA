@@ -1,6 +1,7 @@
 // Histórico, snapshots e rollback
 const UNDO_HISTORY_KEY='meuCaixa.undoHistory.v3';
 const LEGACY_UNDO_HISTORY_KEY='meuCaixa.undoHistory.v2';
+let undoHistoryExpanded=false;
 
 function historyLimit(){
   const raw=Number(state.historySettings?.limit||20);
@@ -212,19 +213,28 @@ function renderUndoHistory(){
     return;
   }
 
-  host.innerHTML=history.map((item,index)=>{
+  const visible=undoHistoryExpanded?history:history.slice(0,3);
+  let previousDay='';
+  const markup=visible.map((item,index)=>{
     const entryIndex=history.length-1-index;
     const date=new Date(item.createdAt);
-    const when=Number.isNaN(date.getTime())?'Data indisponível':date.toLocaleString('pt-BR');
-
-    return `<div class="undo-row">
+    const valid=!Number.isNaN(date.getTime());
+    const day=valid?date.toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}):'Data indisponível';
+    const time=valid?date.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'--:--';
+    const header=day!==previousDay?`<div class="sp312-day">${escapeHtml(day)}</div>`:'';
+    previousDay=day;
+    return `${header}<div class="undo-row sp312-timeline-item">
       <div class="undo-copy">
         <strong>${escapeHtml(item.label||'Alteração salva')}</strong>
-        <span>${when}</span>
+        <span>${escapeHtml(time)} · ${index===0?'Mais recente':'Versão anterior'}</span>
       </div>
-      <button type="button" class="btn ghost small" data-undo-index="${entryIndex}">Restaurar</button>
+      <button type="button" class="btn ghost small" data-undo-index="${entryIndex}" aria-label="Restaurar a versão de ${escapeHtml(day)} às ${escapeHtml(time)}">Restaurar</button>
     </div>`;
   }).join('');
+  const more=history.length>3
+    ?`<button type="button" class="btn ghost full sp312-history-toggle" data-undo-more="1" aria-expanded="${undoHistoryExpanded}">${undoHistoryExpanded?'Mostrar somente as 3 recentes':`Ver todas as ${history.length} versões`}</button>`
+    :'';
+  host.innerHTML=`<div class="sp312-timeline">${markup}</div>${more}`;
 }
 
 function restoreUndoSnapshot(index=-1){

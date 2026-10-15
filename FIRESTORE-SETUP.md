@@ -65,3 +65,13 @@ service cloud.firestore {
 ### Estratégia de conflito
 
 A v3.1 continua usando **um documento por UID** (`data`, `salt`, `iv`, `hash`). Na abertura de uma sessão automática, se o hash remoto divergir dos dados locais, **não existe envio automático**. O usuário deve abrir **Verificar / restaurar** para aceitar a cópia remota, ou iniciar um envio **manual** e confirmar a substituição. Cada PATCH valida a revisão `updateTime` do Firestore; alterações concorrentes resultam em bloqueio. Não existe mesclagem de alterações entre aparelhos.
+
+## Atualização v3.1.1 — Backup entre aparelhos
+
+Na interface, a sincronização cifrada do Firestore passou a ser apresentada como **Backup entre aparelhos**; a tecnologia, o caminho `saldoplanSync/{uid}` e as regras não mudaram. A senha de proteção aceita no mínimo **8 caracteres** (antes 12), sem alterar AES-GCM, PBKDF2 ou os campos remotos. Senhas existentes continuam funcionando. Recomendamos senhas longas e exclusivas; oito caracteres são apenas o mínimo de usabilidade, não uma garantia de robustez.
+
+A opção Lembrar a senha continua explícita, vinculada à conta Google e a este navegador pessoal. O backup automático só envia cópias enquanto a página estiver aberta e segura, com bloqueio de conflito. Para cópias independentes, utilize também o backup manual em arquivo ou o Google Drive.
+
+## v3.1.2 — Login e backup na nuvem
+
+Esta atualização não exige mudanças no Firestore. O atalho da última conta usa somente metadados locais (nome e e-mail), não consulta contas cadastradas no Android e não modifica o UID usado em `saldoplanSync`. A proteção por senha de 8 ou mais caracteres e as regras anteriores permanecem iguais. O histórico local continua separado da cópia criptografada do Firestore.

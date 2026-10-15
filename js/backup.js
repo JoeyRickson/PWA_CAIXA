@@ -27,6 +27,12 @@ document.querySelector('#clearUndoHistory')?.addEventListener('click',()=>{
 document.querySelector('#undoQuickBtn')?.addEventListener('click',()=>restoreUndoSnapshot());
 document.querySelector('#undoLastChange')?.addEventListener('click',()=>restoreUndoSnapshot());
 addEventListener('click',e=>{
+  const more=e.target.closest('[data-undo-more]');
+  if(more){
+    undoHistoryExpanded=!undoHistoryExpanded;
+    renderUndoHistory();
+    return;
+  }
   const restore=e.target.closest('[data-undo-index]');
   if(!restore)return;
   restoreUndoSnapshot(Number(restore.dataset.undoIndex));
