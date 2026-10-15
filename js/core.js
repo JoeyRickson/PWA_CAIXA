@@ -98,6 +98,7 @@ const seed={
   liabilities:[],
   financialGoals:[],
   netWorthSnapshots:[],
+  budgets:[],
   monthlyClosings:[],
   fixedTemplates:[],
   savingTemplates:[],
@@ -227,6 +228,11 @@ function migrateState(raw){
       notes:String(item.notes||'')
     }))
     :[];
+  migrated.budgets=Array.isArray(raw.budgets)
+    ?raw.budgets.filter(item=>item&&typeof item==='object'&&/^\d{4}-\d{2}$/.test(String(item.month||'')))
+      .map(item=>({...item,id:String(item.id||uid()),month:String(item.month),category:String(item.category||'Outros').slice(0,60),limit:Math.max(0,Number(item.limit)||0)}))
+      .filter(item=>item.category&&item.limit>0).slice(-500)
+    :[];
   migrated.netWorthSnapshots=Array.isArray(raw.netWorthSnapshots)
     ?raw.netWorthSnapshots.filter(item=>item&&/^\d{4}-\d{2}-\d{2}$/.test(String(item.date||''))).slice(-730)
     :[];
@@ -287,6 +293,7 @@ function save({backupOld=true,cloud=true,undoLabel='',history=true}={}){
     localStorage.setItem(STORAGE_KEY,nextText);
     localStorage.setItem(`${STORAGE_KEY}.savedAt`,new Date().toISOString());
 
+    window.saldoPlanSyncMarkDirty?.();
     if(cloud&&state.cloud?.autoBackup){
       markCloudBackupDirty();
     }

@@ -1,0 +1,104 @@
+/* SaldoPlan v3 — inteligência financeira, responsiva e dependente do tema ativo */
+.sp3-hero{background:linear-gradient(125deg,color-mix(in srgb,var(--saving) 17%,var(--surface)),var(--surface));display:flex;align-items:center;justify-content:space-between;gap:14px}
+.sp3-hero h3{font-size:clamp(1.25rem,2.8vw,1.8rem);margin:8px 0}.sp3-hero p{font-size:.9rem;color:var(--muted);margin:0}
+.sp3-hero-icon{font-size:3rem;opacity:.6}.sp3-tabs{display:flex;gap:6px;max-width:100%;overflow-x:auto;scrollbar-width:thin;margin:15px 0 8px;padding-bottom:5px}
+.sp3-tab{border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--muted);font:inherit;font-weight:750;font-size:.84rem;white-space:nowrap;padding:12px 14px;cursor:pointer}
+.sp3-tab.active{color:var(--ink);border-color:var(--saving);background:color-mix(in srgb,var(--saving) 13%,var(--surface))}
+.sp3-section{min-width:0}.sp3-section.hidden{display:none!important}.sp3-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:end;margin:15px 0}
+.sp3-form label{min-width:0}.sp3-form input,.sp3-form select{width:100%;min-width:0}.sp3-form .btn{min-height:44px}
+.sp3-stack{display:grid;gap:10px;margin:13px 0 4px;min-width:0}.sp3-entry{border:1px solid var(--line);background:var(--surface-2);border-radius:15px;padding:13px;min-width:0;overflow-wrap:anywhere}
+.sp3-line{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.sp3-entry small{display:block;color:var(--muted);font-size:.78rem;line-height:1.5;margin-top:5px}
+.sp3-entry strong{font-size:.95rem}.sp3-meter{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin:10px 0}.sp3-meter i{display:block;height:100%;border-radius:99px;background:var(--saving);max-width:100%}.sp3-meter.over i{background:var(--danger)}
+.sp3-stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}.sp3-stat-grid .sp3-entry strong{display:block;font-size:1.17rem;margin-top:6px}
+.sp3-bars{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:5px;align-items:end;min-height:140px;margin:20px 0}.sp3-bar-col{min-width:0;text-align:center;font-size:.67rem;color:var(--muted)}.sp3-bar{background:color-mix(in srgb,var(--saving) 25%,var(--surface));height:112px;border-radius:5px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}.sp3-bar i{display:block;background:var(--saving);min-height:0;border-radius:4px 4px 0 0}
+.sp3-table-wrap{overflow-x:auto;max-width:100%}.sp3-table{border-collapse:collapse;width:100%;min-width:520px;font-size:.8rem}.sp3-table th,.sp3-table td{padding:10px;text-align:left;border-bottom:1px solid var(--line)}.sp3-table td:not(:first-child){white-space:nowrap}.sp3-table th{color:var(--muted)}
+.sp3-tools-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.sp3-tools-grid .btn{white-space:normal}.sp3-note{margin-top:10px;color:var(--muted);line-height:1.5;font-size:.83rem}.sp3-status{padding:10px 12px;border-radius:12px;background:var(--surface-2);color:var(--muted);font-size:.85rem;overflow-wrap:anywhere}
+.sp3-status[data-tone="error"]{color:var(--danger)}.sp3-status[data-tone="success"]{color:var(--saving)}
+@media(max-width:650px){.sp3-form{grid-template-columns:1fr}.sp3-stat-grid{grid-template-columns:1fr 1fr}.sp3-tools-grid{grid-template-columns:1fr}.sp3-hero-icon{display:none}.sp3-bars{gap:3px}.sp3-stat-grid .sp3-entry strong{font-size:1rem}}
+@media(prefers-reduced-motion:reduce){.sp3-entry,.sp3-tab,.sp3-meter *{transition:none!important;animation:none!important}}
+
+/* v3.0.0 - Homologacao responsiva: paineis de protecao em Dados e backup.
+   A tela desktop usa 12 colunas; paineis adicionados devem declarar sua largura. */
+body[data-layout-effective="desktop"] #view-data > :is(#sp3SyncPanel,#sp3NotificationPanel,#sp3IntegrityPanel) {
+  grid-column: span 4;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  overflow-wrap: break-word;
+}
+
+/* Os botoes nao devem dividir uma coluna estreita ou sobrepor o texto. */
+#view-data :is(#sp3SyncPanel,#sp3NotificationPanel,#sp3IntegrityPanel) .sp3-tools-grid {
+  display: grid;
+  grid-template-columns: minmax(0,1fr);
+  gap: 9px;
+  width: 100%;
+}
+#view-data :is(#sp3SyncPanel,#sp3NotificationPanel,#sp3IntegrityPanel) .sp3-tools-grid > :is(button,label) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  height: auto;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: break-word;
+  line-height: 1.35;
+}
+#sp3SyncPanel > label:not(.check-row) {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 15px 0;
+  font-size: .84rem;
+  font-weight: 650;
+}
+#sp3SyncPass { width: 100%; min-width: 0; max-width: 100%; }
+#view-data :is(#sp3SyncPanel,#sp3NotificationPanel) .check-row {
+  align-items: flex-start;
+  line-height: 1.4;
+  margin: 14px 0;
+}
+#view-data :is(#sp3SyncPanel,#sp3NotificationPanel) .check-row input[type="checkbox"] {
+  flex: 0 0 18px;
+  margin-top: 2px;
+}
+#view-data :is(#sp3SyncPanel,#sp3NotificationPanel,#sp3IntegrityPanel) :is(.section-head,.section-head > div,h3,p,.sp3-status) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* O seletor global .nav-item span e usado para icones no mobile;
+   no desktop o texto precisa de tamanho e entrelinha proprios. */
+body[data-layout-effective="desktop"] .desktop-sidebar .nav-item > span:not(.desktop-nav-icon) {
+  font-size: .79rem;
+  line-height: 1.3;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: break-word;
+  text-align: left;
+}
+
+/* Notebook/tablet horizontal: duas colunas e ultima secao em largura total. */
+@media (min-width: 900px) and (max-width: 1399px) {
+  body[data-layout-effective="desktop"] #view-data > :is(#sp3SyncPanel,#sp3NotificationPanel) {
+    grid-column: span 6;
+  }
+  body[data-layout-effective="desktop"] #view-data > #sp3IntegrityPanel {
+    grid-column: 1 / -1;
+  }
+}
+@media (min-width: 900px) and (max-width: 1030px) {
+  body[data-layout-effective="desktop"] #view-data > :is(#sp3SyncPanel,#sp3NotificationPanel,#sp3IntegrityPanel) {
+    grid-column: 1 / -1;
+  }
+}
+@media (min-width: 900px) and (max-width: 1180px) {
+  body[data-layout-effective="desktop"] .desktop-sidebar .nav-item > span:not(.desktop-nav-icon) {
+    font-size: .75rem;
+  }
+}

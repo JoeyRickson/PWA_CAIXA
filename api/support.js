@@ -2,6 +2,7 @@
 'use strict';
 const {getApps,initializeApp}=require('firebase-admin/app');
 const {getAuth}=require('firebase-admin/auth');
+const {randomBytes}=require('node:crypto');
 const DESTINATION='joeyrickson1812@gmail.com';
 const TYPES={sugestao:'Sugestão de melhoria',problema:'Problema',duvida:'Dúvida',outro:'Outro assunto'};
 const recent=new Map(); // Limitação básica por instância (não substitui rate limit distribuído)
@@ -141,12 +142,15 @@ module.exports=async function handler(req,res){
   const senderName=textLine(decoded.name||'Usuário SaldoPlan').slice(0,120);
   const senderEmail=textLine(decoded.email).slice(0,254);
   const receivedAt=formattedDate(new Date());
-  const html=buildSupportEmail({category,subject,message,senderName,senderEmail,receivedAt});
+  const protocol='SP-'+new Date().getFullYear()+'-'+randomBytes(5).toString('hex').toUpperCase();
+  const html=buildSupportEmail({category,subject,message,senderName,senderEmail,receivedAt})
+    .replace('NOVA SOLICITAÇÃO</p>',`PROTOCOLO ${protocol}</p>`);
   const text=[
     'Nova solicitação enviada pelo SaldoPlan',
     '',
     `Categoria: ${TYPES[category]}`,
     `Assunto: ${subject}`,
+    `Protocolo: ${protocol}`,
     `Nome: ${senderName}`,
     `E-mail autenticado: ${senderEmail}`,
     `Recebido em: ${receivedAt} (horário de Manaus)`,
@@ -162,7 +166,7 @@ module.exports=async function handler(req,res){
         from:/^[^<>\s]+@[^<>\s]+$/.test(from)?`SaldoPlan <${from}>`:from,
         to:[DESTINATION],
         reply_to:senderEmail,
-        subject:`[SaldoPlan] ${TYPES[category]}: ${subject}`.slice(0,200),
+        subject:`[SaldoPlan] [${protocol}] ${TYPES[category]}: ${subject}`.slice(0,200),
         text,
         html
       }),
@@ -173,7 +177,7 @@ module.exports=async function handler(req,res){
       recent.delete(decoded.uid);
       return sendJson(res,502,{message:'Não foi possível encaminhar o e-mail. Verifique a configuração do serviço de envio.'});
     }
-    return sendJson(res,200,{ok:true,message:'Solicitação enviada.'});
+    return sendJson(res,200,{ok:true,protocol,message:'Solicitação enviada.'});
   }catch(error){
     console.error('SaldoPlan suporte: erro ao chamar provedor',String(error?.message||error));
     recent.delete(decoded.uid);

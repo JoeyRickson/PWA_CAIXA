@@ -1,0 +1,32 @@
+<section id="view-intelligence" class="view">
+  <div class="page-head"><span class="muted">PLANEJAMENTO E ANÁLISES</span><h2>Inteligência financeira</h2><p class="helper">Orçamentos, análises, pesquisa e relatórios a partir dos seus lançamentos locais.</p></div>
+  <section class="panel sp3-hero"><div><span class="muted">UMA VISÃO MAIS CLARA</span><h3>Entenda, planeje e acompanhe seu dinheiro.</h3><p>Os cálculos são feitos no aparelho; nenhuma movimentação é enviada para obter insights.</p></div><span class="sp3-hero-icon" aria-hidden="true">◎</span></section>
+  <div class="sp3-tabs" role="tablist" aria-label="Ferramentas de inteligência financeira">
+    <button type="button" class="sp3-tab active" data-sp3-tab="budget" role="tab" aria-selected="true">Orçamento</button>
+    <button type="button" class="sp3-tab" data-sp3-tab="insights" role="tab" aria-selected="false">Insights</button>
+    <button type="button" class="sp3-tab" data-sp3-tab="search" role="tab" aria-selected="false">Pesquisa</button>
+    <button type="button" class="sp3-tab" data-sp3-tab="annual" role="tab" aria-selected="false">Relatório anual</button>
+  </div>
+  <section class="panel sp3-section" data-sp3-panel="budget">
+    <div class="section-head"><div><span class="muted">Metas por categoria</span><h3>Orçamento de <span id="sp3BudgetMonth"></span></h3></div></div>
+    <form id="sp3BudgetForm" class="sp3-form"><label>Categoria<input id="sp3BudgetCategory" required maxlength="60" placeholder="Ex.: Alimentação" list="sp3CategoryList"></label><datalist id="sp3CategoryList"></datalist><label>Limite mensal (R$)<input id="sp3BudgetAmount" inputmode="decimal" required placeholder="800,00"></label><button class="btn" type="submit">Adicionar / atualizar limite</button></form>
+    <p class="helper small-text">Orçamentos valem para o mês selecionado no Resumo. O consumo considera lançamentos de despesa realizados, por categoria, inclusive parcelas registradas.</p>
+    <div id="sp3BudgetList" class="sp3-stack"></div>
+  </section>
+  <section class="panel sp3-section hidden" data-sp3-panel="insights">
+    <div class="section-head"><div><span class="muted">Comparativo local</span><h3>Seus movimentos financeiros</h3></div></div>
+    <div id="sp3Insights" class="sp3-stack" aria-live="polite"></div>
+  </section>
+  <section class="panel sp3-section hidden" data-sp3-panel="search">
+    <div class="section-head"><div><span class="muted">Encontre rapidamente</span><h3>Pesquisa global</h3></div></div>
+    <div class="sp3-form"><label>Buscar<input id="sp3SearchQuery" type="search" placeholder="Descrição, categoria, instituição…" autocomplete="off"></label><label>Tipo<select id="sp3SearchType"><option value="all">Todos</option><option value="transaction">Lançamentos</option><option value="saving">Guardado</option><option value="investment">Carteira</option><option value="card">Cartões</option><option value="debt">Dívidas</option><option value="goal">Metas</option></select></label></div>
+    <p id="sp3SearchCount" class="helper small-text"></p><div id="sp3SearchResults" class="sp3-stack"></div>
+  </section>
+  <section class="panel sp3-section hidden" data-sp3-panel="annual">
+    <div class="section-head"><div><span class="muted">Janeiro a dezembro</span><h3>Fechamento anual</h3></div></div>
+    <div class="sp3-form"><label>Ano<select id="sp3ReportYear"></select></label><button class="btn" type="button" id="sp3ExportCsv">Exportar CSV</button><button class="btn ghost" type="button" id="sp3ExportPdf">Salvar como PDF</button></div>
+    <div id="sp3AnnualSummary" class="sp3-stat-grid"></div><div id="sp3AnnualChart" class="sp3-bars"></div>
+    <div class="sp3-table-wrap"><table class="sp3-table"><thead><tr><th>Mês</th><th>Entradas</th><th>Saídas</th><th>Saldo</th></tr></thead><tbody id="sp3AnnualRows"></tbody></table></div>
+    <p class="helper small-text">Contabiliza apenas lançamentos realizados, pelo mês da data. Não equivale a extrato bancário reconciliado; pagamentos de faturas cadastrados separadamente podem duplicar gastos.</p>
+  </section>
+</section>

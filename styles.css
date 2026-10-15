@@ -1,21 +1,23 @@
-@import url('./css/base.css?v=2.21.0');
-@import url('./css/history.css?v=2.21.0');
-@import url('./css/auth.css?v=2.21.0');
-@import url('./css/cycles.css?v=2.21.0');
-@import url('./css/about.css?v=2.21.0');
-@import url('./css/recurrence.css?v=2.21.0');
-@import url('./css/clock.css?v=2.21.0');
-@import url('./css/market.css?v=2.21.0');
-@import url('./css/portfolio.css?v=2.21.0');
-@import url('./css/patrimony.css?v=2.21.0');
-@import url('./css/cards.css?v=2.21.0');
-@import url('./css/importer.css?v=2.21.0');
-@import url('./css/calendar.css?v=2.21.0');
-@import url('./css/desktop.css?v=2.21.0');
-@import url('./css/mobile.css?v=2.21.0');
-@import url('./css/themes.css?v=2.21.0');
-@import url('./css/responsive.css?v=2.21.0');
+@import url('./css/base.css?v=3.0.0');
+@import url('./css/history.css?v=3.0.0');
+@import url('./css/auth.css?v=3.0.0');
+@import url('./css/cycles.css?v=3.0.0');
+@import url('./css/about.css?v=3.0.0');
+@import url('./css/recurrence.css?v=3.0.0');
+@import url('./css/clock.css?v=3.0.0');
+@import url('./css/market.css?v=3.0.0');
+@import url('./css/portfolio.css?v=3.0.0');
+@import url('./css/patrimony.css?v=3.0.0');
+@import url('./css/cards.css?v=3.0.0');
+@import url('./css/importer.css?v=3.0.0');
+@import url('./css/calendar.css?v=3.0.0');
+@import url('./css/desktop.css?v=3.0.0');
+@import url('./css/mobile.css?v=3.0.0');
+@import url('./css/themes.css?v=3.0.0');
+@import url('./css/responsive.css?v=3.0.0');
 
-@import url('./css/motion.css?v=2.21.0');
+@import url('./css/motion.css?v=3.0.0');
 
-@import url('./css/support.css?v=2.21.0');
+@import url('./css/support.css?v=3.0.0');
+
+@import url('./css/intelligence.css?v=3.0.0-layout1');

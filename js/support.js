@@ -64,7 +64,8 @@
       let json={};
       try{json=await response.json();}catch{}
       if(!response.ok)throw new Error(json.message||`Não foi possível enviar (${response.status}).`);
-      setStatus('Solicitação enviada! Ela foi encaminhada ao e-mail do desenvolvedor.','success');
+      window.saldoPlanSupportTicketSent?.({protocol:json.protocol,subject});
+      setStatus('Solicitação enviada! Protocolo: '+String(json.protocol||'indisponível')+'. Guarde-o para contato com o desenvolvedor.','success');
       form.reset();
       count.textContent='0 / 4.000 caracteres';
     }catch(error){

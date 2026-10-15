@@ -34,7 +34,7 @@
   </section>
 
   <div class="about-highlights" aria-label="Destaques do SaldoPlan">
-    <div class="about-highlight"><strong>17</strong><span>áreas integradas</span></div>
+    <div class="about-highlight"><strong>18</strong><span>áreas integradas</span></div>
     <div class="about-highlight"><strong>14</strong><span>temas visuais</span></div>
     <div class="about-highlight"><strong>PWA</strong><span>instalável</span></div>
   </div>
@@ -77,7 +77,7 @@
       <p>O SaldoPlan mantém as informações financeiras no armazenamento local do navegador ou dispositivo. Você pode usar o modo offline e, se desejar, conectar o Google Drive para criar e recuperar cópias de segurança.</p>
       <ul class="about-check-list">
         <li>Login Google e autorização do Drive são independentes.</li>
-        <li>Backups em nuvem dependem de conexão e autorização.</li>
+        <li>Backups em nuvem dependem de conexão e autorização. A sincronização criptografada é opcional.</li>
         <li>Histórico e restauração ajudam a recuperar alterações.</li>
       </ul>
       <p class="about-info-footnote">Dica: mantenha também uma exportação JSON em local seguro. Dados locais podem ser perdidos ao limpar o armazenamento do navegador.</p>
@@ -108,6 +108,7 @@
       <li><span class="about-timeline-version">v2.17–2.19</span><div><strong>Visão financeira ampliada</strong><p>Cartões, patrimônio, metas e importação de extratos.</p></div></li>
       <li><span class="about-timeline-version">v2.20</span><div><strong>Experiência e planejamento</strong><p>Calendário, alertas, fechamento, navegação mobile, temas e animações.</p></div></li>
       <li><span class="about-timeline-version">v2.21</span><div><strong>Comunidade e suporte</strong><p>Envio autenticado de sugestões e problemas ao desenvolvedor.</p></div></li>
+      <li><span class="about-timeline-version">v3.0</span><div><strong>Inteligência financeira</strong><p>Orçamento por categoria, insights, pesquisa, relatórios e ferramentas adicionais de proteção.</p></div></li>
     </ol>
   </section>
 
@@ -116,8 +117,8 @@
       <div><span class="muted">DÚVIDAS FREQUENTES</span><h3 id="aboutFaqTitle">Como funciona?</h3></div>
     </div>
     <details><summary>Preciso entrar com Google para usar?</summary><p>Não. É possível continuar offline e utilizar as funções locais. A conexão com serviços Google é opcional.</p></details>
-    <details><summary>Meus dados aparecem em outro aparelho automaticamente?</summary><p>Não. Os dados ficam no armazenamento de cada aparelho. Para levar informações para outro dispositivo, use os recursos de exportação ou backup e restauração.</p></details>
-    <details><summary>Todas as funções estão disponíveis sem internet?</summary><p>Não. As funções locais podem funcionar sem conexão após os recursos estarem disponíveis no dispositivo. Login Google, backup no Drive e dados de mercado precisam de internet.</p></details>
+    <details><summary>Meus dados aparecem em outro aparelho automaticamente?</summary><p>Não. Por padrão, os dados ficam em cada aparelho. A v3 oferece uma sincronização protegida opcional (beta), que requer Firestore ativado e senha de criptografia. Também é possível exportar ou restaurar backups manualmente.</p></details>
+    <details><summary>Todas as funções estão disponíveis sem internet?</summary><p>Não. As funções locais podem funcionar sem conexão após os recursos estarem disponíveis no dispositivo. Login Google, backup no Drive, sincronização Firestore e dados de mercado precisam de internet.</p></details>
   </section>
 
   <footer class="about-credit">

@@ -90,3 +90,55 @@ A importação é totalmente local no navegador. Nenhum arquivo de extrato é en
 - `state.monthlyClosings`: snapshots manuais dos fechamentos mensais, com até 60 registros.
 
 Os alertas são calculados localmente a partir do estado atual. O fechamento mensal não bloqueia o mês: ele salva uma fotografia dos valores realizados e pode ser atualizado ou excluído com rollback normal.
+
+---
+
+## Financial Intelligence — v3.0.0 (candidata à homologação)
+
+A v3 é uma atualização **incremental** construída sobre a base v2.21.x. A estrutura HTML/CSS/JS puro, os scripts clássicos carregados sequencialmente e a chave de armazenamento `meuCaixa.v1` continuam inalterados. `state.version` permanece `2` para evitar romper leitores legados.
+
+### Arquivos acrescentados
+
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `views/intelligence.html` | Tela única de Orçamento, Insights, Pesquisa e Relatório anual |
+| `js/intelligence.js` | Cálculos locais e renderização das quatro áreas |
+| `css/intelligence.css` | Layout adaptável e compatível com a paleta de temas |
+| `js/sp3-tools.js` | Notificações durante o uso e verificações locais de JSON e SHA-256 |
+| `js/sp3-sync.js` | Cópia cifrada opcional no Firestore, confirmação e tratamento de conflitos |
+| `js/sp3-tickets.js` | Histórico local dos protocolos emitidos no suporte |
+| `FIRESTORE-SETUP.md` | Regras de segurança e procedimentos para ativar a cópia remota |
+| `CHANGELOG.md` | Histórico de versões e limitações explícitas |
+
+### Mudanças em arquivos existentes
+
+- `app.js`: `SALDOPLAN_VERSION='3.0.0'`; adição de uma partial e quatro scripts ao carregamento sequencial.
+- `js/core.js`: `seed.budgets=[]` e migração defensiva de `raw.budgets`. Outras coleções e backups antigos permanecem intactos; `save()` aciona opcionalmente agendamento de sincronização enquanto desbloqueada.
+- `js/ui.js`: `renderAll()` chama renderizador adicional e o roteador reconhece a tela `intelligence`.
+- `index.html`, `styles.css`, `sw.js`: navegação e cache de novos arquivos com bump de versão. `/api/*` continua sem cache estático.
+- `views/data.html`: painéis adicionais de notificação, conferência de backup e sincronização beta.
+- `api/support.js` e `js/support.js`: protocolo gerado pelo servidor somente após autenticação, incluído no e-mail e na resposta HTTP; nenhuma credencial do Resend exposta ao frontend.
+- `views/support.html`: histórico local dos protocolos, com status "Enviado" (não status remoto da equipe).
+
+### Contratos financeiros preservados
+
+- Orçamento: `{id, month, category, limit}` em `state.budgets`; `month` ISO `YYYY-MM`. Comparações usam somente `kind='expense'` e `status='realized'` daquela categoria, **sem reclassificar** outros registros.
+- Relatório: somas dos lançamentos `realized` por competência da data. Não modifica faturas, recorrências ou históricos.
+- Pesquisa: só leitura de coleções existentes; resultados limitados na interface a 80 itens.
+- Insights: estatística determinística, sem uploads, anúncios ou API de IA.
+- Backup existente: `js/backup.js` e `js/drive.js` seguem inalterados. Nova restauração Firestore faz snapshot local e guarda o estado anterior antes de usar `migrateState()`/`save()`.
+
+### Sincronização e segurança
+
+A comunicação Firestore exige `getIdToken()` de conta Firebase conectada; o backend Firestore precisa de regras com `request.auth.uid == userId`. O documento remoto armazena somente `{data,salt,iv,hash}`, contendo um estado serializado cifrado com AES-GCM. Chave gerada via PBKDF2 com salt aleatório; senha **apenas em memória**. O documento Firestore tem limite de tamanho. Como o armazenamento local não executa transações multi-dispositivo, o modo automático pausa ao notar alteração remota; não há merge automático de concorrência.
+
+### Operação e testes
+
+1. `git status --short`, `git log -1 --oneline`; compare hashes do patch antes de aplicar.
+2. Execute o instalador com `-ProjectPath '.'`, que fará backup e abortará em conflito.
+3. `node --check app.js`, `node --check sw.js` e valide `js/*.js` / `api/*.js`.
+4. `npx.cmd vercel dev` e verifique desktop (80–150% de zoom) e mobile (320/360/390px), navegação, tema, lançamento, recorrência, cartões, rollback e backup antigo.
+5. Teste cada uma das quatro áreas de Inteligência com valores reais e previstos, inclusive mês sem dados.
+6. Para Firestore: ambiente de teste com duas contas/aparelhos, confirmação de conflitos, restauração cancelada, senha errada e rede indisponível. **Não use dados reais no primeiro teste.**
+7. Confirme Resend/Firebase na produção antes de marcar o suporte como homologado.
+8. Publique a versão somente após homologação completa. Nenhum instalador automatiza `git commit` ou `git push`.

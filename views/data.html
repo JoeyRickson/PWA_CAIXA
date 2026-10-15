@@ -195,4 +195,27 @@
           <p class="helper">Apaga os dados deste aparelho. Faça um backup antes.</p>
           <button id="resetData" class="btn danger full">Apagar tudo</button>
         </section>
-      </section>
+      
+        <section class="panel" id="sp3SyncPanel">
+          <div class="section-head"><div><span class="muted">Opcional · criptografia no navegador</span><h3>Sincronização protegida entre aparelhos (beta)</h3></div></div>
+          <p class="helper">Compartilhe uma cópia criptografada entre computadores e celulares na mesma conta Google, usando Firestore. Requer ativação do Firestore e regras de segurança conforme o guia da v3.0.0. Não substitui o backup no Drive.</p>
+          <label>Senha de criptografia (mínimo 12 caracteres, não é a senha Google)<input id="sp3SyncPass" type="password" autocomplete="new-password" minlength="12" placeholder="Informe a mesma senha em cada aparelho"></label>
+          <label class="check-row"><input id="sp3SyncAuto" type="checkbox"> Sincronizar automaticamente enquanto esta sessão estiver desbloqueada</label>
+          <div class="sp3-tools-grid"><button class="btn" type="button" id="sp3SyncUpload">Enviar cópia criptografada</button><button class="btn secondary" type="button" id="sp3SyncDownload">Verificar / restaurar cópia de outro aparelho</button></div>
+          <p class="sp3-note">A senha permanece somente em memória nesta guia. Se for perdida, a cópia criptografada não poderá ser recuperada. Em conflitos, o app interrompe o envio automático; nunca substitui silenciosamente os dados de outro aparelho.</p>
+          <div id="sp3SyncStatus" class="sp3-status" role="status" aria-live="polite">Aguardando autorização e configuração do Firestore.</div>
+        </section>
+        <section class="panel" id="sp3NotificationPanel">
+          <div class="section-head"><div><span class="muted">Alertas sob seu controle</span><h3>Notificações do aplicativo</h3></div></div>
+          <p class="helper">Além dos alertas do Calendário, exiba lembretes do navegador quando o SaldoPlan estiver aberto. Esta versão não possui envio push em segundo plano com o navegador fechado.</p>
+          <label class="check-row"><input id="sp3NotifyEnabled" type="checkbox"> Ativar avisos do navegador</label>
+          <div class="sp3-tools-grid"><button type="button" class="btn secondary" id="sp3NotifyPermission">Solicitar permissão</button><button type="button" class="btn ghost" id="sp3NotifyTest">Enviar notificação de teste</button></div>
+          <div id="sp3NotifyStatus" class="sp3-status" role="status" aria-live="polite">Notificações não configuradas.</div>
+        </section>
+        <section class="panel" id="sp3IntegrityPanel">
+          <div class="section-head"><div><span class="muted">Auditoria local</span><h3>Integridade dos dados e backups</h3></div></div>
+          <p class="helper">Calcule a impressão digital SHA-256 do estado financeiro atual. Também é possível verificar um backup JSON antes de restaurá-lo, sem modificar dados.</p>
+          <div class="sp3-tools-grid"><button type="button" class="btn secondary" id="sp3IntegrityCheck">Verificar dados atuais</button><label class="btn ghost file-label" style="text-align:center;cursor:pointer">Examinar backup JSON<input id="sp3IntegrityFile" type="file" accept=".json,application/json"></label></div>
+          <div id="sp3IntegrityStatus" class="sp3-status" role="status" aria-live="polite">Nenhuma análise realizada.</div>
+        </section>
+</section>
