@@ -151,7 +151,9 @@ document.querySelector('#repeatMonthly').onclick=()=>{
 };
 
 document.querySelector('#entryDate').addEventListener('change',()=>{
-  if(document.querySelector('#repeatMonthly').checked){
+  // Contas fixas tambem dependem da data do lançamento, mesmo sem o checkbox.
+  if(document.querySelector('#repeatMonthly').checked||
+     document.querySelector('#fixedTemplateMode').value==='1'){
     const recurrenceStart=document.querySelector('#entryDate').value;
 
     if(recurrenceStart){
@@ -195,17 +197,24 @@ form.addEventListener('submit',e=>{
   }
 
   const effectiveMonth=date.slice(0,7);
-  const requestedStartDate=document.querySelector('#repeatStartDate')?.value||date;
-  const noEnd=!!document.querySelector('#repeatNoEnd')?.checked;
-  const requestedEndDate=noEnd?'':(document.querySelector('#repeatEndDate')?.value||'');
+  // Datas de repeticao so sao aplicaveis a lançamentos recorrentes ou gastos fixos.
+  // Um lançamento unico pode ser previsto/realizado em qualquer data válida.
+  const hasRecurrence=templateMode||!!document.querySelector('#repeatMonthly').checked;
+  const requestedStartDate=hasRecurrence
+    ?(document.querySelector('#repeatStartDate')?.value||date)
+    :date;
+  const noEnd=hasRecurrence&&!!document.querySelector('#repeatNoEnd')?.checked;
+  const requestedEndDate=hasRecurrence&&!noEnd
+    ?(document.querySelector('#repeatEndDate')?.value||'')
+    :'';
 
-  if(requestedStartDate<date){
+  if(hasRecurrence&&requestedStartDate<date){
     alert('O início da repetição não pode ser anterior à data do lançamento.');
     document.querySelector('#repeatStartDate').focus();
     return;
   }
 
-  if(requestedEndDate && requestedEndDate<requestedStartDate){
+  if(hasRecurrence&&requestedEndDate&&requestedEndDate<requestedStartDate){
     alert('A data final da repetição não pode ser anterior à data inicial.');
     document.querySelector('#repeatEndDate').focus();
     return;

@@ -1,5 +1,12 @@
 # Histórico de versões — SaldoPlan
 
+## v4.0.0 — Correção de datas de lançamentos (hotfix)
+
+- Corrigida a validação de repetição para lançamentos únicos: gastos e receitas futuros, previstos ou realizados, não ficam limitados à data atual.
+- Regras de período passam a ser verificadas somente em recorrências mensais e contas fixas.
+- Ao alterar a data de uma conta fixa, o início da repetição acompanha a nova data.
+- Incluídos oito testes de regressão e atualização do cache PWA, sem alterar os dados financeiros locais.
+
 ## v4.0.0 — Backup organizado por modo (ajuste de homologação)
 
 - Reformulada a aba Backups em três modos de escolha: **Na nuvem**, **Arquivo e versões**, **Entre aparelhos**.
