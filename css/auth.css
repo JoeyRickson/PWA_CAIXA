@@ -277,3 +277,7 @@ body[data-theme="dark"] .onboarding-highlight{background:color-mix(in srgb,var(-
 .sp312-last-account-copy strong,.sp312-last-account-copy small {overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sp312-last-account-copy small {font-size:.76rem;color:var(--muted)}
 .sp312-forget-account {display:block;margin:7px 0 0 auto;font-size:.74rem}
+
+/* v3.1.4: botao Google oficial no Android, sem popup/redirect Firebase. */
+.sp314-google-identity {display:flex;align-items:center;justify-content:center;width:100%;min-height:42px;overflow:hidden;margin:4px 0 10px}
+.sp314-google-identity iframe {max-width:100%!important}
