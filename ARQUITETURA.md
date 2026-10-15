@@ -170,3 +170,11 @@ A tela `views/data.html` diferencia o **salvamento automático local** (não é 
 - O login mantém `browserLocalPersistence` no Firebase Auth. Após um login bem-sucedido, o aplicativo guarda **apenas nome e e-mail** da última conta no `localStorage` (`saldoplan.lastGoogleAccount.v1`) para exibir um atalho naquele navegador. Não armazena senha, token ou lista de contas Android. O usuário pode remover o atalho, e o login sempre passa pelos fluxos oficiais do Google (popup/redirecionamento).
 - O botão **Escolher outra conta Google** utiliza `prompt: select_account`; o atalho da última conta utiliza `login_hint` e pode continuar exigindo autenticação por decisão do provedor.
 - Não há alteração nos formatos financeiros, na criptografia Firestore, nas rotinas de backup nem nas regras do banco de dados.
+
+## v3.1.3 — Entrada Google mais estável no Android
+
+- No domínio oficial HTTPS, Android usa **signInWithRedirect** diretamente. O Firebase continua restaurando sessão com `browserLocalPersistence` e `getRedirectResult`, sem reiniciar autenticações por conta própria.
+- Desktop mantém **signInWithPopup**; falha por popup bloqueado pode recorrer ao redirecionamento no domínio configurado.
+- O atalho de última conta aproveita `auth.currentUser` quando for a mesma conta, mas **um e-mail lembrado não equivale a uma sessão autenticada**. Não há armazenamento local de senhas ou tokens Google adicional.
+- O Service Worker não intercepta ` /__/auth/ ` nem ` /__/firebase/ `; o projeto Vercel já possui proxy de autenticação sob o domínio principal.
+- Sem alterações na chave financeira `meuCaixa.v1`, histórico, Firestore, Drive, APIs ou criptografia.

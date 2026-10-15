@@ -15,6 +15,7 @@ import { firebaseConfig } from "./firebase-config.js";
 
 const AUTH_MODE_KEY = "saldoplan.authMode.v1";
 const LAST_GOOGLE_ACCOUNT_KEY = "saldoplan.lastGoogleAccount.v1";
+const GOOGLE_REDIRECT_PENDING_KEY = "saldoplan.googleRedirectPending.v1";
 const ONBOARDING_KEY = "saldoplan.onboarding.v1";
 
 const ONBOARDING_CONTENT = {
@@ -472,6 +473,37 @@ if (!configReady()) {
 } else {
   const firebaseApp = initializeApp(firebaseConfig);
   const auth = getAuth(firebaseApp);
+  let loginInProgress = false;
+
+  // O pop-up pode ser interpretado como fechado pelo Chrome/PWA Android.
+  // Em produção, o projeto já faz proxy de /__/auth/ pelo mesmo domínio.
+  function useMobileRedirect() {
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || "");
+    const sameOriginHelper = location.protocol === "https:" &&
+      firebaseConfig.authDomain === location.hostname;
+    return isMobile && sameOriginHelper;
+  }
+
+  function setLoginButtonsBusy(busy) {
+    [googleButton, lastAccountButton, accountGoogleBtn, onboardingGoogleBtn].forEach(button => {
+      if (button) button.disabled = busy;
+    });
+    if (!busy) applyGoogleAvailability();
+  }
+
+  function readableLoginError(error) {
+    const messages = {
+      "auth/popup-closed-by-user": "A janela do Google foi fechada. Tente novamente.",
+      "auth/popup-blocked": "O navegador bloqueou a janela do Google.",
+      "auth/cancelled-popup-request": "Já existe uma tentativa de login em andamento.",
+      "auth/unauthorized-domain": "O domínio deste site não está autorizado no Firebase.",
+      "auth/invalid-continue-uri": "O retorno do Google não está autorizado. Verifique a configuração OAuth.",
+      "auth/operation-not-supported-in-this-environment": "Este navegador não permite concluir este tipo de login.",
+      "auth/network-request-failed": "Não foi possível acessar o Google. Verifique sua conexão.",
+      "auth/web-storage-unsupported": "Ative o armazenamento deste site para manter o login."
+    };
+    return messages[error?.code] || "Não foi possível concluir a entrada com Google. Tente novamente.";
+  }
 
   auth.useDeviceLanguage();
 
@@ -487,63 +519,74 @@ if (!configReady()) {
     console.warn("Persistência do login não pôde ser configurada:", error);
   }
 
+  // Primeiro recupera a sessão de redirecionamento; não dispara um segundo login.
+  let wasRedirectPending = false;
   try {
-    await getRedirectResult(auth);
+    wasRedirectPending = Boolean(sessionStorage.getItem(GOOGLE_REDIRECT_PENDING_KEY));
+  } catch {}
+  try {
+    const result = await getRedirectResult(auth);
+    if (result?.user) {
+      renderSignedIn(result.user);
+    } else if (wasRedirectPending && !auth.currentUser) {
+      setGateStatus("A entrada não foi concluída. Tente novamente pelo botão Google.", true);
+    }
   } catch (error) {
-    console.error("Erro ao concluir login por redirecionamento:", error);
-    setGateStatus(
-      error?.message || "Não foi possível concluir o login com Google.",
-      true
-    );
+    console.error("Falha ao concluir o redirecionamento Google:", error);
+    setGateStatus(readableLoginError(error), true);
+  } finally {
+    try { sessionStorage.removeItem(GOOGLE_REDIRECT_PENDING_KEY); } catch {}
   }
 
   startGoogleLogin = async (useLastAccount=false) => {
-    const last=useLastAccount?getLastGoogleAccount():null;
-    const provider=makeGoogleProvider(last?.email||'');
+    if (loginInProgress) return;
+    const last = useLastAccount ? getLastGoogleAccount() : null;
+    // O Firebase recupera sessões locais sem abrir o provedor novamente.
+    // Só reaproveitamos uma sessão se ela for da conta escolhida.
+    if (auth.currentUser && (!useLastAccount ||
+      auth.currentUser.email?.toLowerCase() === last?.email?.toLowerCase())) {
+      renderSignedIn(auth.currentUser);
+      return;
+    }
+    const provider = makeGoogleProvider(last?.email || "");
+    loginInProgress = true;
     completeOnboarding();
     setOnboardingVisible(false);
     setGateVisible(true);
-    setGateStatus("Abrindo o login do Google…");
-    googleButton?.setAttribute("disabled", "disabled");
-    lastAccountButton?.setAttribute("disabled", "disabled");
-    accountGoogleBtn?.setAttribute("disabled", "disabled");
-    onboardingGoogleBtn?.setAttribute("disabled", "disabled");
+    setGateStatus(useMobileRedirect()
+      ? "Abrindo o Google para continuar neste mesmo aparelho…"
+      : "Abrindo o login do Google…");
+    setLoginButtonsBusy(true);
 
     try {
-      await signInWithPopup(auth, provider);
-      setGateStatus("");
-    } catch (error) {
-      console.error("Erro no login Google:", error);
-
-      if (error?.code === "auth/popup-blocked") {
-        setGateStatus("Pop-up bloqueado. Redirecionando para o Google…");
+      if (useMobileRedirect()) {
+        try {
+          sessionStorage.setItem(GOOGLE_REDIRECT_PENDING_KEY, String(Date.now()));
+        } catch {}
         await signInWithRedirect(auth, provider);
         return;
       }
-
-      const messages = {
-        "auth/popup-closed-by-user":
-          "O login foi fechado antes de terminar.",
-        "auth/cancelled-popup-request":
-          "Já existe uma tentativa de login em andamento.",
-        "auth/unauthorized-domain":
-          "Este domínio ainda não foi autorizado no Firebase.",
-        "auth/network-request-failed":
-          "Não foi possível acessar o Google. Verifique sua conexão."
-      };
-
-      setGateStatus(
-        messages[error?.code] ||
-          error?.message ||
-          "Não foi possível entrar com Google.",
-        true
-      );
+      await signInWithPopup(auth, provider);
+      setGateStatus("");
+    } catch (error) {
+      console.error("Falha no login Google:", error);
+      if (error?.code === "auth/popup-blocked" &&
+          location.protocol === "https:" && firebaseConfig.authDomain === location.hostname) {
+        try { sessionStorage.setItem(GOOGLE_REDIRECT_PENDING_KEY, String(Date.now())); } catch {}
+        setGateStatus("Abrindo o Google na mesma tela…");
+        try {
+          await signInWithRedirect(auth, provider);
+          return;
+        } catch (redirectError) {
+          error = redirectError;
+          console.error("Falha no redirecionamento Google:", redirectError);
+        }
+      }
+      try { sessionStorage.removeItem(GOOGLE_REDIRECT_PENDING_KEY); } catch {}
+      setGateStatus(readableLoginError(error), true);
     } finally {
-      googleButton?.removeAttribute("disabled");
-      lastAccountButton?.removeAttribute("disabled");
-      accountGoogleBtn?.removeAttribute("disabled");
-      onboardingGoogleBtn?.removeAttribute("disabled");
-      applyGoogleAvailability();
+      loginInProgress = false;
+      setLoginButtonsBusy(false);
     }
   };
 

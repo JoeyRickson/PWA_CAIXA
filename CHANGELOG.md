@@ -1,5 +1,12 @@
 # Histórico de versões — SaldoPlan
 
+## 3.1.3 — Correção do login Google no Android
+- No Android, autenticação com redirecionamento Google em vez do pop-up suscetível ao erro `popup-closed-by-user`.
+- Reaproveitamento da sessão Firebase válida e bloqueio de tentativas simultâneas.
+- Tratamento claro de erros de domínio e retorno OAuth, sem loops automáticos de login.
+- Evita cache do fluxo OAuth no Service Worker; cache do PWA atualizado para v3.1.3.
+- Dados financeiros e backups existentes preservados.
+
 ## 3.1.2 — Backup e acesso simplificados
 - Nome neutro **Backup na nuvem** para Google Drive, OneDrive e Dropbox; descrições esclarecem diferenças de restauração.
 - Histórico local compacto com linha do tempo por data, prévia das 3 últimas versões, expansão e preferências recolhidas.
