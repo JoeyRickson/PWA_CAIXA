@@ -309,3 +309,49 @@ body[data-layout-effective="desktop"] #view-data.active {
     gap:13px;
   }
 }
+
+/* v4.0.0 — Fluxo guiado da aba Backups: selecionar um modo por vez.
+   Os controles existentes são preservados e seguem as variáveis dos 14 temas. */
+#view-data #sp4PaneBackup .sp4-backup-workspace {display:grid;gap:15px;width:100%;min-width:0;}
+#view-data #sp4PaneBackup .sp4-backup-methods {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:10px;width:100%;min-width:0;}
+#view-data #sp4PaneBackup .sp4-backup-method {
+  display:flex;gap:13px;align-items:center;text-align:left;min-width:0;min-height:88px;
+  padding:14px 15px;border:1px solid var(--line);border-radius:var(--theme-corner,14px);
+  background:var(--surface);color:var(--ink);cursor:pointer;font:inherit;
+  transition:border-color .16s ease,background-color .16s ease,box-shadow .16s ease;
+}
+#view-data #sp4PaneBackup .sp4-backup-method:hover {background:var(--surface-2);}
+#view-data #sp4PaneBackup .sp4-backup-method[aria-selected="true"] {
+  border-color:var(--accent);background:var(--surface-2);
+  box-shadow:inset 3px 0 var(--accent),0 3px 12px color-mix(in srgb,var(--ink) 7%,transparent);
+}
+#view-data #sp4PaneBackup .sp4-backup-method:focus-visible {outline:3px solid var(--accent);outline-offset:3px;}
+#view-data #sp4PaneBackup .sp4-backup-method-num {flex:0 0 auto;font-size:.78rem;font-weight:800;color:var(--muted);padding:9px 8px;border-radius:10px;background:var(--surface-2);}
+#view-data #sp4PaneBackup .sp4-backup-method[aria-selected="true"] .sp4-backup-method-num {color:var(--ink);background:color-mix(in srgb,var(--accent) 20%,var(--surface));}
+#view-data #sp4PaneBackup .sp4-backup-method-text {display:grid;gap:4px;min-width:0;flex:1;}
+#view-data #sp4PaneBackup .sp4-backup-method-text strong {font-size:clamp(.89rem,1vw,1rem);line-height:1.25;color:var(--ink);}
+#view-data #sp4PaneBackup .sp4-backup-method-text small {font-size:.79rem;line-height:1.35;color:var(--muted);font-weight:400;}
+#view-data #sp4PaneBackup .sp4-backup-method-indicator {flex:0 0 auto;color:var(--muted);font-size:1.12rem;}
+#view-data #sp4PaneBackup .sp4-backup-mode-panel {display:grid;gap:15px;min-width:0;max-width:100%;width:100%;}
+#view-data #sp4PaneBackup .sp4-backup-mode-panel[hidden] {display:none!important;}
+#view-data #sp4PaneBackup .sp4-backup-mode-intro {min-width:0;display:grid;gap:4px;padding:0 2px;}
+#view-data #sp4PaneBackup .sp4-backup-mode-intro h4 {margin:0;color:var(--ink);font-size:clamp(1.04rem,1.35vw,1.22rem);}
+#view-data #sp4PaneBackup .sp4-backup-mode-intro .helper {margin:0;}
+#view-data #sp4PaneBackup .sp4-backup-cloud-content,#view-data #sp4PaneBackup .sp4-backup-devices-content {width:min(100%,940px);min-width:0;margin-inline:auto;}
+#view-data #sp4PaneBackup .sp4-backup-cloud-content > .panel,#view-data #sp4PaneBackup .sp4-backup-devices-content > .panel {width:100%;margin:0;}
+#view-data #sp4PaneBackup .sp4-backup-file-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;align-items:start;min-width:0;}
+#view-data #sp4PaneBackup .sp4-backup-file-column {display:grid;grid-template-columns:minmax(0,1fr);align-content:start;gap:15px;min-width:0;}
+#view-data #sp4PaneBackup .sp4-backup-file-column > .panel {width:100%;min-width:0;max-width:100%;margin:0;}
+#view-data #sp4PaneBackup .sp4-backup-history .sp312-history-head {margin-top:0;}
+#view-data #sp4PaneBackup .sp4-backup-footnote {margin:0;padding:11px 13px;border:1px solid var(--line);border-radius:var(--theme-corner,12px);background:var(--surface-2);color:var(--muted);font-size:.82rem;line-height:1.5;}
+#view-data #sp4PaneBackup .sp4-backup-footnote strong {color:var(--ink);}
+@media(max-width:1100px){
+  #view-data #sp4PaneBackup .sp4-backup-file-grid {grid-template-columns:minmax(0,1fr);}
+}
+@media(max-width:760px){
+  #view-data #sp4PaneBackup .sp4-backup-methods {grid-template-columns:minmax(0,1fr);gap:8px;}
+  #view-data #sp4PaneBackup .sp4-backup-method {min-height:65px;padding:11px 12px;gap:10px;}
+  #view-data #sp4PaneBackup .sp4-backup-method-text {gap:2px;}
+  #view-data #sp4PaneBackup .sp4-backup-method-num {padding:7px;}
+}
+@media(prefers-reduced-motion:reduce){#view-data #sp4PaneBackup .sp4-backup-method{transition:none;}}

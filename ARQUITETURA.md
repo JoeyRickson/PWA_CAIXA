@@ -270,3 +270,12 @@ A página foi dividida em quatro abas acessíveis: Backups, Aparência, Seguran�
 - `css/v4.css` define `.sp4-backup-tools-grid` com dois cartões em desktop e um em telas menores, com altura natural e usando apenas variáveis dos 14 temas.
 - `styles.css`, `index.html` e `sw.js` renovam a versão do CSS/cache sem apagar dados ou alterar os formatos de backup, Firestore ou Google Drive.
 - A sincronização criptografada segue baseada em cópias completas; conflitos permanecem sujeitos à escolha explícita do usuário.
+
+
+## v4.0.0 — Fluxo guiado de backups (refinamento de usabilidade)
+
+- A aba Backups passa a ter **três modos** mutuamente exclusivos: **Na nuvem**, **Arquivo e versões**, **Entre aparelhos**. A interface começa no modo Nuvem, com os demais formulários ocultos visualmente até a escolha do usuário.
+- A navegação aninhada é tratada pelo `js/v4-settings-tabs.js` usando delegação de eventos, `role=tab`, `aria-controls`, `aria-selected`, seta esquerda/direita e Home/End, sem modificar as funções dos botões existentes.
+- **Na nuvem** mantém `cloud-panel` e todos os provedores. **Arquivo e versões** reúne `saveLocalData`, exportações, restauração de JSON, desfazer, histórico (`undoHistory`) e verificação (`sp3IntegrityPanel`). **Entre aparelhos** mantém a cópia criptografada (`sp3SyncPanel`) com a senha lembrada por conta.
+- A aba Segurança permanece apenas para diagnósticos, alertas e limpeza; a troca de modos **não altera** `meuCaixa.v1`, dados financeiros, Firestore, senhas, credenciais, mecanismos de backup ou política de conflitos.
+- `css/v4.css`, `styles.css`, `index.html` e `sw.js` versionados para evitar visualização de CSS antigo no PWA. Layout usa `--surface`, `--surface-2`, `--ink`, `--line`, `--muted` e `--accent` dos temas oficiais.

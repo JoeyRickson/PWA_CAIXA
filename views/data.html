@@ -5,10 +5,17 @@
 
 
 
-<div aria-label="Seções de Dados e backup" class="sp4-settings-tabs" id="sp4SettingsTabs" role="tablist"><button aria-controls="sp4PaneBackup" aria-selected="true" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabBackup" role="tab" tabindex="0" title="Suas cópias e restaurações" type="button"><span>Backups</span></button><button aria-controls="sp4PaneAppearance" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabAppearance" role="tab" tabindex="-1" title="Temas e preferências" type="button"><span>Aparência</span></button><button aria-controls="sp4PaneFinance" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabFinance" role="tab" tabindex="-1" title="Meta mensal e bônus" type="button"><span>Finanças</span></button><button aria-controls="sp4PaneSecurity" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabSecurity" role="tab" tabindex="-1" title="Proteção e notificações" type="button"><span>Segurança</span></button><button aria-controls="sp4PaneAccount" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabAccount" role="tab" tabindex="-1" title="Conta e perfis separados" type="button"><span>Minha conta</span></button></div><div aria-labelledby="sp4TabBackup" class="sp4-tab-panel" id="sp4PaneBackup" role="tabpanel" tabindex="0"><div aria-label="Seus backups" class="sp4-section-group sp4-storage-layout" role="group">
-<div class="sp4-layout-title"><div><span class="muted">Dados e backup</span><h3>Seus backups</h3><p class="helper">Salve, verifique e recupere suas cópias em um só lugar.</p></div></div>
-<div class="sp4-storage-columns">
-<section class="panel cloud-panel">
+<div aria-label="Seções de Dados e backup" class="sp4-settings-tabs" id="sp4SettingsTabs" role="tablist"><button aria-controls="sp4PaneBackup" aria-selected="true" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabBackup" role="tab" tabindex="0" title="Suas cópias e restaurações" type="button"><span>Backups</span></button><button aria-controls="sp4PaneAppearance" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabAppearance" role="tab" tabindex="-1" title="Temas e preferências" type="button"><span>Aparência</span></button><button aria-controls="sp4PaneFinance" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabFinance" role="tab" tabindex="-1" title="Meta mensal e bônus" type="button"><span>Finanças</span></button><button aria-controls="sp4PaneSecurity" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabSecurity" role="tab" tabindex="-1" title="Proteção e notificações" type="button"><span>Segurança</span></button><button aria-controls="sp4PaneAccount" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabAccount" role="tab" tabindex="-1" title="Conta e perfis separados" type="button"><span>Minha conta</span></button></div><div aria-labelledby="sp4TabBackup" class="sp4-tab-panel" id="sp4PaneBackup" role="tabpanel" tabindex="0">
+<div aria-label="Seus backups" class="sp4-section-group sp4-backup-workspace" role="group">
+  <div class="sp4-layout-title"><div><span class="muted">Proteção e recuperação</span><h3>Seus backups</h3><p class="helper">Escolha como guardar ou recuperar seus dados. As opções ficam separadas para facilitar.</p></div></div>
+<div class="sp4-backup-methods" id="sp4BackupModes" role="tablist" aria-label="Escolha como fazer backup">
+  <button type="button" role="tab" class="sp4-backup-method" id="sp4BackupSelectCloud" aria-controls="sp4BackupModeCloud" aria-selected="true" tabindex="0"><span class="sp4-backup-method-num" aria-hidden="true">01</span><span class="sp4-backup-method-text"><strong>Na nuvem</strong><small>Google Drive, OneDrive ou Dropbox</small></span><span class="sp4-backup-method-indicator" aria-hidden="true">↗</span></button>
+  <button type="button" role="tab" class="sp4-backup-method" id="sp4BackupSelectFile" aria-controls="sp4BackupModeFile" aria-selected="false" tabindex="-1"><span class="sp4-backup-method-num" aria-hidden="true">02</span><span class="sp4-backup-method-text"><strong>Arquivo e versões</strong><small>Guardar, conferir ou restaurar</small></span><span class="sp4-backup-method-indicator" aria-hidden="true">↓</span></button>
+  <button type="button" role="tab" class="sp4-backup-method" id="sp4BackupSelectDevices" aria-controls="sp4BackupModeDevices" aria-selected="false" tabindex="-1"><span class="sp4-backup-method-num" aria-hidden="true">03</span><span class="sp4-backup-method-text"><strong>Entre aparelhos</strong><small>Mesmo Google, cópia protegida</small></span><span class="sp4-backup-method-indicator" aria-hidden="true">⇄</span></button>
+</div>
+  <div class="sp4-backup-mode-panel" id="sp4BackupModeCloud" role="tabpanel" aria-labelledby="sp4BackupSelectCloud">
+    <div class="sp4-backup-mode-intro"><h4>Escolha onde guardar sua cópia</h4><p class="helper">Guarde uma cópia fora deste aparelho. Se perder o celular ou computador, poderá recuperá-la com o serviço escolhido.</p></div>
+    <div class="sp4-backup-cloud-content"><section class="panel cloud-panel">
 <div class="section-head">
 <div><span class="muted">Arquivos de segurança</span><h3>Backup na nuvem</h3></div>
 <span class="status-pill" id="driveStatus">Desconectado</span>
@@ -69,15 +76,17 @@
 </div>
 <p class="helper small-text" id="driveDetail">Selecione e conecte um serviço para começar.</p>
 <p class="helper small-text">Google Drive permite envio e restauração pelo aplicativo. OneDrive e Dropbox permitem envio após configurar sua conexão; para recuperar, use o arquivo JSON baixado do serviço. O SaldoPlan solicita as permissões necessárias à conexão escolhida.</p>
-</section>
-<div class="sp4-column sp4-storage-side">
-<section class="panel">
+</section></div>
+  </div>
+  <div class="sp4-backup-mode-panel" id="sp4BackupModeFile" role="tabpanel" aria-labelledby="sp4BackupSelectFile" hidden>
+    <div class="sp4-backup-mode-intro"><h4>Arquivo e histórico local</h4><p class="helper">Baixe um arquivo independente, confira sua integridade ou recupere uma versão anterior.</p></div>
+    <div class="sp4-backup-file-grid">
+      <div class="sp4-backup-file-column"><section class="panel">
 <h3>Salvamento neste aparelho</h3>
 <p class="helper">Seus dados são salvos automaticamente aqui, inclusive sem internet. Para protegê-los se perder o aparelho, faça também um backup.</p>
 <button class="btn full" id="saveLocalData">Salvar agora neste aparelho</button>
 <p class="helper small-text" id="localSaveStatus">As alterações também são salvas automaticamente ao usar o app.</p>
-</section>
-<section class="panel">
+</section><section class="panel">
 <h3>Backup manual (arquivo)</h3>
 <p class="helper">Baixe um arquivo com seus dados para guardar onde preferir. Depois, você poderá restaurá-lo neste ou em outro aparelho.</p>
 <div class="button-stack">
@@ -88,14 +97,23 @@
 <button class="btn ghost full" id="restorePreviousLocal">Restaurar cópia local anterior</button>
 <button class="btn ghost full" id="undoLastChange">Desfazer última alteração</button>
 </div>
+
+
+
+</section></div>
+      <div class="sp4-backup-file-column"><section class="panel" id="sp3IntegrityPanel">
+<div class="section-head"><div><span class="muted">Conferência de segurança</span><h3>Verificar dados e backups</h3></div></div>
+<p class="helper">Confira se seus dados estão íntegros ou examine um arquivo de backup antes de restaurar. A verificação não altera suas informações.</p>
+<div class="sp3-tools-grid"><button class="btn secondary" id="sp3IntegrityCheck" type="button">Verificar dados atuais</button><label class="btn ghost file-label" style="text-align:center;cursor:pointer">Examinar backup JSON<input accept=".json,application/json" id="sp3IntegrityFile" type="file"/></label></div>
+<div aria-live="polite" class="sp3-status" id="sp3IntegrityStatus" role="status">Nenhuma análise realizada.</div>
+</section><section class="panel sp4-backup-history" aria-label="Historico local de versoes">
 <div class="sp312-history-head">
 <div>
 <span class="muted">Proteção contra erros · neste aparelho</span>
 <h3>Versões anteriores <span class="status-pill" id="undoHistoryCount">0/20</span></h3>
 </div>
 <p class="helper small-text">As últimas alterações aparecem abaixo. Abra o histórico completo apenas quando precisar restaurar.</p>
-</div>
-<details class="history-settings sp312-history-settings">
+</div><details class="history-settings sp312-history-settings">
 <summary>Configurar histórico local</summary>
 <div class="sp312-history-options">
 <label class="check-row">
@@ -112,19 +130,13 @@
 <p class="helper small-text">Esse histórico fica somente neste aparelho. Antes de restaurar, o estado atual também é protegido para permitir desfazer.</p>
 <button class="btn ghost full" id="clearUndoHistory" type="button">Limpar histórico local</button>
 </div>
-</details>
-<div aria-live="polite" class="undo-history" id="undoHistory"></div>
-</section>
-</div>
-</div>
-<div class="sp4-backup-tools" aria-label="Recuperação e verificação de backups" role="group">
-  <div class="sp4-backup-tools-title">
-    <span class="muted">Proteja e confira suas cópias</span>
-    <h3>Recuperação e verificação</h3>
-    <p class="helper">Use a mesma conta Google para recuperar seus dados em outro aparelho e confira um arquivo antes de restaurar.</p>
+</details><div aria-live="polite" class="undo-history" id="undoHistory"></div>
+</section></div>
+    </div>
   </div>
-  <div class="sp4-backup-tools-grid">
-<section aria-labelledby="sp311SyncHeading" class="panel" id="sp3SyncPanel">
+  <div class="sp4-backup-mode-panel" id="sp4BackupModeDevices" role="tabpanel" aria-labelledby="sp4BackupSelectDevices" hidden>
+    <div class="sp4-backup-mode-intro"><h4>Cópia entre aparelhos</h4><p class="helper">Use o mesmo login Google para enviar ou recuperar uma cópia criptografada em outro dispositivo.</p></div>
+    <div class="sp4-backup-devices-content"><section aria-labelledby="sp311SyncHeading" class="panel" id="sp3SyncPanel">
 <div class="section-head"><div><span class="muted">Uma cópia para seus dispositivos</span><h3 id="sp311SyncHeading">Backup entre aparelhos</h3></div></div>
 <p class="helper">Guarde uma cópia protegida para recuperar seus dados no celular ou computador usando a mesma conta Google. Funciona sem conectar o Drive.</p>
 <label>Senha de proteção <span class="sp311-inline-muted">(mínimo 8 caracteres)</span>
@@ -143,16 +155,9 @@
 <p>O envio automático funciona com o aplicativo aberto e pausa quando encontra cópias diferentes. Não substitui o backup manual nem o Google Drive. Se perder a senha e não tiver um aparelho autorizado, esta cópia não poderá ser recuperada.</p>
 </details>
 <div aria-live="polite" class="sp3-status" id="sp3SyncStatus" role="status">Entre com Google e faça seu primeiro backup entre aparelhos.</div>
-</section>
-<section class="panel" id="sp3IntegrityPanel">
-<div class="section-head"><div><span class="muted">Conferência de segurança</span><h3>Verificar dados e backups</h3></div></div>
-<p class="helper">Confira se seus dados estão íntegros ou examine um arquivo de backup antes de restaurar. A verificação não altera suas informações.</p>
-<div class="sp3-tools-grid"><button class="btn secondary" id="sp3IntegrityCheck" type="button">Verificar dados atuais</button><label class="btn ghost file-label" style="text-align:center;cursor:pointer">Examinar backup JSON<input accept=".json,application/json" id="sp3IntegrityFile" type="file"/></label></div>
-<div aria-live="polite" class="sp3-status" id="sp3IntegrityStatus" role="status">Nenhuma análise realizada.</div>
-</section>
+</section></div>
   </div>
-</div>
-
+  <p class="sp4-backup-footnote"><strong>Importante:</strong> seus lançamentos continuam salvos neste navegador. Mantenha uma cópia externa (arquivo ou nuvem) para protegê-los caso o aparelho seja perdido ou danificado.</p>
 </div></div><div aria-labelledby="sp4TabAppearance" class="sp4-tab-panel" hidden="" id="sp4PaneAppearance" role="tabpanel" tabindex="0"><div aria-label="Aparência" class="sp4-section-group sp4-preferences-layout" role="group">
 <div class="sp4-layout-title"><div><span class="muted">Dados e backup</span><h3>Aparência</h3><p class="helper">Escolha o visual do SaldoPlan. As preferências financeiras estão na aba Finanças.</p></div></div>
 <div class="sp4-preferences-columns">

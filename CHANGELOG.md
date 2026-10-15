@@ -1,5 +1,14 @@
 # Histórico de versões — SaldoPlan
 
+## v4.0.0 — Backup organizado por modo (ajuste de homologação)
+
+- Reformulada a aba Backups em três modos de escolha: **Na nuvem**, **Arquivo e versões**, **Entre aparelhos**.
+- Separados dados locais, backup em arquivo, histórico restaurável e verificação de integridade, evitando cartões repetidos em uma mesma tela.
+- Mantidas ações de backup, exportação, importação, sincronização criptografada, controles de conta e 101 IDs originais da página.
+- Melhoradas navegação por teclado e responsividade em desktop e mobile. Sem mudanças financeiras, de criptografia, Firebase ou Google Drive.
+
+
+
 ## v4.0.0 — Reorganização da aba Backups (homologação)
 
 - Movidos **Backup entre aparelhos** e **Verificar dados e backups** da aba Segurança para **Backups**.
