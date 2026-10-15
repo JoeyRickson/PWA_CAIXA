@@ -1,9 +1,17 @@
 {
   "name": "saldoplan",
   "private": true,
-  "version": "3.0.0",
-  "description": "PWA SaldoPlan e funcoes serverless",
+  "version": "4.0.0",
+  "description": "SaldoPlan PWA — controle financeiro com perfis locais, backup e sincronização opcional",
   "dependencies": {
-    "firebase-admin": "13.10.0"
+    "firebase-admin": "14.5.0"
+  },
+  "scripts": {
+    "test": "node tests/v4-profiles.test.cjs"
+  },
+  "overrides": {
+    "jwks-rsa": {
+      "jose": "5.10.0"
+    }
   }
 }

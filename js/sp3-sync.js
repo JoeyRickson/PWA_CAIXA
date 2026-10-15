@@ -10,7 +10,7 @@
   const lockStatus=document.getElementById('sp31SyncLockStatus');
   const out=document.getElementById('sp3SyncStatus');
   if(!input||!upload||!restore||!auto||!remember||!forget||!out)return;
-  const AUTO_PREF='saldoplan.syncAuto.v3';
+  const AUTO_PREF=sp4ScopedKey('saldoplan.syncAuto.v3');
   const DB_NAME='SaldoPlanSyncDeviceV31';
   const DB_STORE='deviceKeys';
   const decoder=new TextDecoder('utf-8',{fatal:true});
@@ -142,7 +142,9 @@
     if(remote&&!isValidRemote(remote))throw new Error('Cópia remota incompleta. Envio automático bloqueado.');
     if(remote&&remote.hash!==localHash){
       conflict=true;
-      info('Há alterações diferentes neste aparelho e na nuvem. Backup automático pausado. Use Conferir ou recuperar backup para decidir qual cópia manter.','error');
+      const onDevice=localStorage.getItem(`${STORAGE_KEY}.savedAt`);
+      const when=value=>{try{return value?new Date(value).toLocaleString('pt-BR'):'sem data';}catch{return 'sem data';}};
+      info(`Conflito: este aparelho (última gravação ${when(onDevice)}) e a nuvem (${when(remote.updatedAt)}) possuem versões diferentes. Backup automático pausado. Exporte um JSON antes de decidir entre restaurar ou enviar manualmente.`, 'error');
       return false;
     }
     adoptRemote(uid,remote);
@@ -198,7 +200,7 @@
     const count=parsed.transactions.length;
     const same=(await hash(JSON.stringify(state)))===remote.hash;
     if(same){adoptRemote(uid,remote);info(`Cópias idênticas · ${count} lançamentos. Sem mudanças.`,'success');return;}
-    if(!confirm(`A cópia remota possui ${count} lançamentos. Restaurar substituirá os dados deste aparelho (sem mesclar alterações). Criaremos um snapshot local antes. Deseja continuar?`)){
+    if(!confirm(`COMPARAR VERSÕES\n\nNeste aparelho: ${state.transactions.length} lançamentos · ${localStorage.getItem(`${STORAGE_KEY}.savedAt`)||'sem data'}.\nNuvem: ${count} lançamentos · ${remote.updatedAt||'sem data'}.\n\nAs datas ajudam a identificar qual cópia é mais recente, mas não garantem que contenha todos os lançamentos.\n\nRestaurar substituirá os dados ativos deste perfil pela cópia da nuvem. O estado atual terá snapshot local; baixe também um JSON antes de continuar.\n\nDeseja restaurar agora?`)){
       conflict=true;
       info('Cópia conferida, mas não restaurada. Envio automático pausado para evitar perdas.','error');return;
     }

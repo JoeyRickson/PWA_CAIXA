@@ -1,4 +1,4 @@
-const SALDOPLAN_VERSION='3.1.6';
+const SALDOPLAN_VERSION='4.0.0';
 
 const SALDOPLAN_VIEWS=[
   'dashboard',
@@ -47,7 +47,9 @@ const SALDOPLAN_SCRIPTS=[
   'intelligence',
   'sp3-tools',
   'sp3-sync',
-  'sp3-tickets'
+  'sp3-tickets',
+  'v4-features',
+  'v4-push'
 ];
 
 async function saldoPlanFetchPartial(path){

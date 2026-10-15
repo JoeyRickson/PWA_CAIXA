@@ -20,7 +20,7 @@
   sizes="180x180"
   href="icons/apple-touch-icon.png"
 />
-  <link rel="stylesheet" href="styles.css?v=3.1.6" />
+  <link rel="stylesheet" href="styles.css?v=4.0.0-theme-fix" />
   <style id="spStartupCritical">
     #spStartup{position:fixed;inset:0;z-index:240;display:grid;place-items:center;background:#0d1421;color:#f6f9ff;padding:20px;box-sizing:border-box;font-family:system-ui,sans-serif}
     #spStartup[hidden]{display:none!important}
@@ -28,6 +28,10 @@
     #spStartup .sp-startup-title{font-size:clamp(1.35rem,4vw,1.8rem);font-weight:800;margin:10px 0 5px}
     #spStartup .sp-startup-caption{opacity:.76;margin:0 0 23px}
   </style>
+  <script>
+    try { if((localStorage.getItem('saldoplan.profile.active.v4')||'legacy').startsWith('user_'))document.documentElement.classList.add('sp4-profile-locked'); }catch{}
+  </script>
+  <script src="push-config.js?v=4.0.0"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -136,7 +140,7 @@
       <div class="auth-privacy-note">
         <strong>Login e backup na nuvem são separados.</strong>
         <span>
-          O SaldoPlan não lê as contas cadastradas no Android. O Google pode apresentar um seletor de contas ao entrar. Atenção: trocar de conta não separa os dados financeiros já salvos neste navegador.
+          O SaldoPlan não lê as contas cadastradas no Android. O Google pode apresentar um seletor de contas ao entrar. No SaldoPlan v4, cada conta Google tem um espaço financeiro separado neste navegador. Na primeira entrada, você escolhe se deseja copiar os dados antigos.
         </span>
       </div>
     </section>
@@ -187,7 +191,7 @@
       <div class="mobile-brand-mark" aria-hidden="true">S</div>
       <div class="topbar-brand">
         <p class="eyebrow">CONTROLE FINANCEIRO</p>
-        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v3.1.1</small></h1>
+        <h1>SaldoPlan <small style="font-size:.42em;opacity:.55;vertical-align:middle">v4.0.0</small></h1>
       </div>
       <div class="top-actions">
 
@@ -344,6 +348,7 @@
 
 
 <script src="drive-config.js?v=3.1.1"></script>
+<script src="js/v4-settings-tabs.js?v=4.0.0-tabs"></script>
 <script src="app.js?v=3.1.6"></script>
 </body>
 </html>

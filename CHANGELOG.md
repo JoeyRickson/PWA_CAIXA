@@ -1,5 +1,32 @@
 # Histórico de versões — SaldoPlan
 
+## v4.0.0 — Correção de contraste entre temas (homologação)
+
+- Corrigidos fundo, borda e texto do painel **Segurança e diagnóstico** em temas claros e escuros.
+- **Perfis financeiros**, menu de lançamento rápido e indicadores agora utilizam os tokens dos 14 temas, sem cores de fallback escuras fixas.
+- Botões de diagnóstico e controles interativos exibem contraste e foco de teclado adequados aos temas.
+- Cache da PWA versionado novamente, sem qualquer mudança nos dados ou no JavaScript funcional.
+
+
+
+## v4.0.0 — Ajuste de organização: aba Finanças (homologação)
+
+- A página **Dados e backup** passa a ter cinco abas: Backups, Aparência, Finanças, Segurança e Minha conta.
+- Remove Meta mensal para guardar/investir e Bônus opcional de Aparência e organiza ambos em **Finanças**.
+- Mantém integralmente os campos, IDs e os botões, sem migrar dados ou alterar regras financeiras.
+- Melhorias responsivas: cinco abas acessíveis no mobile e cartões financeiros sem estiramento no desktop.
+- Atualiza CSS e versão de cache da PWA; nenhum commit automático.
+
+
+## v4.0.0 — Homologação: reorganização de Dados e backup (layout2)
+
+- Agrupa as preferências em galeria de temas e coluna independente com Meta/Bônus.
+- Coloca backup em nuvem e backups locais em colunas independentes, sem esticar painéis curtos.
+- Reorganiza diagnóstico, sincronização, notificações e limpeza em colunas de altura natural.
+- Mantém todos os IDs e ações existentes, sem modificar cálculos, contas, JSON, APIs ou integração Firebase.
+- Ajusta responsividade e cache da PWA para a revisão visual `4.0.0-layout2`.
+
+
 ## 3.1.6 — Botão Google integrado aos temas
 
 - Ajuste exclusivamente visual no Android: mantém o botão oficial Google Identity Services, agora com variante `filled_black` nos temas escuros e `outline` nos claros, formato arredondado e contorno alinhado ao tema ativo.
@@ -86,3 +113,20 @@
 ## 2.14–2.19 — Modularização e domínios financeiros
 
 - Módulos separados, rollback, recorrências completas, cartões, patrimônio, metas e importação.
+
+## v4.0.0 — Perfis, produtividade, segurança e notificações (candidata à homologação)
+
+- Perfis locais separados por UID do Firebase após **confirmação explícita** de cópia de dados legados; base `meuCaixa.v1` preservada e perfil offline separado após a adesão.
+- Lançamento rápido no mobile reutiliza a caixa financeira existente para receitas, gastos e despesas previstas.
+- Backup entre aparelhos: comparação de quantidades e datas das cópias antes da restauração e instruções mais claras de conflito; continua sem mesclagem automática.
+- Importação: além da chave exata, revisão preventiva de possíveis duplicados pelo mesmo estabelecimento, valor e data em até um dia; seleção de possíveis repetidos continua desmarcada.
+- Diagnóstico local de armazenamento, conta e último backup, com exportação de resumo **sem lançar dados financeiros**.
+- Notificações em segundo plano: integração Firebase Messaging, APIs protegidas e agendamento Vercel preparado. **Requer configuração externa e teste real, não ativo por padrão**. Veja `PUSH-SETUP.md`.
+- Documentação GitHub substituída por `README.md` abrangente, com arquitetura, instalação, privacidade e limitações; `ARQUITETURA.md` revisado.
+- Cache PWA atualizado para v4.0.0; sem alterações automáticas de dados no servidor nem commit automático.
+- Homologação de desktop: corrigida a grade de 12 colunas em Dados e backup para os seis painéis adicionados na v4.0.0; cartões passam a ocupar metade da linha ou toda a largura em notebooks. Botões e textos deixam de ficar comprimidos. Cache de layout atualizado sem remover dados locais.
+
+### v4.0.0 — Ajuste de usabilidade de Dados e backup
+- Organização por quatro abas (Backups, Aparência, Segurança, Minha conta), evitando uma página muito longa e cartões comprimidos.
+- Cartões em largura confortável no desktop e uma coluna no celular; 14 temas continuam disponíveis.
+- Navegação acessível por teclado, sem alterar formulários, dados financeiros ou backups.

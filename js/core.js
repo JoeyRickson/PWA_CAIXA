@@ -1,6 +1,12 @@
-const STORAGE_KEY='meuCaixa.v1'; // Mantido de propósito para preservar os dados da versão anterior.
-const PREVIOUS_KEY='meuCaixa.previousBackup.v2';
-const CLOUD_BACKUP_DIRTY_KEY='saldoplan.cloudBackupDirtyAt';
+// v4: dados isolados por conta neste navegador (legado preservado).
+const PROFILE_ACTIVE_KEY='saldoplan.profile.active.v4';
+const PROFILE_ACTIVE_SCOPE=localStorage.getItem(PROFILE_ACTIVE_KEY)||'legacy';
+const PROFILE_ID_PATTERN=/^user_[A-Za-z0-9_-]{1,128}$/;
+const STORAGE_KEY=PROFILE_ACTIVE_SCOPE==='guest'?'meuCaixa.guest.v4':
+  PROFILE_ID_PATTERN.test(PROFILE_ACTIVE_SCOPE)?`meuCaixa.profile.${PROFILE_ACTIVE_SCOPE}.v4`:'meuCaixa.v1';
+const sp4ScopedKey=key=>PROFILE_ACTIVE_SCOPE==='legacy'?key:`${key}.${PROFILE_ACTIVE_SCOPE}`;
+const PREVIOUS_KEY=sp4ScopedKey('meuCaixa.previousBackup.v2');
+const CLOUD_BACKUP_DIRTY_KEY=sp4ScopedKey('saldoplan.cloudBackupDirtyAt');
 const CLOUD_BACKUP_DEBOUNCE_MS=180000;
 const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const NATIONAL_HOLIDAYS={
@@ -36,7 +42,7 @@ let simCursor=new Date(today.getFullYear(),today.getMonth(),1);
 let thirteenthViewYear=today.getFullYear();
 let fgtsViewYear=today.getFullYear();
 
-const LAST_VIEW_MONTH_KEY='saldoplan.lastViewMonth';
+const LAST_VIEW_MONTH_KEY=sp4ScopedKey('saldoplan.lastViewMonth');
 
 try{
   const savedMonth=localStorage.getItem(LAST_VIEW_MONTH_KEY);
@@ -53,7 +59,7 @@ function rememberViewMonth(){
     localStorage.setItem(LAST_VIEW_MONTH_KEY,monthKey(cursor));
   }catch{}
 }
-const LAST_SIM_MONTH_KEY='saldoplan.lastSimMonth';
+const LAST_SIM_MONTH_KEY=sp4ScopedKey('saldoplan.lastSimMonth');
 
 try{
   const savedSimMonth=localStorage.getItem(LAST_SIM_MONTH_KEY);
@@ -266,6 +272,11 @@ if(hadExisting&&state.version===2){
 
 function save({backupOld=true,cloud=true,undoLabel='',history=true}={}){
   try{
+    // Outra guia trocou o perfil: jamais gravar dados no escopo anterior.
+    if((localStorage.getItem(PROFILE_ACTIVE_KEY)||'legacy')!==PROFILE_ACTIVE_SCOPE){
+      console.warn('Perfil alterado em outra guia. Recarregue para continuar.');
+      return;
+    }
     const previousText=localStorage.getItem(STORAGE_KEY);
     const nextText=JSON.stringify(state);
 
@@ -294,6 +305,7 @@ function save({backupOld=true,cloud=true,undoLabel='',history=true}={}){
     localStorage.setItem(`${STORAGE_KEY}.savedAt`,new Date().toISOString());
 
     window.saldoPlanSyncMarkDirty?.();
+    window.saldoPlanPushScheduleDirty?.();
     if(cloud&&state.cloud?.autoBackup){
       markCloudBackupDirty();
     }

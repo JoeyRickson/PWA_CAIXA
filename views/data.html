@@ -1,229 +1,246 @@
-<section id="view-data" class="view">
-        <div class="page-head"><span class="muted">Segurança e preferências</span><h2>Dados e backup</h2></div>
+<section class="view" id="view-data">
+<div class="page-head"><span class="muted">Segurança e preferências</span><h2>Dados e backup</h2></div>
 
-        <section class="panel account-panel">
-          <div class="section-head">
-            <div>
-              <span class="muted">Sua conta</span>
-              <h3>Login do SaldoPlan</h3>
-            </div>
-            <span id="accountState" class="status-pill">Não conectado</span>
-          </div>
 
-          <div class="account-summary">
-            <div class="account-avatar-wrap">
-              <img id="accountAvatar" class="account-avatar account-avatar-large hidden" alt="" referrerpolicy="no-referrer">
-              <span class="account-avatar-fallback" aria-hidden="true">SP</span>
-            </div>
 
-            <div class="account-copy">
-              <strong id="accountName">Entre com sua conta Google</strong>
-              <span id="accountEmail">
+
+
+<div aria-label="Seções de Dados e backup" class="sp4-settings-tabs" id="sp4SettingsTabs" role="tablist"><button aria-controls="sp4PaneBackup" aria-selected="true" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabBackup" role="tab" tabindex="0" title="Suas cópias e restaurações" type="button"><span>Backups</span></button><button aria-controls="sp4PaneAppearance" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabAppearance" role="tab" tabindex="-1" title="Temas e preferências" type="button"><span>Aparência</span></button><button aria-controls="sp4PaneFinance" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabFinance" role="tab" tabindex="-1" title="Meta mensal e bônus" type="button"><span>Finanças</span></button><button aria-controls="sp4PaneSecurity" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabSecurity" role="tab" tabindex="-1" title="Proteção e notificações" type="button"><span>Segurança</span></button><button aria-controls="sp4PaneAccount" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabAccount" role="tab" tabindex="-1" title="Conta e perfis separados" type="button"><span>Minha conta</span></button></div><div aria-labelledby="sp4TabBackup" class="sp4-tab-panel" id="sp4PaneBackup" role="tabpanel" tabindex="0"><div aria-label="Seus backups" class="sp4-section-group sp4-storage-layout" role="group">
+<div class="sp4-layout-title"><div><span class="muted">Dados e backup</span><h3>Seus backups</h3><p class="helper">Arquivos e cópias de segurança para recuperar seus dados.</p></div></div>
+<div class="sp4-storage-columns">
+<section class="panel cloud-panel">
+<div class="section-head">
+<div><span class="muted">Arquivos de segurança</span><h3>Backup na nuvem</h3></div>
+<span class="status-pill" id="driveStatus">Desconectado</span>
+</div>
+<p class="helper" id="cloudProviderHelp">Escolha onde guardar uma cópia dos seus dados: Google Drive, OneDrive ou Dropbox. Alguns serviços precisam de configuração adicional para conectar.</p>
+<label>Serviço para guardar o backup
+            <select id="cloudProvider">
+<option value="google">Google Drive</option>
+<option value="onedrive">OneDrive</option>
+<option value="dropbox">Dropbox</option>
+</select>
+</label>
+<div id="googleCloudFields">
+<input id="googleEmailHint" type="hidden"/>
+<input id="googleClientId" type="hidden"/>
+<div class="drive-account-card">
+<span class="muted">Conta Google</span>
+<strong id="driveAccountLabel">Use a conta conectada ao SaldoPlan</strong>
+</div>
+<div class="drive-folder-card">
+<span class="muted">Pasta de backup</span>
+<strong id="driveFolderLabel">Nenhuma pasta selecionada</strong>
+<small id="driveFolderSubtext">Conecte o Google Drive e escolha uma pasta.</small>
+</div>
+<div class="drive-folder-actions">
+<button class="btn secondary" id="chooseDriveFolder" type="button">Escolher pasta existente</button>
+<button class="btn ghost" id="createDriveFolder" type="button">+ Criar nova pasta</button>
+</div>
+<p class="helper small-text hidden" id="driveMobileHint">No celular, o SaldoPlan usa uma pasta propria no seu Drive. Nao e necessario abrir o seletor do Google. Para usar uma pasta diferente, selecione-a pelo computador com a mesma conta.</p>
+</div>
+<div class="hidden" id="otherCloudFields">
+<label id="cloudAccountLabel">Conta do provedor<input id="cloudAccount" placeholder="voce@exemplo.com" type="email"/></label>
+<label id="cloudClientLabel">Client ID OAuth do provedor<input id="cloudClientId" placeholder="Informe o Client ID do provedor"/></label>
+<p class="helper small-text" id="cloudProviderStatus"></p>
+</div>
+<label class="hidden" id="driveFolderNameLabel">Pasta de backup
+            <input id="driveFolderName" value="SaldoPlan - Backups"/>
+</label>
+<label class="check-row"><input id="driveAutoBackup" type="checkbox"/> Fazer backup automático enquanto o serviço estiver conectado</label>
+<p class="helper small-text">Quando habilitado, alterações ficam pendentes e são agrupadas. O envio automático ocorre após alguns minutos sem novas mudanças; se o último backup tiver mais de 24 horas, o próximo envio é antecipado.</p>
+<label>Manter backups automáticos por
+            <select id="driveRetentionDays">
+<option value="10">10 dias</option>
+<option value="15">15 dias</option>
+<option value="30">30 dias</option>
+</select>
+</label>
+<div class="button-stack">
+<button class="btn full" id="connectDrive">Conectar ao Google Drive</button>
+<button class="btn secondary full" id="saveCloudConfig">Salvar preferências</button>
+<button class="btn secondary full" id="backupDrive">Enviar backup agora</button>
+<button class="btn ghost full" id="restoreDrive">Recuperar backup da nuvem</button>
+</div>
+<div aria-live="polite" class="backup-progress hidden" id="backupProgress" role="status">
+<div class="backup-progress-head"><span id="backupProgressIcon">↗</span><strong id="backupProgressTitle">Preparando backup</strong><span id="backupProgressPercent">0%</span></div>
+<div class="backup-progress-track"><i id="backupProgressBar"></i></div>
+<small id="backupProgressDetail">Aguarde enquanto os dados são enviados.</small>
+</div>
+<p class="helper small-text" id="driveDetail">Selecione e conecte um serviço para começar.</p>
+<p class="helper small-text">Google Drive permite envio e restauração pelo aplicativo. OneDrive e Dropbox permitem envio após configurar sua conexão; para recuperar, use o arquivo JSON baixado do serviço. O SaldoPlan solicita as permissões necessárias à conexão escolhida.</p>
+</section>
+<div class="sp4-column sp4-storage-side">
+<section class="panel">
+<h3>Salvamento neste aparelho</h3>
+<p class="helper">Seus dados são salvos automaticamente aqui, inclusive sem internet. Para protegê-los se perder o aparelho, faça também um backup.</p>
+<button class="btn full" id="saveLocalData">Salvar agora neste aparelho</button>
+<p class="helper small-text" id="localSaveStatus">As alterações também são salvas automaticamente ao usar o app.</p>
+</section>
+<section class="panel">
+<h3>Backup manual (arquivo)</h3>
+<p class="helper">Baixe um arquivo com seus dados para guardar onde preferir. Depois, você poderá restaurá-lo neste ou em outro aparelho.</p>
+<div class="button-stack">
+<button class="btn full" id="exportJson">Baixar arquivo de backup (.json)</button>
+<button class="btn secondary full" id="exportCsv">Exportar lançamentos (.csv)</button>
+<button class="btn secondary full" id="exportPdf">Exportar relatório (.pdf)</button>
+<label class="btn ghost full file-label">Restaurar de um arquivo<input accept="application/json,.json" id="importJson" type="file"/></label>
+<button class="btn ghost full" id="restorePreviousLocal">Restaurar cópia local anterior</button>
+<button class="btn ghost full" id="undoLastChange">Desfazer última alteração</button>
+</div>
+<div class="sp312-history-head">
+<div>
+<span class="muted">Proteção contra erros · neste aparelho</span>
+<h3>Versões anteriores <span class="status-pill" id="undoHistoryCount">0/20</span></h3>
+</div>
+<p class="helper small-text">As últimas alterações aparecem abaixo. Abra o histórico completo apenas quando precisar restaurar.</p>
+</div>
+<details class="history-settings sp312-history-settings">
+<summary>Configurar histórico local</summary>
+<div class="sp312-history-options">
+<label class="check-row">
+<input id="historyEnabled" type="checkbox"/>
+                Guardar versões anteriores das alterações importantes
+              </label>
+<label>Quantidade de versões locais
+                <select id="historyLimit">
+<option value="10">10 versões</option>
+<option value="20">20 versões</option>
+<option value="30">30 versões</option>
+</select>
+</label>
+<p class="helper small-text">Esse histórico fica somente neste aparelho. Antes de restaurar, o estado atual também é protegido para permitir desfazer.</p>
+<button class="btn ghost full" id="clearUndoHistory" type="button">Limpar histórico local</button>
+</div>
+</details>
+<div aria-live="polite" class="undo-history" id="undoHistory"></div>
+</section>
+</div>
+</div>
+</div></div><div aria-labelledby="sp4TabAppearance" class="sp4-tab-panel" hidden="" id="sp4PaneAppearance" role="tabpanel" tabindex="0"><div aria-label="Aparência" class="sp4-section-group sp4-preferences-layout" role="group">
+<div class="sp4-layout-title"><div><span class="muted">Dados e backup</span><h3>Aparência</h3><p class="helper">Escolha o visual do SaldoPlan. As preferências financeiras estão na aba Finanças.</p></div></div>
+<div class="sp4-preferences-columns">
+<section class="panel form-panel">
+<h3>Aparência e temas</h3>
+<p class="helper">Escolha um visual moderno ou clássico. A preferência vale no celular e no desktop, sem mudar seus dados financeiros.</p>
+<div aria-label="Escolha um tema visual" class="visual-theme-grid" id="visualThemeGrid"></div>
+<p aria-live="polite" class="helper small-text" id="visualThemeStatus"></p>
+</section>
+
+</div>
+</div></div><div aria-labelledby="sp4TabFinance" class="sp4-tab-panel" hidden="" id="sp4PaneFinance" role="tabpanel" tabindex="0"><div aria-label="Preferências financeiras" class="sp4-section-group sp4-finance-layout" role="group">
+<div class="sp4-layout-title"><div><span class="muted">Dados e backup</span><h3>Preferências financeiras</h3><p class="helper">Defina sua meta de economia mensal e personalize os benefícios que entram nos seus controles.</p></div></div>
+<div class="sp4-finance-columns">
+<section class="panel form-panel">
+<label>Meta mensal para guardar/investir
+            <div class="money-input"><span>R$</span><input id="savingGoal" inputmode="decimal" placeholder="500,00"/></div>
+</label>
+<button class="btn full" id="saveGoalBtn">Salvar meta</button>
+</section>
+<section class="panel form-panel">
+<h3>Bônus opcional</h3>
+<p class="helper">Use este recurso para vale, cartão benefício ou qualquer bônus recebido. Você escolhe o nome ou pode desativá-lo.</p>
+<label class="check-row"><input id="bonusEnabled" type="checkbox"/> Usar bônus no app</label>
+<label>Nome do bônus<input id="bonusName" placeholder="Ex.: Vale alimentação, cartão benefício"/></label>
+<button class="btn full" id="saveBonusConfig">Salvar configuração do bônus</button>
+</section>
+</div>
+</div></div><div aria-labelledby="sp4TabSecurity" class="sp4-tab-panel" hidden="" id="sp4PaneSecurity" role="tabpanel" tabindex="0"><div aria-label="Segurança e notificações" class="sp4-section-group sp4-security-layout" role="group">
+<div class="sp4-layout-title"><div><span class="muted">Dados e backup</span><h3>Segurança e notificações</h3><p class="helper">Diagnósticos, alertas e proteção das informações.</p></div></div>
+<div class="sp4-security-columns">
+<div class="sp4-column">
+<section class="panel sp4-diagnostic" id="sp4Diagnostics">
+<h3>Segurança e diagnóstico</h3>
+<p class="helper">Confira o estado local do aplicativo sem enviar seus lançamentos. O histórico e os backups continuam independentes.</p>
+<dl><dt>Status</dt><dd>Aguardando verificação</dd></dl>
+<div class="sp3-tools-grid"><button class="btn secondary" id="sp4Inspect" type="button">Verificar agora</button><button class="btn ghost" id="sp4ExportDiagnostics" type="button">Baixar diagnóstico</button></div>
+</section>
+<section aria-labelledby="sp311SyncHeading" class="panel" id="sp3SyncPanel">
+<div class="section-head"><div><span class="muted">Uma cópia para seus dispositivos</span><h3 id="sp311SyncHeading">Backup entre aparelhos</h3></div></div>
+<p class="helper">Guarde uma cópia protegida para recuperar seus dados no celular ou computador usando a mesma conta Google. Funciona sem conectar o Drive.</p>
+<label>Senha de proteção <span class="sp311-inline-muted">(mínimo 8 caracteres)</span>
+<input aria-describedby="sp311PasswordHelp" autocomplete="new-password" id="sp3SyncPass" minlength="8" placeholder="Digite apenas se este aparelho pedir a senha" type="password"/>
+</label>
+<p class="helper small-text sp311-hint" id="sp311PasswordHelp">Crie uma senha diferente da senha do Google. Quanto maior, mais protegida fica sua cópia.</p>
+<label class="check-row"><input id="sp31SyncRemember" type="checkbox"/> Lembrar a senha neste aparelho pessoal</label>
+<div aria-live="polite" class="sp31-device-status" id="sp31SyncLockStatus" role="status">Entre com Google para usar o backup entre aparelhos.</div>
+<button class="btn ghost full" id="sp31SyncForget" type="button">Esquecer senha lembrada neste aparelho</button>
+<label class="check-row"><input id="sp3SyncAuto" type="checkbox"/> Atualizar o backup automaticamente com o SaldoPlan aberto</label>
+<div class="sp3-tools-grid"><button class="btn" id="sp3SyncUpload" type="button">Fazer backup agora</button><button class="btn secondary" id="sp3SyncDownload" type="button">Conferir ou recuperar backup</button></div>
+<p class="helper small-text sp311-important">Atenção: se você alterar dados em dois aparelhos, será necessário escolher qual cópia manter. O SaldoPlan não junta as mudanças automaticamente.</p>
+<details class="sp311-more">
+<summary>Como funciona e como meus dados são protegidos?</summary>
+<p>O backup entre aparelhos é guardado de forma criptografada no Firebase da sua conta. A senha de proteção não é enviada ao servidor. Em um aparelho novo, você precisará informá-la uma vez; depois, pode optar por lembrá-la neste navegador pessoal.</p>
+<p>O envio automático funciona com o aplicativo aberto e pausa quando encontra cópias diferentes. Não substitui o backup manual nem o Google Drive. Se perder a senha e não tiver um aparelho autorizado, esta cópia não poderá ser recuperada.</p>
+</details>
+<div aria-live="polite" class="sp3-status" id="sp3SyncStatus" role="status">Entre com Google e faça seu primeiro backup entre aparelhos.</div>
+</section>
+<section class="panel" id="sp3NotificationPanel">
+<div class="section-head"><div><span class="muted">Alertas sob seu controle</span><h3>Notificações do aplicativo</h3></div></div>
+<p class="helper">Além dos alertas do Calendário, exiba lembretes do navegador quando o SaldoPlan estiver aberto. Esta versão não possui envio push em segundo plano com o navegador fechado.</p>
+<label class="check-row"><input id="sp3NotifyEnabled" type="checkbox"/> Ativar avisos do navegador</label>
+<div class="sp3-tools-grid"><button class="btn secondary" id="sp3NotifyPermission" type="button">Solicitar permissão</button><button class="btn ghost" id="sp3NotifyTest" type="button">Enviar notificação de teste</button></div>
+<div aria-live="polite" class="sp3-status" id="sp3NotifyStatus" role="status">Notificações não configuradas.</div>
+</section>
+</div>
+<div class="sp4-column">
+<section aria-labelledby="sp4PushTitle" class="panel">
+<h3 id="sp4PushTitle">Lembretes com o app fechado <span class="sp4-tag">Configuração adicional</span></h3>
+<p class="helper">Receba um aviso genérico em dias com compromissos previstos, mesmo sem abrir o SaldoPlan. Requer permissão, suporte do navegador e configuração do serviço push na Vercel. Nenhum valor ou descrição de transação é enviado.</p>
+<div class="sp3-tools-grid"><button class="btn secondary" id="sp4PushEnable" type="button">Ativar lembretes push</button><button class="btn ghost" id="sp4PushDisable" type="button">Desativar neste aparelho</button></div>
+<p aria-live="polite" class="helper small-text" id="sp4PushStatus">Serviço aguardando configuração.</p>
+</section>
+<section class="panel" id="sp3IntegrityPanel">
+<div class="section-head"><div><span class="muted">Conferência de segurança</span><h3>Verificar dados e backups</h3></div></div>
+<p class="helper">Confira se seus dados estão íntegros ou examine um arquivo de backup antes de restaurar. A verificação não altera suas informações.</p>
+<div class="sp3-tools-grid"><button class="btn secondary" id="sp3IntegrityCheck" type="button">Verificar dados atuais</button><label class="btn ghost file-label" style="text-align:center;cursor:pointer">Examinar backup JSON<input accept=".json,application/json" id="sp3IntegrityFile" type="file"/></label></div>
+<div aria-live="polite" class="sp3-status" id="sp3IntegrityStatus" role="status">Nenhuma análise realizada.</div>
+</section>
+<section class="panel danger-zone">
+<h3>Limpar dados</h3>
+<p class="helper">Apaga os dados deste aparelho. Faça um backup antes.</p>
+<button class="btn danger full" id="resetData">Apagar tudo</button>
+</section>
+</div>
+</div>
+</div></div><div aria-labelledby="sp4TabAccount" class="sp4-tab-panel" hidden="" id="sp4PaneAccount" role="tabpanel" tabindex="0"><section class="panel account-panel">
+<div class="section-head">
+<div>
+<span class="muted">Sua conta</span>
+<h3>Login do SaldoPlan</h3>
+</div>
+<span class="status-pill" id="accountState">Não conectado</span>
+</div>
+<div class="account-summary">
+<div class="account-avatar-wrap">
+<img alt="" class="account-avatar account-avatar-large hidden" id="accountAvatar" referrerpolicy="no-referrer"/>
+<span aria-hidden="true" class="account-avatar-fallback">SP</span>
+</div>
+<div class="account-copy">
+<strong id="accountName">Entre com sua conta Google</strong>
+<span id="accountEmail">
                 Sua conta identifica seu perfil. O backup na nuvem é separado e opcional.
               </span>
-            </div>
-          </div>
-
-          <div class="button-stack account-actions">
-            <button id="accountGoogleBtn" class="btn full" type="button">
+</div>
+</div>
+<div class="button-stack account-actions">
+<button class="btn full" id="accountGoogleBtn" type="button">
               Entrar com Google
             </button>
-            <button id="accountOfflineBtn" class="btn ghost full" type="button">
+<button class="btn ghost full" id="accountOfflineBtn" type="button">
               Usar sem conta
             </button>
-            <button id="accountSignOutBtn" class="btn ghost full hidden" type="button">
+<button class="btn ghost full hidden" id="accountSignOutBtn" type="button">
               Sair da conta
             </button>
-          </div>
-
-          <p class="helper small-text">
+</div>
+<p class="helper small-text">
             Seus lançamentos continuam armazenados localmente neste aparelho.
             Entrar com Google não envia seus dados financeiros ao Firebase e não conecta o Google Drive automaticamente.
           </p>
-        </section>
+</section><section aria-label="Perfis financeiros por conta" class="panel sp4-profile-panel">
+<h3>Perfis financeiros separados</h3>
+<p aria-live="polite" class="helper" id="sp4ProfileInfo">Verificando seu perfil…</p>
+<p class="helper small-text">Cada conta Google possui um conjunto independente de dados neste navegador. No primeiro acesso, você escolhe se deseja copiar os dados antigos. Trocar de conta não compartilha lançamentos. Isso não é uma senha de proteção para quem usa o mesmo perfil do navegador.</p>
+</section></div></section>
 
-
-        <section class="panel form-panel">
-          <h3>Aparência e temas</h3>
-          <p class="helper">Escolha um visual moderno ou clássico. A preferência vale no celular e no desktop, sem mudar seus dados financeiros.</p>
-          <div id="visualThemeGrid" class="visual-theme-grid" aria-label="Escolha um tema visual"></div>
-          <p id="visualThemeStatus" class="helper small-text" aria-live="polite"></p>
-        </section>
-
-        <section class="panel form-panel">
-          <label>Meta mensal para guardar/investir
-            <div class="money-input"><span>R$</span><input id="savingGoal" inputmode="decimal" placeholder="500,00"></div>
-          </label>
-          <button id="saveGoalBtn" class="btn full">Salvar meta</button>
-        </section>
-
-        <section class="panel form-panel">
-          <h3>Bônus opcional</h3>
-          <p class="helper">Use este recurso para vale, cartão benefício ou qualquer bônus recebido. Você escolhe o nome ou pode desativá-lo.</p>
-          <label class="check-row"><input id="bonusEnabled" type="checkbox"> Usar bônus no app</label>
-          <label>Nome do bônus<input id="bonusName" placeholder="Ex.: Vale alimentação, cartão benefício"></label>
-          <button id="saveBonusConfig" class="btn full">Salvar configuração do bônus</button>
-        </section>
-
-        <section class="panel cloud-panel">
-          <div class="section-head">
-            <div><span class="muted">Arquivos de segurança</span><h3>Backup na nuvem</h3></div>
-            <span id="driveStatus" class="status-pill">Desconectado</span>
-          </div>
-          <p id="cloudProviderHelp" class="helper">Escolha onde guardar uma cópia dos seus dados: Google Drive, OneDrive ou Dropbox. Alguns serviços precisam de configuração adicional para conectar.</p>
-
-          <label>Serviço para guardar o backup
-            <select id="cloudProvider">
-              <option value="google">Google Drive</option>
-              <option value="onedrive">OneDrive</option>
-              <option value="dropbox">Dropbox</option>
-            </select>
-          </label>
-
-          <div id="googleCloudFields">
-            <input id="googleEmailHint" type="hidden">
-            <input id="googleClientId" type="hidden">
-
-            <div class="drive-account-card">
-              <span class="muted">Conta Google</span>
-              <strong id="driveAccountLabel">Use a conta conectada ao SaldoPlan</strong>
-            </div>
-
-            <div class="drive-folder-card">
-              <span class="muted">Pasta de backup</span>
-              <strong id="driveFolderLabel">Nenhuma pasta selecionada</strong>
-              <small id="driveFolderSubtext">Conecte o Google Drive e escolha uma pasta.</small>
-            </div>
-
-            <div class="drive-folder-actions">
-              <button id="chooseDriveFolder" class="btn secondary" type="button">Escolher pasta existente</button>
-              <button id="createDriveFolder" class="btn ghost" type="button">+ Criar nova pasta</button>
-            </div>
-            <p id="driveMobileHint" class="helper small-text hidden">No celular, o SaldoPlan usa uma pasta propria no seu Drive. Nao e necessario abrir o seletor do Google. Para usar uma pasta diferente, selecione-a pelo computador com a mesma conta.</p>
-          </div>
-
-          <div id="otherCloudFields" class="hidden">
-            <label id="cloudAccountLabel">Conta do provedor<input id="cloudAccount" type="email" placeholder="voce@exemplo.com"></label>
-            <label id="cloudClientLabel">Client ID OAuth do provedor<input id="cloudClientId" placeholder="Informe o Client ID do provedor"></label>
-            <p id="cloudProviderStatus" class="helper small-text"></p>
-          </div>
-
-          <label id="driveFolderNameLabel" class="hidden">Pasta de backup
-            <input id="driveFolderName" value="SaldoPlan - Backups">
-          </label>
-
-          <label class="check-row"><input id="driveAutoBackup" type="checkbox"> Fazer backup automático enquanto o serviço estiver conectado</label>
-          <p class="helper small-text">Quando habilitado, alterações ficam pendentes e são agrupadas. O envio automático ocorre após alguns minutos sem novas mudanças; se o último backup tiver mais de 24 horas, o próximo envio é antecipado.</p>
-          <label>Manter backups automáticos por
-            <select id="driveRetentionDays">
-              <option value="10">10 dias</option>
-              <option value="15">15 dias</option>
-              <option value="30">30 dias</option>
-            </select>
-          </label>
-
-          <div class="button-stack">
-            <button id="connectDrive" class="btn full">Conectar ao Google Drive</button>
-            <button id="saveCloudConfig" class="btn secondary full">Salvar preferências</button>
-            <button id="backupDrive" class="btn secondary full">Enviar backup agora</button>
-            <button id="restoreDrive" class="btn ghost full">Recuperar backup da nuvem</button>
-          </div>
-
-          <div id="backupProgress" class="backup-progress hidden" role="status" aria-live="polite">
-            <div class="backup-progress-head"><span id="backupProgressIcon">↗</span><strong id="backupProgressTitle">Preparando backup</strong><span id="backupProgressPercent">0%</span></div>
-            <div class="backup-progress-track"><i id="backupProgressBar"></i></div>
-            <small id="backupProgressDetail">Aguarde enquanto os dados são enviados.</small>
-          </div>
-
-          <p id="driveDetail" class="helper small-text">Selecione e conecte um serviço para começar.</p>
-          <p class="helper small-text">Google Drive permite envio e restauração pelo aplicativo. OneDrive e Dropbox permitem envio após configurar sua conexão; para recuperar, use o arquivo JSON baixado do serviço. O SaldoPlan solicita as permissões necessárias à conexão escolhida.</p>
-        </section>
-
-        <section class="panel">
-          <h3>Salvamento neste aparelho</h3>
-          <p class="helper">Seus dados são salvos automaticamente aqui, inclusive sem internet. Para protegê-los se perder o aparelho, faça também um backup.</p>
-          <button id="saveLocalData" class="btn full">Salvar agora neste aparelho</button>
-          <p id="localSaveStatus" class="helper small-text">As alterações também são salvas automaticamente ao usar o app.</p>
-        </section>
-
-        <section class="panel">
-          <h3>Backup manual (arquivo)</h3>
-          <p class="helper">Baixe um arquivo com seus dados para guardar onde preferir. Depois, você poderá restaurá-lo neste ou em outro aparelho.</p>
-          <div class="button-stack">
-            <button id="exportJson" class="btn full">Baixar arquivo de backup (.json)</button>
-            <button id="exportCsv" class="btn secondary full">Exportar lançamentos (.csv)</button>
-            <button id="exportPdf" class="btn secondary full">Exportar relatório (.pdf)</button>
-            <label class="btn ghost full file-label">Restaurar de um arquivo<input id="importJson" type="file" accept="application/json,.json"></label>
-            <button id="restorePreviousLocal" class="btn ghost full">Restaurar cópia local anterior</button>
-            <button id="undoLastChange" class="btn ghost full">Desfazer última alteração</button>
-          </div>
-
-          <div class="sp312-history-head">
-            <div>
-              <span class="muted">Proteção contra erros · neste aparelho</span>
-              <h3>Versões anteriores <span id="undoHistoryCount" class="status-pill">0/20</span></h3>
-            </div>
-            <p class="helper small-text">As últimas alterações aparecem abaixo. Abra o histórico completo apenas quando precisar restaurar.</p>
-          </div>
-          <details class="history-settings sp312-history-settings">
-            <summary>Configurar histórico local</summary>
-            <div class="sp312-history-options">
-              <label class="check-row">
-                <input id="historyEnabled" type="checkbox">
-                Guardar versões anteriores das alterações importantes
-              </label>
-              <label>Quantidade de versões locais
-                <select id="historyLimit">
-                  <option value="10">10 versões</option>
-                  <option value="20">20 versões</option>
-                  <option value="30">30 versões</option>
-                </select>
-              </label>
-              <p class="helper small-text">Esse histórico fica somente neste aparelho. Antes de restaurar, o estado atual também é protegido para permitir desfazer.</p>
-              <button id="clearUndoHistory" class="btn ghost full" type="button">Limpar histórico local</button>
-            </div>
-          </details>
-
-          <div id="undoHistory" class="undo-history" aria-live="polite"></div>
-        </section>
-
-        <section class="panel danger-zone">
-          <h3>Limpar dados</h3>
-          <p class="helper">Apaga os dados deste aparelho. Faça um backup antes.</p>
-          <button id="resetData" class="btn danger full">Apagar tudo</button>
-        </section>
-      
-        <section class="panel" id="sp3SyncPanel" aria-labelledby="sp311SyncHeading">
-          <div class="section-head"><div><span class="muted">Uma cópia para seus dispositivos</span><h3 id="sp311SyncHeading">Backup entre aparelhos</h3></div></div>
-          <p class="helper">Guarde uma cópia protegida para recuperar seus dados no celular ou computador usando a mesma conta Google. Funciona sem conectar o Drive.</p>
-          <label>Senha de proteção <span class="sp311-inline-muted">(mínimo 8 caracteres)</span>
-            <input id="sp3SyncPass" type="password" autocomplete="new-password" minlength="8" aria-describedby="sp311PasswordHelp" placeholder="Digite apenas se este aparelho pedir a senha">
-          </label>
-          <p id="sp311PasswordHelp" class="helper small-text sp311-hint">Crie uma senha diferente da senha do Google. Quanto maior, mais protegida fica sua cópia.</p>
-          <label class="check-row"><input id="sp31SyncRemember" type="checkbox"> Lembrar a senha neste aparelho pessoal</label>
-          <div class="sp31-device-status" id="sp31SyncLockStatus" role="status" aria-live="polite">Entre com Google para usar o backup entre aparelhos.</div>
-          <button class="btn ghost full" type="button" id="sp31SyncForget">Esquecer senha lembrada neste aparelho</button>
-          <label class="check-row"><input id="sp3SyncAuto" type="checkbox"> Atualizar o backup automaticamente com o SaldoPlan aberto</label>
-          <div class="sp3-tools-grid"><button class="btn" type="button" id="sp3SyncUpload">Fazer backup agora</button><button class="btn secondary" type="button" id="sp3SyncDownload">Conferir ou recuperar backup</button></div>
-          <p class="helper small-text sp311-important">Atenção: se você alterar dados em dois aparelhos, será necessário escolher qual cópia manter. O SaldoPlan não junta as mudanças automaticamente.</p>
-          <details class="sp311-more">
-            <summary>Como funciona e como meus dados são protegidos?</summary>
-            <p>O backup entre aparelhos é guardado de forma criptografada no Firebase da sua conta. A senha de proteção não é enviada ao servidor. Em um aparelho novo, você precisará informá-la uma vez; depois, pode optar por lembrá-la neste navegador pessoal.</p>
-            <p>O envio automático funciona com o aplicativo aberto e pausa quando encontra cópias diferentes. Não substitui o backup manual nem o Google Drive. Se perder a senha e não tiver um aparelho autorizado, esta cópia não poderá ser recuperada.</p>
-          </details>
-          <div id="sp3SyncStatus" class="sp3-status" role="status" aria-live="polite">Entre com Google e faça seu primeiro backup entre aparelhos.</div>
-        </section>
-        <section class="panel" id="sp3NotificationPanel">
-          <div class="section-head"><div><span class="muted">Alertas sob seu controle</span><h3>Notificações do aplicativo</h3></div></div>
-          <p class="helper">Além dos alertas do Calendário, exiba lembretes do navegador quando o SaldoPlan estiver aberto. Esta versão não possui envio push em segundo plano com o navegador fechado.</p>
-          <label class="check-row"><input id="sp3NotifyEnabled" type="checkbox"> Ativar avisos do navegador</label>
-          <div class="sp3-tools-grid"><button type="button" class="btn secondary" id="sp3NotifyPermission">Solicitar permissão</button><button type="button" class="btn ghost" id="sp3NotifyTest">Enviar notificação de teste</button></div>
-          <div id="sp3NotifyStatus" class="sp3-status" role="status" aria-live="polite">Notificações não configuradas.</div>
-        </section>
-        <section class="panel" id="sp3IntegrityPanel">
-          <div class="section-head"><div><span class="muted">Conferência de segurança</span><h3>Verificar dados e backups</h3></div></div>
-          <p class="helper">Confira se seus dados estão íntegros ou examine um arquivo de backup antes de restaurar. A verificação não altera suas informações.</p>
-          <div class="sp3-tools-grid"><button type="button" class="btn secondary" id="sp3IntegrityCheck">Verificar dados atuais</button><label class="btn ghost file-label" style="text-align:center;cursor:pointer">Examinar backup JSON<input id="sp3IntegrityFile" type="file" accept=".json,application/json"></label></div>
-          <div id="sp3IntegrityStatus" class="sp3-status" role="status" aria-live="polite">Nenhuma análise realizada.</div>
-        </section>
-</section>

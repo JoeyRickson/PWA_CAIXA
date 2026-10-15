@@ -450,6 +450,20 @@ function importSuggestCategory(row){
   return {category:'Outros',rule:null};
 }
 
+function importLikelyDuplicate(row){
+  const amount=Math.abs(Number(row.amount||0));
+  const merchant=importMerchantPattern(row.description||'');
+  if(!merchant||!amount)return false;
+  const date=Date.parse(String(row.date||'')+'T12:00:00');
+  if(!Number.isFinite(date))return false;
+  return (state.transactions||[]).some(t=>{
+    const other=Date.parse(String(t.date||'')+'T12:00:00');
+    return t.kind===row.kind&&Math.abs(Number(t.amount||0)-amount)<0.005&&
+      Number.isFinite(other)&&Math.abs(other-date)<=86400000&&
+      importMerchantPattern(t.description||'')===merchant;
+  });
+}
+
 function importPrepareRows(){
   const existing=importExistingFingerprints();
   const seen=new Set();
@@ -457,7 +471,9 @@ function importPrepareRows(){
   importDraft.rows=importDraft.rows.map(row=>{
     const source=importDraft.source||importDraft.fileName;
     const fingerprint=importFingerprint({...row,source});
-    const duplicate=existing.has(fingerprint)||seen.has(fingerprint);
+    const exactDuplicate=existing.has(fingerprint)||seen.has(fingerprint);
+    const probableDuplicate=!exactDuplicate&&importLikelyDuplicate(row);
+    const duplicate=exactDuplicate||probableDuplicate;
     const suggestion=importSuggestCategory(row);
 
     seen.add(fingerprint);
@@ -467,6 +483,7 @@ function importPrepareRows(){
       source,
       fingerprint,
       duplicate,
+      duplicateReason:exactDuplicate?'Correspondência exata':probableDuplicate?'Possível repetição: mesma loja, valor e data próxima':'',
       selected:!duplicate,
       category:suggestion.category||'Outros',
       suggestedByRuleId:suggestion.rule?.id||''
@@ -568,7 +585,7 @@ function importRenderPreview(){
       <div class="import-row-description">
         <strong title="${escapeHtml(row.description)}">${escapeHtml(row.description)}</strong>
         <small>
-          ${row.duplicate?'<span class="import-duplicate-badge">Possível duplicado</span>':''}
+          ${row.duplicate?`<span class="import-duplicate-badge" title="${escapeHtml(row.duplicateReason||'Possível repetição')}">${row.duplicateReason?'Revisar possível duplicado':'Possível duplicado'}</span>`:''}
           ${row.suggestedByRuleId?'<span class="import-rule-badge">Categoria sugerida</span>':''}
           <span>${escapeHtml(row.source||importDraft.fileName)}</span>
         </small>

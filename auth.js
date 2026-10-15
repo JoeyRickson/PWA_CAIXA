@@ -303,6 +303,7 @@ function refreshLastGoogleAccount() {
 }
 
 function renderSignedIn(user) {
+  if(window.saldoPlanV4ProfileAuth&&!window.saldoPlanV4ProfileAuth(user))return;
   completeOnboarding();
   setOnboardingVisible(false);
 
@@ -358,9 +359,11 @@ function renderSignedIn(user) {
   const driveAccountLabel = document.querySelector("#driveAccountLabel");
   if (driveAccountLabel) driveAccountLabel.textContent = user.email || displayName;
   window.saldoPlanSyncAuthChanged?.(user.uid);
+  window.saldoPlanV4PushAuthChanged?.();
 }
 
 function renderOffline() {
+  if(window.saldoPlanV4ProfileGuest&&!window.saldoPlanV4ProfileGuest())return;
   completeOnboarding();
   setOnboardingVisible(false);
 
@@ -406,6 +409,7 @@ function renderOffline() {
 }
 
 function renderSignedOut() {
+  window.saldoPlanV4ProfileSignedOut?.();
   refreshLastGoogleAccount();
   window.saldoPlanAuthUser = null;
   window.saldoPlanSyncAuthChanged?.(null);

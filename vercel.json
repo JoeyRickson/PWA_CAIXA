@@ -19,5 +19,11 @@
       "source": "/__/firebase/init.json",
       "destination": "https://saldoplan.firebaseapp.com/__/firebase/init.json"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/push-daily",
+      "schedule": "0 12 * * *"
+    }
   ]
 }

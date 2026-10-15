@@ -1,0 +1,270 @@
+/* SaldoPlan v4: entrada rápida, privacidade e diagnóstico */
+html.sp4-profile-locked #appMain,html.sp4-profile-locked .sidebar,html.sp4-profile-locked .mobile-bottom-nav,html.sp4-profile-locked .app-header{visibility:hidden!important}
+.sp4-profile-note,.sp4-diagnostic{margin:12px 0;padding:14px 16px;border:1px solid var(--line);border-radius:var(--theme-corner,var(--radius,14px));background:var(--surface);color:var(--ink);line-height:1.5}
+.sp4-profile-note strong{display:block;margin-bottom:6px}
+.sp4-shortcut{position:fixed;z-index:90;bottom:calc(90px + env(safe-area-inset-bottom,0px));right:18px;display:none;align-items:center;justify-content:center;width:56px;height:56px;border:1px solid var(--line);border-radius:var(--theme-button-corner,18px);box-shadow:var(--shadow,0 12px 30px rgba(0,0,0,.2));background:var(--brand);color:var(--brand-ink);font:700 29px/1 system-ui;cursor:pointer}
+.sp4-fast-menu{position:fixed;z-index:91;bottom:calc(156px + env(safe-area-inset-bottom,0px));right:18px;border:1px solid var(--line);border-radius:var(--theme-corner,16px);padding:10px;background:var(--surface);color:var(--ink);box-shadow:var(--shadow,0 10px 28px rgba(0,0,0,.18));min-width:230px}
+.sp4-fast-menu[hidden]{display:none}
+.sp4-fast-menu button{display:block;width:100%;text-align:left;margin:3px 0;border:0;border-radius:10px;background:transparent;color:inherit;padding:12px;cursor:pointer;font:inherit}
+.sp4-fast-menu button:hover,.sp4-fast-menu button:focus-visible{background:var(--surface-2);color:var(--ink)}
+.sp4-diagnostic dl{display:grid;grid-template-columns:auto 1fr;gap:7px 12px;margin:10px 0;font-size:.92rem}
+.sp4-diagnostic dt{color:var(--muted)}.sp4-diagnostic dd{margin:0;color:var(--ink);overflow-wrap:anywhere}
+.sp4-tag{font-size:.78rem;display:inline-block;padding:3px 9px;border-radius:30px;border:1px solid color-mix(in srgb,var(--accent) 25%,var(--line));background:color-mix(in srgb,var(--accent) 12%,var(--surface));color:var(--ink)}
+@media(max-width:1099px){.sp4-shortcut{display:flex}}
+@media(max-width:540px){.sp4-shortcut{bottom:calc(93px + env(safe-area-inset-bottom,0px))}}
+@media(prefers-reduced-motion:reduce){.sp4-shortcut{transition:none!important}}
+
+
+/* v4.0.0 layout2 — agrupar os cartões por propósito e abandonar as
+   linhas compartilhadas que esticavam Meta, Bônus e Push à altura da
+   galeria de temas/backup. Sem valores de cor fixos: respeita 14 temas. */
+#view-data .sp4-section-group {
+  min-width: 0;
+  width: 100%;
+  display: grid;
+  gap: 13px;
+}
+#view-data .sp4-layout-title {
+  min-width: 0;
+  display: block;
+  padding: 2px 2px 0;
+}
+#view-data .sp4-layout-title h3 {
+  font-size: clamp(.98rem, 1.1vw, 1.14rem);
+  margin: 2px 0 4px;
+}
+#view-data .sp4-layout-title .helper {margin: 0;}
+#view-data :is(.sp4-preferences-columns,.sp4-storage-columns,.sp4-security-columns) {
+  display: grid;
+  grid-template-columns: minmax(0,1fr);
+  align-items: start;
+  gap: 14px;
+  min-width: 0;
+}
+#view-data .sp4-column {
+  display: grid;
+  grid-template-columns: minmax(0,1fr);
+  gap: 14px;
+  align-content: start;
+  min-width: 0;
+}
+#view-data .sp4-section-group :is(.panel,.sp4-column) {
+  min-width: 0;
+  max-width: 100%;
+  height: auto;
+  align-self: start;
+}
+#view-data .sp4-section-group .panel {margin: 0;}
+#view-data .sp4-section-group .sp3-tools-grid {
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:9px;
+  min-width:0;
+}
+#view-data .sp4-section-group .sp3-tools-grid > :is(button,label) {
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:0;
+  max-width:100%;
+  width:100%;
+  min-height:40px;
+  height:auto;
+  white-space:normal;
+  overflow-wrap:break-word;
+  text-align:center;
+}
+#view-data .sp4-section-group .sp4-diagnostic dl {
+  grid-template-columns:minmax(104px,.8fr) minmax(0,1.2fr);
+}
+#view-data .sp4-section-group .danger-zone {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:6px 16px;
+}
+#view-data .sp4-section-group .danger-zone h3,
+#view-data .sp4-section-group .danger-zone p {grid-column:1;}
+#view-data .sp4-section-group .danger-zone .btn {
+  grid-column:2;
+  grid-row:1 / span 2;
+  min-width:150px;
+  width:auto;
+}
+@media(min-width:900px) {
+  body[data-layout-effective="desktop"] #view-data.active > .sp4-section-group,
+  body[data-layout-effective="desktop"] #view-data.active > section.sp4-profile-panel {
+    grid-column:1 / -1;
+    grid-row:auto;
+    min-width:0;
+    height:auto;
+  }
+}
+@media(min-width:1280px) {
+  body[data-layout-effective="desktop"] #view-data .sp4-preferences-columns {
+    grid-template-columns:minmax(0,1.65fr) minmax(310px, .95fr);
+  }
+  body[data-layout-effective="desktop"] #view-data .sp4-storage-columns {
+    grid-template-columns:minmax(0,1.08fr) minmax(340px, .92fr);
+  }
+  body[data-layout-effective="desktop"] #view-data .sp4-security-columns {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+/* Notebook: galeria acima de Meta/Bônus, estes em duas colunas. */
+@media(min-width:900px) and (max-width:1279px) {
+  body[data-layout-effective="desktop"] #view-data .sp4-preferences-side {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  body[data-layout-effective="desktop"] #view-data .sp4-security-columns {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media(max-width:899px) {
+  #view-data .sp4-section-group {gap:11px;}
+  #view-data .sp4-layout-title {padding-top:5px;}
+  #view-data .sp4-section-group .danger-zone {grid-template-columns:minmax(0,1fr);}
+  #view-data .sp4-section-group .danger-zone :is(h3,p,.btn) {grid-column:1;grid-row:auto;}
+  #view-data .sp4-section-group .danger-zone .btn {width:100%;}
+}
+
+
+/* v4.0.0 — Navegação de Dados e backup, revisão de usabilidade.
+   Esta tela NÃO participa mais da grade de 12 colunas antiga do desktop.
+   Todas as alterações são estritamente visuais. */
+body[data-layout-effective="desktop"] #view-data.active {
+  display: block;
+}
+#view-data {
+  min-width: 0;
+  max-width: 100%;
+}
+#view-data > .page-head {margin: 8px 0 14px;}
+#view-data > .sp4-settings-tabs {
+  display: grid;
+  grid-template-columns: repeat(5,minmax(0,1fr));
+  gap: 6px;
+  min-width: 0;
+  width: 100%;
+  margin: 0 0 14px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: var(--surface);
+}
+#view-data .sp4-settings-tab {
+  min-width: 0;
+  min-height: 47px;
+  padding: 10px 9px;
+  font-size: .89rem;
+  line-height: 1.2;
+  font-weight: 750;
+  color: var(--muted);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  overflow-wrap: anywhere;
+}
+#view-data .sp4-settings-tab[aria-selected="true"] {
+  color: var(--ink);
+  background: var(--surface-2);
+  border-color: var(--line);
+  box-shadow: 0 2px 7px color-mix(in srgb,var(--ink) 9%,transparent);
+}
+#view-data .sp4-settings-tab:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+#view-data > .sp4-tab-panel {
+  display: block;
+  min-width: 0;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+}
+#view-data > .sp4-tab-panel[hidden] {display: none !important;}
+#view-data .sp4-tab-panel > .sp4-section-group {width:100%;min-width:0;}
+#view-data .sp4-tab-panel .sp4-section-group > .sp4-layout-title {padding:0 1px 5px;}
+#view-data .sp4-tab-panel .sp4-section-group .panel {margin-top:0;}
+#view-data #sp4PaneAppearance .sp4-preferences-columns {
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:14px;
+}
+#view-data #sp4PaneAppearance .sp4-preferences-side {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:start;
+  gap:14px;
+}
+#view-data #sp4PaneAppearance .visual-theme-grid {
+  display:grid;
+  grid-template-columns: repeat(auto-fit,minmax(min(100%,180px),1fr));
+  gap:11px;
+}
+#view-data #sp4PaneBackup .sp4-storage-columns {
+  display:grid;
+  grid-template-columns:minmax(0,1.13fr) minmax(0,.87fr);
+  align-items:start;
+  gap:16px;
+}
+#view-data #sp4PaneSecurity .sp4-security-columns {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:start;
+  gap:16px;
+}
+#view-data #sp4PaneAccount .account-panel {margin: 0 0 14px;}
+#view-data #sp4PaneAccount .sp4-profile-panel {margin:0;}
+#view-data .sp4-tab-panel .sp4-column {min-width:0;}
+#view-data .sp4-tab-panel .panel {height:auto;min-width:0;max-width:100%;}
+@media(max-width:1100px) {
+  #view-data #sp4PaneBackup .sp4-storage-columns {grid-template-columns:minmax(0,1fr);}
+  #view-data #sp4PaneSecurity .sp4-security-columns {grid-template-columns:minmax(0,1fr);}
+}
+@media(max-width:690px) {
+  #view-data > .sp4-settings-tabs {gap:3px;padding:4px;border-radius:14px;}
+  #view-data .sp4-settings-tab {padding:9px 3px;font-size:clamp(.69rem,2.35vw,.82rem);min-height:44px;}
+  #view-data #sp4PaneAppearance .sp4-preferences-side {grid-template-columns:minmax(0,1fr);}
+  #view-data #sp4PaneAppearance .visual-theme-grid {grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+
+/* v4.0.0 — Aba Finanças: meta e bônus não pertencem ao seletor de aparência. */
+#view-data #sp4PaneFinance .sp4-finance-columns {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+  min-width:0;
+}
+#view-data #sp4PaneFinance .panel {min-width:0;max-width:100%;height:auto;}
+#view-data #sp4PaneFinance .panel > :last-child {margin-bottom:0;}
+/* Todas as cinco abas visíveis no mobile: 3 na primeira linha e 2 na segunda. */
+@media(max-width:690px) {
+  #view-data > .sp4-settings-tabs {grid-template-columns:repeat(6,minmax(0,1fr));}
+  #view-data > .sp4-settings-tabs > .sp4-settings-tab {grid-column:span 2;overflow-wrap:normal;}
+  #view-data > .sp4-settings-tabs > .sp4-settings-tab:nth-child(4),
+  #view-data > .sp4-settings-tabs > .sp4-settings-tab:nth-child(5) {grid-column:span 3;}
+  #view-data #sp4PaneFinance .sp4-finance-columns {grid-template-columns:minmax(0,1fr);}
+}
+
+/* v4.0.0 - contraste consistente nos 14 temas (diagnostico, perfis, menu rapido).
+   Importante: a paleta oficial do SaldoPlan utiliza --surface, --surface-2,
+   --ink, --muted e --line; nao usar fallbacks escuros fixos aqui. */
+#view-data #sp4Diagnostics,
+#view-data #sp4Diagnostics :is(h3,dd) { color:var(--ink); }
+#view-data #sp4Diagnostics :is(.helper,dt) { color:var(--muted); }
+#view-data #sp4Diagnostics .btn:is(.secondary,.ghost) {
+  color:var(--ink);
+  border-color:var(--line);
+  background:var(--surface-2);
+}
+#view-data #sp4Diagnostics .btn.ghost { background:transparent; }
+.sp4-fast-menu button:focus-visible,
+.sp4-shortcut:focus-visible,
+#view-data #sp4Diagnostics .btn:focus-visible {
+  outline:3px solid var(--accent);
+  outline-offset:2px;
+}

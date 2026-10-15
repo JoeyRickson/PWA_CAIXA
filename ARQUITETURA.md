@@ -203,3 +203,60 @@ A tela `views/data.html` diferencia o **salvamento automático local** (não é 
 - `.sp316-themed-google` em `css/auth.css` ajusta apenas espaço, bordas, fundo e largura do contêiner do botão oficial. O provedor mantém sua própria marca.
 - Se o usuário já estiver conectado, o botão oficial é ocultado em **Dados e backup**; reaparece quando não houver sessão Firebase.
 - Nenhuma mudança em chaves `localStorage`, dados, Firebase Auth, Google Drive, Firestore ou formatos de backup. `CACHE` e versão `3.1.6`.
+
+## v4.0.0 — Perfis locais, produtividade e push opcional
+
+A v4 mantém os scripts clássicos, UI HTML/CSS, o formato `state.version=2` e os dados originais preservados. Não apaga `meuCaixa.v1` ao habilitar perfis.
+
+### Separação de dados
+
+- Sem associação: chave original `meuCaixa.v1` (`legacy`).
+- Conta autenticada: `meuCaixa.profile.user_<uid>.v4` (somente depois da cópia/novo perfil expressamente escolhido na primeira associação).
+- Offline após criar perfil: `meuCaixa.guest.v4`, separado das contas autenticadas.
+- Seleção ativa persistida em `saldoplan.profile.active.v4`. A mudança de conta dispara recarga antes de operar com os dados do outro perfil.
+- `PREVIOUS_KEY`, histórico de undo e preferências automáticas de backup passam a usar sufixo do perfil. Outras preferências visuais e caches gerais podem continuar compartilhadas no navegador.
+- `auth.js` consulta `window.saldoPlanV4ProfileAuth(user)` antes de renderizar a sessão. A UI é ocultada temporariamente durante a verificação se o navegador estava em perfil Google.
+- **Limites:** localStorage não é cofre criptografado e não substitui perfis isolados do sistema operacional; segurança depende do navegador/dispositivo. UID autenticado delimita a seleção lógica, mas um usuário com acesso físico ao perfil do navegador pode inspecionar armazenamento local. A migração não remove a base antiga nem mescla contas.
+
+### Módulos novos
+
+- `js/v4-features.js`: gerenciamento de seleção de perfil, FAB mobile e diagnóstico local.
+- `css/v4.css`: estilos adaptáveis dos novos recursos.
+- `js/v4-push.js` e `push-config.js`: ativação do push com Firebase Messaging, sem credenciais privadas no navegador.
+- `api/_push-common.js`, `api/push-subscription.js` e `api/push-daily.js`: validação de ID token, dispositivos por UID, agendamento autenticado e envio genérico de lembrete.
+- `PUSH-SETUP.md`: ativação opcional, limites e manutenção.
+
+O backend push não é ativo até configurar `FIREBASE_SERVICE_ACCOUNT_JSON`, `CRON_SECRET` e a VAPID pública. São guardadas apenas datas futuras de compromissos e tokens FCM, sem descrições ou valores. A tarefa Vercel é diária e limitada a 250 dispositivos por execução.
+
+### Importação e backup
+
+- Os fingerprints exatos continuam prioritários. Um segundo detector sugere revisar transações por `kind`, valor, estabelecimento normalizado e data adjacente, sem apagá-las nem selecioná-las automaticamente.
+- A cópia cifrada do Firestore permanece em `saldoplanSync/{uid}`, usa o mesmo formato de quatro campos, e continua protegida por condições de atualização e confirmação de restauração. Não há merge bidirecional de lançamentos.
+- Recomenda-se backup JSON antes de ativar um perfil novo; o app **não** converte automaticamente dados da conta anterior.
+
+As mensagens de conflito mostram a última data local e o `updateTime` remoto. Essas datas são apenas pistas e não comprovam uma mesclagem ou completude do histórico.
+
+
+### v4.0.0 — organização visual de Dados e backup (layout2)
+
+A view `views/data.html` usa grupos de apresentação sem estado (`sp4-preferences-layout`, `sp4-storage-layout`, `sp4-security-layout`), com colunas independentes definidas em `css/v4.css`. As seções internas mantêm os respectivos IDs, controles e listeners. No desktop largo, galeria de temas fica junto de Meta/Bônus; nuvem fica junto de backups locais; diagnóstico e notificações usam duas colunas de altura natural. Em telas estreitas, os grupos são empilhados. Nenhuma migração de dados nem alteração de autenticação ocorre nesse layout.
+
+### Navegação de Dados e backup (v4.0.0 — ajuste visual)
+A página foi dividida em quatro abas acessíveis: Backups, Aparência, Segurança e Minha conta. A grade antiga de 12 colunas não é aplicada a essa tela. `views/data.html` preserva os identificadores dos formulários; `js/v4-settings-tabs.js` controla apenas a exibição das abas e suas teclas de navegação, sem modificar dados. `css/v4.css` usa as variáveis dos temas existentes.
+
+
+## v4.0.0 — Finanças separadas da aparência (ajuste de usabilidade)
+
+- A tela `views/data.html` usa cinco abas acessíveis: Backups, Aparência, Finanças, Segurança e Minha conta.
+- **Aparência** mantém apenas a seleção de temas; **Finanças** agrupa `savingGoal`, `saveGoalBtn`, `bonusEnabled`, `bonusName` e `saveBonusConfig`.
+- Os IDs originais, eventos de formulário, objetos de estado e formatos de backup foram preservados; os campos foram realocados somente no HTML.
+- `css/v4.css` organiza as duas preferências financeiras em duas colunas no desktop e uma no mobile. A navegação apresenta as cinco abas visíveis em até duas linhas no celular.
+- `js/v4-settings-tabs.js` já descobre abas por seus atributos ARIA, sem alterações de lógica. O Service Worker incrementa o nome do cache para atualizar a interface.
+
+
+## v4.0.0 — Acessibilidade de temas nos módulos v4
+
+- `css/v4.css` reutiliza exclusivamente os tokens de tema existentes (`--surface`, `--surface-2`, `--ink`, `--muted`, `--line`, `--brand`, `--brand-ink`, `--accent`), definidos em `css/themes.css` para os 14 temas.
+- Corrigidos `#sp4Diagnostics`, `.sp4-profile-note`, `.sp4-fast-menu`, `.sp4-shortcut` e `.sp4-tag`, eliminando fallbacks fixos escuros de tokens inexistentes (`--panel`, `--text`, `--border`).
+- Os botões de diagnóstico secundários e de contorno preservam contraste entre fundo e rótulo, inclusive nos temas claros, e componentes interativos exibem foco visível.
+- A atualização não modifica estado, IDs, dados financeiros, Firestore, login, servidor ou lógica de backup. Novas revisões exigem cache renovado do Service Worker para o CSS.

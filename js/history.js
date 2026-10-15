@@ -1,6 +1,6 @@
 // Histórico, snapshots e rollback
-const UNDO_HISTORY_KEY='meuCaixa.undoHistory.v3';
-const LEGACY_UNDO_HISTORY_KEY='meuCaixa.undoHistory.v2';
+const UNDO_HISTORY_KEY=sp4ScopedKey('meuCaixa.undoHistory.v3');
+const LEGACY_UNDO_HISTORY_KEY=sp4ScopedKey('meuCaixa.undoHistory.v2');
 let undoHistoryExpanded=false;
 
 function historyLimit(){
