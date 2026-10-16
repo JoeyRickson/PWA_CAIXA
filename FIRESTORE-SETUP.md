@@ -75,3 +75,11 @@ A opção Lembrar a senha continua explícita, vinculada à conta Google e a est
 ## v3.1.2 — Login e backup na nuvem
 
 Esta atualização não exige mudanças no Firestore. O atalho da última conta usa somente metadados locais (nome e e-mail), não consulta contas cadastradas no Android e não modifica o UID usado em `saldoplanSync`. A proteção por senha de 8 ou mais caracteres e as regras anteriores permanecem iguais. O histórico local continua separado da cópia criptografada do Firestore.
+
+
+## v5.1.0 — Live Sync (opcional)
+
+A sincronização automática usa outra coleção, **`saldoplanLive`**, sem alterar o backup AES-GCM existente em `saldoplanSync`. Veja [LIVE-SYNC-SETUP.md](LIVE-SYNC-SETUP.md) e **adicione** as regras da nova coleção às regras já existentes. Não substitua toda a política por um exemplo isolado.
+
+
+> v5.1.1 Auto Sync mantém o mesmo modelo de acesso da v5.1.0 em `saldoplanLive/{uid}/records`; não exige republicar regras para funcionar. O login Google não dispensa a primeira decisão em aparelhos que já contenham dados financeiros diferentes.

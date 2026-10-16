@@ -35,7 +35,7 @@ const ONBOARDING_CONTENT = {
     {
       icon: "◷", title: "Planeje seus pagamentos", text: "Use Lançamentos para cadastrar valores e Calendário para conferir o que vem pela frente.",
       bullets: ["Registre entradas e gastos reais ou previstos.", "Veja faturas, recorrências e contas fixas no calendário.", "Use Mais → Dados e backup para exportar ou restaurar seus dados."],
-      highlightTitle: "Dica importante", highlightText: "Dados offline ficam neste aparelho. O login Google não sincroniza lançamentos automaticamente; o backup Drive é um recurso separado.", preview: "mobile"
+      highlightTitle: "Dica importante", highlightText: "Com Google, os dados sincronizam automaticamente em aparelhos novos. Se houver dados locais diferentes, o SaldoPlan pede sua escolha para protegê-los.", preview: "mobile"
     },
     {
       icon: "→", title: "Como você quer começar?", text: "Escolha uma forma de entrada. Você poderá trocar de opção depois.",
@@ -57,7 +57,7 @@ const ONBOARDING_CONTENT = {
     {
       icon: "◫", title: "Controle hoje e planeje amanhã", text: "Registre valores realizados e previstos; depois acompanhe o calendário e os relatórios.",
       bullets: ["Importe extratos em Importar ou crie lançamentos manualmente.", "Organize cartões, despesas fixas, patrimônio e metas.", "Em Dados e backup você exporta ou restaura seus dados."],
-      highlightTitle: "Onde seus dados ficam", highlightText: "O armazenamento local é por navegador/aparelho. Entrar com Google não sincroniza os dados automaticamente; o Drive precisa ser autorizado separadamente.", preview: "desktop"
+      highlightTitle: "Onde seus dados ficam", highlightText: "Com Google, seus aparelhos sincronizam dados pelo Firestore. Perfis com dados locais diferentes pedem confirmação inicial. O backup Drive é separado e opcional.", preview: "desktop"
     },
     {
       icon: "→", title: "Pronto para começar", text: "Você pode entrar com Google ou continuar sem login neste navegador.",
@@ -359,6 +359,7 @@ function renderSignedIn(user) {
   const driveAccountLabel = document.querySelector("#driveAccountLabel");
   if (driveAccountLabel) driveAccountLabel.textContent = user.email || displayName;
   window.saldoPlanSyncAuthChanged?.(user.uid);
+  window.saldoPlanLiveAuthChanged?.(user.uid);
   window.saldoPlanV4PushAuthChanged?.();
 }
 
@@ -406,6 +407,7 @@ function renderOffline() {
   const driveAccountLabel = document.querySelector("#driveAccountLabel");
   if (driveAccountLabel) driveAccountLabel.textContent = "Modo offline";
   window.saldoPlanSyncAuthChanged?.(null);
+  window.saldoPlanLiveAuthChanged?.(null);
 }
 
 function renderSignedOut() {
@@ -413,6 +415,7 @@ function renderSignedOut() {
   refreshLastGoogleAccount();
   window.saldoPlanAuthUser = null;
   window.saldoPlanSyncAuthChanged?.(null);
+  window.saldoPlanLiveAuthChanged?.(null);
   accountQuick?.classList.add("hidden");
 
   if (accountState) {

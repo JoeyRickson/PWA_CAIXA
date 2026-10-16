@@ -1,3 +1,11 @@
+## v5.1.3 — Guarda semantica do primeiro login
+
+`js/v51-live-engine.js` passou a validar `isGeneratedFreshProfile()` contra `blankProfileTemplate()`; so aceita estruturas exatas de renderizacao automatica para `payrollMonths`, `thirteenthByYear`, `fgtsByYear` e um unico `netWorthSnapshots` zerado do dia atual. Qualquer outra divergencia requer conciliacao, preservando os dados locais. `js/v51-live-sync.js` consulta essa funcao apenas na ativacao inicial e reafirma a condicao antes de baixar os dados. Nao altera a sincronizacao apos vinculo.
+
+## v5.1.2 — Vinculação inicial segura
+
+O motor Live Sync usa uma leitura confirmada pelo servidor (não snapshot em cache) para permitir auto-link em dois casos: perfil novo sem dados próprios ou perfil cujo mapa achatado de registros locais é subconjunto idêntico do mapa remoto ativo. Falha fechada em caso de tombstone, valor divergente, registro local exclusivo, fase `initializing` ou fila pendente. Não vincula automaticamente contas com dados discrepantes, mesmo se o UID corresponder.
+
 # SaldoPlan — Arquitetura modular v2.20.0
 
 Esta versão inicia a modularização estrutural do projeto sem trocar framework e sem alterar o formato dos dados.
@@ -290,3 +298,22 @@ A página foi dividida em quatro abas acessíveis: Backups, Aparência, Seguran�
 - `api/push-daily.js`: lembrete diário genérico no dia ou com a antecedência escolhida; limitações de 250 inscrições por rotina, sem dados de lançamentos.
 - Contratos legados `meuCaixa.v1` e `meuCaixa.profile.*.v4` **mantidos**; não há migração de chaves.
 - Usuário deve preservar backup JSON e homologar fluxos reais. `V5-SETUP.md` apresenta implantação opcional e variáveis secretas.
+
+
+## v5.1 — Sincronização ao vivo por conta Google
+
+- Arquivos: `js/v51-live-engine.js` (diferenças e aplicação de mudanças), `js/v51-live-sync.js` (autenticação, fila, transações e observação em tempo real), `css/v51-live.css` e `LIVE-SYNC-SETUP.md`.
+- Fonte local: `state` e `STORAGE_KEY`, vinculados ao perfil `user_<UID>` da v4. Hook **após** `save()` captura diferenças do JSON anterior, sem substituir o código financeiro. Mudanças remotas são aplicadas ao estado e gravadas sem chamar novamente o hook de envio.
+- Firestore: `saldoplanLive/{uid}/records/{recordId}`; cada documento guarda `{section,itemId,payload,deleted,revision,actor,updatedAt}`. Alterações em registros com IDs preservam identidade; mapas por competência usam documentos por chave; seções de configurações usam um documento por campo. `cloud` e `version` não são sincronizados para proteger configurações de backup locais.
+- Exclusões: `deleted:true` em vez de remover o documento. Não há política automática de expurgo de tombstones.
+- Simultaneidade: uma transação verifica a revisão anterior antes da escrita. Divergências viram conflitos pontuais que exigem escolha; não há last-write-wins silencioso. Não há fusão automática de campos de um **mesmo** registro.
+- Offline: fila de alterações por UID e perfil em `localStorage`, persistida após cada `save()`. O Firebase transmite eventos quando conectado. A fila pode ser limitada pelo espaço do navegador; um backup externo continua obrigatório.
+- Inicialização: confirmação explícita por aparelho e marcador de progresso remoto para não restaurar uma primeira carga incompleta. Senha adicional não é exigida após login, porém **não é E2EE**; o conteúdo é acessível a administradores autorizados do Firebase.
+- O backup AES-GCM em `saldoplanSync/{uid}` e os backups externos continuam independentes. Regras de segurança dessa coleção não devem ser removidas.
+- Eventos de autenticação: `auth.js` invoca `saldoPlanLiveAuthChanged(uid|null)`; a troca de perfil interrompe a conexão anterior.
+- Regressão: `tests/v51-live-sync.test.cjs` testa operações do motor sem acessar serviços externos. A integração Firestore necessita teste real após instalar as regras.
+
+
+### v5.1.1 — Auto Sync seguro
+
+O detector puro `isPristineProfile` (`js/v51-live-engine.js`) compara o estado local com a versão migrada do perfil vazio construído por `v4-features.js`. A reconciliação é estrita e não ignora lançamentos, configurações alteradas ou históricos. No snapshot inicial de `saldoplanLive/{uid}/records` (somente com `fromCache=false`), `js/v51-live-sync.js` conecta automaticamente apenas o perfil intocado. Os demais perfis continuam no fluxo assistido. O modo automático também valida o escopo UID e a época da sessão antes de persistir dados, evita reinicialização concorrente com o documento `__meta/init` e preserva os mecanismos de backup e conflitos v5.1.0. Sem alteração de regras Firestore.

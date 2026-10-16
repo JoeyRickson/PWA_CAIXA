@@ -1,0 +1,16 @@
+'use strict';
+const assert=require('node:assert/strict');
+const E=require('../js/v51-live-engine.js');
+const sample={version:1,cloud:{},transactions:[{id:'abc',amount:100}],settings:{theme:'dark'},budgets:[]};
+const flat=E.flatten(sample), mk=()=>new Map([...flat].map(([k,v])=>[k,{...v,revision:1}]));
+assert(E.isEntireLocalProfileOnCloud(sample,mk()),'same profile is covered');
+const extra=mk();extra.set('transactions|id:other',{section:'transactions',itemId:'id:other',payload:JSON.stringify({id:'other',amount:50}),deleted:false,revision:1});
+assert(E.isEntireLocalProfileOnCloud(sample,extra),'cloud superset allows safe recovery');
+const diff=mk();diff.get('transactions|id:abc').payload=JSON.stringify({id:'abc',amount:200});
+assert(!E.isEntireLocalProfileOnCloud(sample,diff),'different amount blocks recovery');
+const deleted=mk();deleted.get('transactions|id:abc').deleted=true;
+assert(!E.isEntireLocalProfileOnCloud(sample,deleted),'deleted cloud record blocks recovery');
+const missing=mk();missing.delete('transactions|id:abc');
+assert(!E.isEntireLocalProfileOnCloud(sample,missing),'unique local record blocks recovery');
+assert(!E.isEntireLocalProfileOnCloud(sample,new Map()),'empty remote does not mask local changes');
+console.log('v5.1.2 Safe Auto Link: 6 assertions PASS');

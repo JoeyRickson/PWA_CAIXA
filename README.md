@@ -1,3 +1,9 @@
+> **SaldoPlan v5.1.3 — Auto Boot protegido:** corrige a primeira conexao de perfis novos quando as telas criam automaticamente registros padrao de folha, 13o, FGTS ou patrimonio. O aplicativo so conecta sem clique se os valores corresponderem estritamente aos defaults; dados financeiros reais ou exclusivos continuam exigindo decisao. Preserva backups e dados locais. Veja `LIVE-SYNC-SETUP.md`.
+
+> **SaldoPlan v5.1.2 — Auto Link seguro:** o login Google agora também vincula automaticamente um aparelho cujos registros locais já estejam representados integralmente e sem divergências na nuvem. Perfis novos continuam automáticos; dados exclusivos ou divergentes exigem escolha antes de recuperar. Nunca apaga dados divergentes automaticamente. Veja `LIVE-SYNC-SETUP.md`.
+
+> **SaldoPlan v5.1.1 — Auto Sync:** ao entrar com Google em um aparelho novo e sem dados financeiros próprios, a conta recupera automaticamente o histórico sincronizado pelo Firestore. Perfis com informações locais diferentes continuam exigindo escolha explícita; backup Drive/JSON permanece separado. Consulte `LIVE-SYNC-SETUP.md`.
+
 <div align="center">
 
 <img src="icons/icon-192.png" alt="Ícone SaldoPlan" width="100" height="100">
@@ -163,3 +169,16 @@ O assistente financeiro é **local e baseado em regras**; não utiliza modelo ex
 Esta versão mantém a correção da v4 que permite lançamentos únicos com datas futuras,
 sem confundir esses lançamentos com recorrências. Backups continuam independentes dos perfis locais.
 Antes de migrar, exporte os dados pelo aplicativo e faça os testes descritos em `V5-SETUP.md`.
+
+
+## 🔄 Sincronização automática entre dispositivos — v5.1.0
+
+O **Live Sync** permite que a mesma conta Google mantenha lançamentos, cartões, metas e outros registros alinhados entre celular e computador. Ao criar, editar ou excluir um registro, o SaldoPlan guarda a alteração localmente e a transmite ao Firestore; aparelhos conectados recebem os eventos em tempo real. Se não houver internet, uma fila local aguarda a reconexão.
+
+**Primeira ativação:** em **Dados e backup → Backups → Entre aparelhos**, escolha se deseja usar os dados deste aparelho, recuperar os dados já existentes na nuvem ou unir registros sem sobrescrever. É preciso fazer essa escolha uma única vez por aparelho/conta, para evitar misturar históricos diferentes. Exporte antes um backup JSON independente. Depois de vincular, as próximas sessões autenticadas sincronizam automaticamente.
+
+**Conflitos:** alterações simultâneas no mesmo registro não são sobrescritas silenciosamente. O aplicativo pausa esse registro e permite selecionar a versão a manter. Outras alterações podem continuar sincronizando. Os registros excluídos são representados como marcações de exclusão (tombstones).
+
+**Privacidade:** este modo é vinculado ao UID do Firebase Authentication, usa HTTPS, regras privadas do Firestore e criptografia da infraestrutura Firebase em repouso. **Não é criptografia ponta a ponta:** administradores autorizados do projeto Firebase podem tecnicamente ler registros sincronizados. Para manter uma cópia protegida por senha própria, use o **Backup entre aparelhos** criptografado, que permanece separado, ou exporte o backup local.
+
+**Configuração:** veja [LIVE-SYNC-SETUP.md](LIVE-SYNC-SETUP.md) para instalar as regras sem remover as coleções existentes. O Live Sync é opcional e não impede o uso offline nem substitui o backup de segurança. Pode gerar consumo de leituras, gravações e armazenamento no Firestore.

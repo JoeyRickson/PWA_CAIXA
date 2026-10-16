@@ -1,0 +1,24 @@
+'use strict';
+const assert=require('node:assert/strict');
+const E=require('../js/v51-live-engine.js');
+const baseline={version:2,cloud:{},transactions:[],budgets:[],payrollMonths:{},thirteenthByYear:{},fgtsByYear:{},netWorthSnapshots:[],settings:{theme:'light'}};
+const copy=x=>structuredClone(x);
+function generated(){const l=copy(baseline);
+ l.payrollMonths['2026-10']={holidayCount:0,referenceHours:null};
+ l.thirteenthByYear['2026']={startMonth:5,endMonth:12,firstDate:'2026-07-23',secondDate:'2026-12-18',firstAmount:null,secondAmount:null,firstPaid:true,secondPaid:false};
+ l.fgtsByYear['2026']={startMonth:5,endMonth:12,deposits:{}};
+ l.netWorthSnapshots=[{date:new Date().toISOString().slice(0,10),total:0,assets:0,liabilities:0}];
+ return l;
+}
+assert(E.isGeneratedFreshProfile(generated(),baseline),'render defaults allow silent first login');
+let x=generated();x.transactions.push({id:'real',amount:100});assert(!E.isGeneratedFreshProfile(x,baseline),'local transaction blocks');
+x=generated();x.payrollMonths['2026-10'].holidayCount=1;assert(!E.isGeneratedFreshProfile(x,baseline),'edited payroll blocks');
+x=generated();x.thirteenthByYear['2026'].firstAmount=200;assert(!E.isGeneratedFreshProfile(x,baseline),'edited 13th blocks');
+x=generated();x.fgtsByYear['2026'].deposits['10']={amount:100};assert(!E.isGeneratedFreshProfile(x,baseline),'FGTS deposit blocks');
+x=generated();x.netWorthSnapshots[0].total=10;assert(!E.isGeneratedFreshProfile(x,baseline),'nonzero patrimony blocks');
+x=generated();x.netWorthSnapshots[0].date='2026-01-01';assert(!E.isGeneratedFreshProfile(x,baseline),'historical patrimony blocks');
+x=generated();x.netWorthSnapshots.push({...x.netWorthSnapshots[0]});assert(!E.isGeneratedFreshProfile(x,baseline),'extra snapshots block');
+x=generated();x.settings.theme='dark';assert(!E.isGeneratedFreshProfile(x,baseline),'other modifications block');
+x=generated();x.thirteenthByYear['2026'].unexpected=1;assert(!E.isGeneratedFreshProfile(x,baseline),'unknown fields block');
+assert(E.isGeneratedFreshProfile(copy(baseline),baseline),'plain blank remains safe');
+console.log('v5.1.3 Generated default detection: 11 PASS');

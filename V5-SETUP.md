@@ -1,3 +1,11 @@
+## v5.1.3 — Diagnostico do Auto Sync
+
+Se a primeira conexao bloquear mesmo com zero transacoes, verificar se as secoes `payrollMonths`, `thirteenthByYear`, `fgtsByYear` e `netWorthSnapshots` contem apenas os valores exatos que o aplicativo gera ao renderizar. A v5.1.3 permite vinculo silencioso somente para defaults; dados reais exigem escolha.
+
+## v5.1.2 — Auto Link seguro
+
+Login Google recupera automaticamente dados em navegador novo, e também quando todos os registros locais já estão representados na nuvem sem divergência. Para dados locais distintos, exige escolha inicial para evitar perda. Sem regras adicionais no Firestore; consulte `LIVE-SYNC-SETUP.md`.
+
 # SaldoPlan v5.0.0 — Configuração e homologação
 
 ## Instalação única
@@ -51,3 +59,11 @@ Não aplique o pacote v5 antigo sobre esta versão.
 
 A instalação não importa, converte ou apaga lançamentos locais. Exporte um backup JSON antes dos testes.
 Os serviços de push e administração precisam de configuração externa, conforme o guia.
+
+
+## v5.1 — Sincronização automática
+
+Ver `LIVE-SYNC-SETUP.md`. No primeiro uso, preserve backups dos dois aparelhos antes de associar dados. Depois da escolha inicial, o Firestore envia e recebe alterações automaticamente para cada UID. Mantenha a cópia criptografada da v3 como backup independente.
+
+
+**Atualização v5.1.1:** Login Google inicia Live Sync automaticamente em perfis sem dados locais próprios. Com dados existentes, o usuário deve escolher como conciliá-los para não perder informações. Consulte `LIVE-SYNC-SETUP.md`.

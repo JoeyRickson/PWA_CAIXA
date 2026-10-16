@@ -1,3 +1,39 @@
+## v5.1.3 — Correção da primeira conexão do Auto Sync (homologação)
+
+- Perfil novo nao fica falsamente classificado como usado por defaults de folha, 13o, FGTS e snapshot patrimonial do proprio app.
+- Comparacao estrita dos campos gerados: qualquer valor preenchido/alterado ou snapshot historico impede substituicao automatica.
+- Nao modifica backups, regras Firebase, credenciais nem a logica de resolucao de conflitos.
+- Testes unitarios e simulacao de recebimento do Firestore para o caso real.
+
+## v5.1.2 — Auto Link seguro (homologação)
+
+- Auto recuperação ao entrar com Google em um perfil novo **ou** com todos os registros locais idênticos aos do Firestore.
+- Se houver dados exclusivos, excluídos na nuvem ou diferentes, o aplicativo pede conciliação inicial e explica o motivo.
+- Revalidação antes da ativação para impedir sobrescrita automática após mudança local.
+- Nova bateria de testes para login, registros extras na nuvem e conflitos; bump do cache PWA e versão.
+- A sincronização em dois sentidos continua automática após a primeira associação.
+
+## v5.1.1 — Auto Sync por login Google (homologação)
+
+- Aparelhos com perfil financeiro novo/padrão vinculam-se à conta Google automaticamente ao receber o primeiro snapshot **confirmado pelo servidor** do Firestore.
+- Nuvem com registros: dados da conta são carregados sem pedir clique em configurações; nuvem ainda não inicializada: envia a base padrão e habilita futuras alterações.
+- Se há dados locais diferentes, alterações pendentes ou conflitos, a primeira vinculação continua manual; **nunca sobrescreve históricos automaticamente**.
+- Mantidos: backup JSON/críptografado, segregação por UID, histórico de segurança, sincronização offline, revisões/tombstones e resolução explícita de conflitos.
+- Corrigido o rótulo fixo v5.0.0 no cabeçalho e ajustado o texto do onboarding.
+- Atualizado o cache PWA para `saldoplan-v5.1.1-auto-sync`.
+
+## [5.1.0] — Live Sync (candidato à homologação)
+
+- Sincronização bidirecional por registro, vinculada à mesma conta Google e às regras privadas do Firestore.
+- Atualizações em tempo real com `onSnapshot`, fila persistida para edições offline e envio ao reconectar.
+- Inclusão, edição e exclusão propagadas individualmente; registros excluídos usam tombstones.
+- Controle otimista de revisões em transações para impedir sobrescrita silenciosa de alterações simultâneas.
+- Primeira associação assistida, snapshot de segurança e bloqueio de recuperação parcial enquanto a cópia inicial está sendo enviada.
+- Interface em Backups → Entre aparelhos; backup criptografado tradicional preservado e separado.
+- Motor determinístico e testes de regressão para mescla, exclusões, diferenças e dados legados.
+- Atualizações de README, arquitetura, guia Firestore e cache PWA.
+- **Limite:** o Live Sync com somente login Google não oferece criptografia ponta a ponta; necessita ativação das regras Firestore e homologação em dispositivos reais.
+
 ## v5.0.0 — Evolução integrada (candidata à homologação)
 
 - Push opt-in: antecipação de 0, 1, 3 ou 7 dias. Rotina diária envia somente lembretes genéricos; exige Firebase Cloud Messaging, service account, VAPID e CRON_SECRET.

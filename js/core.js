@@ -303,6 +303,7 @@ function save({backupOld=true,cloud=true,undoLabel='',history=true}={}){
 
     localStorage.setItem(STORAGE_KEY,nextText);
     localStorage.setItem(`${STORAGE_KEY}.savedAt`,new Date().toISOString());
+    try{window.sp51LiveOnSave?.(previousText,nextText);}catch(syncError){console.warn('Live Sync: fila local indisponível',syncError);}
 
     window.saldoPlanSyncMarkDirty?.();
     window.saldoPlanPushScheduleDirty?.();
