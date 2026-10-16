@@ -1,12 +1,12 @@
-const CACHE='saldoplan-v5.1.3-auto-bootstrap';
+const CACHE='saldoplan-v5.1.4-backup-simples';
 
 const ASSETS=[
   "./",
   "./index.html",
-  "./styles.css?v=5.1.3",
+  "./styles.css?v=5.1.4",
   "./drive-config.js?v=4.0.0",
-  "./app.js?v=5.1.3",
-  "./auth.js?v=5.1.3",
+  "./app.js?v=5.1.4",
+  "./auth.js?v=5.1.4",
   "./manifest.json",
   "./css/base.css?v=4.0.0",
   "./css/history.css?v=4.0.0",
@@ -63,7 +63,7 @@ const ASSETS=[
   "./views/fgts.html?v=4.0.0",
   "./views/fixed.html?v=4.0.0",
   "./views/market.html?v=4.0.0",
-  "./views/data.html?v=5.1.3",
+  "./views/data.html?v=5.1.4",
   "./views/about.html?v=4.0.0",
   "./views/support.html?v=4.0.0",
   "./views/dialogs.html?v=4.0.0",
@@ -86,9 +86,9 @@ const ASSETS=[
   "./js/v5-engine.js?v=5.0.0",
   "./js/v5-features.js?v=5.0.0",
   "./js/v5-admin.js?v=5.0.0",
-  "./js/v51-live-engine.js?v=5.1.3",
-  "./js/v51-live-sync.js?v=5.1.3",
-  "./css/v51-live.css?v=5.1.3",
+  "./js/v51-live-engine.js?v=5.1.4",
+  "./js/v51-live-sync.js?v=5.1.4",
+  "./css/v51-live.css?v=5.1.4",
   "./icons/apple-touch-icon.png"
 ];
 

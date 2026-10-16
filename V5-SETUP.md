@@ -1,3 +1,7 @@
+## v5.1.4 — Ajuste da tela de backup
+
+A seção **Entre aparelhos** foi simplificada para quem não conhece termos técnicos. A sincronização continua automática com a mesma conta Google; opções de conciliação e cópia protegida com senha continuam disponíveis somente quando necessárias. Não há mudanças nas regras do banco de dados. Consulte `LIVE-SYNC-SETUP.md`.
+
 ## v5.1.3 — Diagnostico do Auto Sync
 
 Se a primeira conexao bloquear mesmo com zero transacoes, verificar se as secoes `payrollMonths`, `thirteenthByYear`, `fgtsByYear` e `netWorthSnapshots` contem apenas os valores exatos que o aplicativo gera ao renderizar. A v5.1.3 permite vinculo silencioso somente para defaults; dados reais exigem escolha.

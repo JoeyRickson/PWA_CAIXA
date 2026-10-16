@@ -7,11 +7,11 @@
 
 <div aria-label="Seções de Dados e backup" class="sp4-settings-tabs" id="sp4SettingsTabs" role="tablist"><button aria-controls="sp4PaneBackup" aria-selected="true" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabBackup" role="tab" tabindex="0" title="Suas cópias e restaurações" type="button"><span>Backups</span></button><button aria-controls="sp4PaneAppearance" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabAppearance" role="tab" tabindex="-1" title="Temas e preferências" type="button"><span>Aparência</span></button><button aria-controls="sp4PaneFinance" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabFinance" role="tab" tabindex="-1" title="Meta mensal e bônus" type="button"><span>Finanças</span></button><button aria-controls="sp4PaneSecurity" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabSecurity" role="tab" tabindex="-1" title="Proteção e notificações" type="button"><span>Segurança</span></button><button aria-controls="sp4PaneAccount" aria-selected="false" class="sp4-settings-tab sp4-tab-trigger" id="sp4TabAccount" role="tab" tabindex="-1" title="Conta e perfis separados" type="button"><span>Minha conta</span></button></div><div aria-labelledby="sp4TabBackup" class="sp4-tab-panel" id="sp4PaneBackup" role="tabpanel" tabindex="0">
 <div aria-label="Seus backups" class="sp4-section-group sp4-backup-workspace" role="group">
-  <div class="sp4-layout-title"><div><span class="muted">Proteção e recuperação</span><h3>Seus backups</h3><p class="helper">Escolha como guardar ou recuperar seus dados. As opções ficam separadas para facilitar.</p></div></div>
+  <div class="sp4-layout-title"><div><span class="muted">Segurança dos seus dados</span><h3>Dados e cópias de segurança</h3><p class="helper">Seus aparelhos podem ficar atualizados automaticamente. Você também pode guardar uma cópia de segurança quando quiser.</p></div></div>
 <div class="sp4-backup-methods" id="sp4BackupModes" role="tablist" aria-label="Escolha como fazer backup">
   <button type="button" role="tab" class="sp4-backup-method" id="sp4BackupSelectCloud" aria-controls="sp4BackupModeCloud" aria-selected="true" tabindex="0"><span class="sp4-backup-method-num" aria-hidden="true">01</span><span class="sp4-backup-method-text"><strong>Na nuvem</strong><small>Google Drive, OneDrive ou Dropbox</small></span><span class="sp4-backup-method-indicator" aria-hidden="true">↗</span></button>
   <button type="button" role="tab" class="sp4-backup-method" id="sp4BackupSelectFile" aria-controls="sp4BackupModeFile" aria-selected="false" tabindex="-1"><span class="sp4-backup-method-num" aria-hidden="true">02</span><span class="sp4-backup-method-text"><strong>Arquivo e versões</strong><small>Guardar, conferir ou restaurar</small></span><span class="sp4-backup-method-indicator" aria-hidden="true">↓</span></button>
-  <button type="button" role="tab" class="sp4-backup-method" id="sp4BackupSelectDevices" aria-controls="sp4BackupModeDevices" aria-selected="false" tabindex="-1"><span class="sp4-backup-method-num" aria-hidden="true">03</span><span class="sp4-backup-method-text"><strong>Entre aparelhos</strong><small>Mesmo Google, cópia protegida</small></span><span class="sp4-backup-method-indicator" aria-hidden="true">⇄</span></button>
+  <button type="button" role="tab" class="sp4-backup-method" id="sp4BackupSelectDevices" aria-controls="sp4BackupModeDevices" aria-selected="false" tabindex="-1"><span class="sp4-backup-method-num" aria-hidden="true">03</span><span class="sp4-backup-method-text"><strong>Entre aparelhos</strong><small>Atualização automática pela conta Google</small></span><span class="sp4-backup-method-indicator" aria-hidden="true">⇄</span></button>
 </div>
   <div class="sp4-backup-mode-panel" id="sp4BackupModeCloud" role="tabpanel" aria-labelledby="sp4BackupSelectCloud">
     <div class="sp4-backup-mode-intro"><h4>Escolha onde guardar sua cópia</h4><p class="helper">Guarde uma cópia fora deste aparelho. Se perder o celular ou computador, poderá recuperá-la com o serviço escolhido.</p></div>
@@ -134,44 +134,53 @@
 </section></div>
     </div>
   </div>
-  <div class="sp4-backup-mode-panel" id="sp4BackupModeDevices" role="tabpanel" aria-labelledby="sp4BackupSelectDevices" hidden>
-    <div class="sp4-backup-mode-intro"><h4>Seus dados em todos os aparelhos</h4><p class="helper">Use o Live Sync para atualizar automaticamente e o backup criptografado abaixo para restaurar cópias de segurança.</p></div>
-    <div class="sp51-live-layout">
-      <section class="panel sp51-live-panel" id="sp51LivePanel" aria-labelledby="sp51LiveTitle">
-        <div class="section-head"><div><span class="muted">Mesmo login Google · atualiza automaticamente</span><h3 id="sp51LiveTitle">Sincronização automática</h3></div><span class="status-pill">Live Sync</span></div>
-        <p class="helper">O que você criar, editar ou excluir no celular aparece no computador e vice-versa. Ao entrar com Google em um aparelho novo, seus dados aparecem automaticamente. Se houver dados locais diferentes, pediremos sua escolha para evitar perdas.</p>
-        <p class="helper small-text">Usa a proteção da sua conta Google e do Firebase, sem a senha extra do backup criptografado. Veja os detalhes de privacidade abaixo.</p>
-        <div role="status" aria-live="polite" class="sp51-live-status" id="sp51LiveStatus">Conecte sua conta Google para começar.</div>
-        <p class="helper small-text" id="sp51LiveSummary">Suas alterações continuam disponíveis neste aparelho mesmo sem internet.</p>
-        <div id="sp51LiveSetup" hidden>
-          <h4>Primeira conexão deste aparelho</h4>
-          <p class="helper">Escolha com cuidado. Se já existem dados diferentes no celular e computador, exporte um JSON nos dois antes de continuar. Depois da primeira conexão, a sincronização será automática.</p>
-          <div class="sp51-live-actions">
-            <button class="btn" type="button" id="sp51LiveStart">Ativar com os dados deste aparelho</button>
-            <button class="btn secondary" type="button" id="sp51LiveUseCloud">Carregar dados da nuvem</button>
-            <button class="btn ghost" type="button" id="sp51LiveMerge">Unir sem sobrescrever</button>
-          </div>
-          <p class="helper small-text">Se já houver dados na nuvem, a primeira opção será bloqueada. A união só ocorre quando não há registros conflitantes.</p>
-        </div>
-        <div id="sp51LiveConflicts" hidden class="sp51-conflicts">
-          <h4>Conflitos que precisam da sua escolha</h4>
-          <p class="helper">Os demais registros continuam sendo sincronizados. Escolha apenas qual versão manter para cada item abaixo.</p>
-          <div id="sp51LiveConflictList"></div>
-        </div>
-        <button type="button" class="btn ghost small" id="sp51LiveRetry" hidden>Verificar conexão novamente</button>
-        <details class="sp51-live-privacy"><summary>Como meus dados ficam protegidos?</summary>
-          <p>Essa sincronização usa sua conta Google e as regras privadas do Firestore. Seus dados são enviados por HTTPS e protegidos pela criptografia do serviço em armazenamento, mas <strong>não possuem a senha extra de criptografia ponta a ponta</strong> do backup manual. Administradores autorizados do projeto Firebase podem tecnicamente acessar os registros. O recurso é opcional.</p>
-          <p>Use o backup criptografado abaixo ou o arquivo JSON como proteção independente. Em caso de mudanças simultâneas no mesmo registro, o aplicativo pede sua escolha.</p>
-        </details>
-      </section>
-      <section class="panel sp51-legacy-backup-note" aria-label="Cópia criptografada manual">
-        <h3>Backup criptografado de emergência</h3>
-        <p class="helper">É diferente da sincronização automática. Crie ou recupere uma cópia inteira protegida com senha, útil se precisar restaurar dados antigos.</p>
-      </section>
+  <div class="sp4-backup-mode-panel sp514-devices-mode" id="sp4BackupModeDevices" role="tabpanel" aria-labelledby="sp4BackupSelectDevices" hidden>
+    <div class="sp4-backup-mode-intro sp514-intro">
+      <h4>Seus dados acompanham você</h4>
+      <p class="helper">Entre com a mesma conta Google no celular e no computador. Seus lançamentos ficam atualizados automaticamente, sem precisar recuperar backups.</p>
     </div>
-    <div class="sp4-backup-devices-content"><section aria-labelledby="sp311SyncHeading" class="panel" id="sp3SyncPanel">
-<div class="section-head"><div><span class="muted">Uma cópia para seus dispositivos</span><h3 id="sp311SyncHeading">Backup entre aparelhos</h3></div></div>
-<p class="helper">Guarde uma cópia protegida para recuperar seus dados no celular ou computador usando a mesma conta Google. Funciona sem conectar o Drive.</p>
+    <section class="panel sp51-live-panel sp514-main-card" id="sp51LivePanel" aria-labelledby="sp51LiveTitle">
+      <div class="sp514-main-heading">
+        <div>
+          <span class="muted">Sua conta Google</span>
+          <h3 id="sp51LiveTitle">Sincronização entre aparelhos</h3>
+        </div>
+      </div>
+      <div class="sp514-status-area">
+        <div role="status" aria-live="polite" class="sp51-live-status" id="sp51LiveStatus">Entre com Google para encontrar seus dados.</div>
+        <p class="helper small-text" id="sp51LiveSummary" hidden>As atualizações acontecem automaticamente.</p>
+      </div>
+      <div id="sp51LiveSetup" class="sp514-first-setup" hidden>
+        <h4 id="sp514SetupTitle">Encontramos informações diferentes</h4>
+        <p class="helper" id="sp514SetupHelp">Para não perder nada, escolha quais dados deseja usar neste aparelho. Se tiver informações importantes nos dois, baixe antes uma cópia em Arquivo e versões.</p>
+        <div class="sp51-live-actions sp514-live-choices">
+          <button class="btn" type="button" id="sp51LiveUseCloud">Usar os dados da minha conta</button>
+          <button class="btn" type="button" id="sp51LiveStart">Salvar os dados deste aparelho</button>
+        </div>
+        <details class="sp514-extra-choice" id="sp514ExtraChoice">
+          <summary>Tenho dados nos dois aparelhos</summary>
+          <p class="helper">Podemos tentar juntar os dados sem substituir os que já existem. Se houver informações diferentes no mesmo item, você precisará escolher como continuar.</p>
+          <button class="btn secondary" type="button" id="sp51LiveMerge">Tentar juntar meus dados</button>
+        </details>
+      </div>
+      <div id="sp51LiveConflicts" hidden class="sp51-conflicts">
+        <h4>Precisamos da sua escolha</h4>
+        <p class="helper">O mesmo item foi modificado nos dois aparelhos. Escolha qual versão deseja manter.</p>
+        <div id="sp51LiveConflictList"></div>
+      </div>
+      <button type="button" class="btn ghost small sp514-retry" id="sp51LiveRetry" hidden>Verificar atualizações</button>
+      <details class="sp51-live-privacy">
+        <summary>Privacidade e proteção dos dados</summary>
+        <p>Seus dados são enviados por uma conexão protegida e ficam associados à sua conta Google. Outras pessoas não conseguem vê-los só por ter o aplicativo instalado.</p>
+        <p><strong>Importante:</strong> essa sincronização não usa uma senha extra de proteção exclusiva dos dados. Pessoas autorizadas a administrar o serviço de armazenamento podem tecnicamente acessá-los. Para guardar uma cópia protegida com sua própria senha, use a opção abaixo.</p>
+      </details>
+    </section>
+    <details class="sp514-backup-extra">
+      <summary><span><strong>Cópia de segurança com senha</strong><small>Opcional · guardar ou recuperar uma cópia antiga</small></span></summary>
+      <p class="helper">Essa é uma proteção adicional. Não é necessária para manter celular e computador atualizados.</p>
+<div class="sp4-backup-devices-content"><section aria-labelledby="sp311SyncHeading" class="panel" id="sp3SyncPanel">
+<div class="section-head"><div><span class="muted">Proteção adicional</span><h3 id="sp311SyncHeading">Guardar uma cópia com senha</h3></div></div>
+<p class="helper">Guarde uma versão protegida dos seus dados para recuperar se precisar. Isso não interfere na atualização automática entre aparelhos.</p>
 <label>Senha de proteção <span class="sp311-inline-muted">(mínimo 8 caracteres)</span>
 <input aria-describedby="sp311PasswordHelp" autocomplete="new-password" id="sp3SyncPass" minlength="8" placeholder="Digite apenas se este aparelho pedir a senha" type="password"/>
 </label>
@@ -181,16 +190,18 @@
 <button class="btn ghost full" id="sp31SyncForget" type="button">Esquecer senha lembrada neste aparelho</button>
 <label class="check-row"><input id="sp3SyncAuto" type="checkbox"/> Atualizar o backup automaticamente com o SaldoPlan aberto</label>
 <div class="sp3-tools-grid"><button class="btn" id="sp3SyncUpload" type="button">Fazer backup agora</button><button class="btn secondary" id="sp3SyncDownload" type="button">Conferir ou recuperar backup</button></div>
-<p class="helper small-text sp311-important">Atenção: se você alterar dados em dois aparelhos, será necessário escolher qual cópia manter. O SaldoPlan não junta as mudanças automaticamente.</p>
+<p class="helper small-text sp311-important">Ao recuperar esta cópia, confira a data e o conteúdo antes de substituir seus dados mais recentes.</p>
 <details class="sp311-more">
 <summary>Como funciona e como meus dados são protegidos?</summary>
-<p>O backup entre aparelhos é guardado de forma criptografada no Firebase da sua conta. A senha de proteção não é enviada ao servidor. Em um aparelho novo, você precisará informá-la uma vez; depois, pode optar por lembrá-la neste navegador pessoal.</p>
+<p>Esta cópia é protegida por uma senha que só você conhece. A senha não é enviada ao serviço de armazenamento. Em um aparelho novo, você precisará informá-la uma vez; depois, pode optar por lembrá-la neste navegador pessoal.</p>
 <p>O envio automático funciona com o aplicativo aberto e pausa quando encontra cópias diferentes. Não substitui o backup manual nem o Google Drive. Se perder a senha e não tiver um aparelho autorizado, esta cópia não poderá ser recuperada.</p>
 </details>
-<div aria-live="polite" class="sp3-status" id="sp3SyncStatus" role="status">Entre com Google e faça seu primeiro backup entre aparelhos.</div>
+<div aria-live="polite" class="sp3-status" id="sp3SyncStatus" role="status">Entre com Google para criar uma cópia de segurança com senha.</div>
 </section></div>
+
+    </details>
   </div>
-  <p class="sp4-backup-footnote"><strong>Importante:</strong> seus lançamentos continuam salvos neste navegador. Mantenha uma cópia externa (arquivo ou nuvem) para protegê-los caso o aparelho seja perdido ou danificado.</p>
+  <p class="sp4-backup-footnote"><strong>Importante:</strong> mesmo com a sincronização automática, é importante guardar uma cópia de segurança de tempos em tempos.</p>
 </div></div><div aria-labelledby="sp4TabAppearance" class="sp4-tab-panel" hidden="" id="sp4PaneAppearance" role="tabpanel" tabindex="0"><div aria-label="Aparência" class="sp4-section-group sp4-preferences-layout" role="group">
 <div class="sp4-layout-title"><div><span class="muted">Dados e backup</span><h3>Aparência</h3><p class="helper">Escolha o visual do SaldoPlan. As preferências financeiras estão na aba Finanças.</p></div></div>
 <div class="sp4-preferences-columns">
@@ -285,7 +296,7 @@
 </div>
 <p class="helper small-text">
             Seus lançamentos continuam armazenados localmente neste aparelho.
-            Entrar com Google não envia seus dados financeiros ao Firebase e não conecta o Google Drive automaticamente.
+            Entrar com Google não conecta seu Google Drive automaticamente. Os dados só são enviados para sincronização se esse recurso estiver disponível e autorizado na sua conta.
           </p>
 </section><section aria-label="Perfis financeiros por conta" class="panel sp4-profile-panel">
 <h3>Perfis financeiros separados</h3>

@@ -1,3 +1,5 @@
+> **SaldoPlan v5.1.4 — Interface mais simples:** a seção **Entre aparelhos** foi organizada para mostrar se seus dados estão atualizados, avisar apenas quando precisa de uma decisão e guardar as opções avançadas em áreas recolhidas. A sincronização permanece vinculada ao login Google e mantém as proteções anteriores. Veja `LIVE-SYNC-SETUP.md`.
+
 > **SaldoPlan v5.1.3 — Auto Boot protegido:** corrige a primeira conexao de perfis novos quando as telas criam automaticamente registros padrao de folha, 13o, FGTS ou patrimonio. O aplicativo so conecta sem clique se os valores corresponderem estritamente aos defaults; dados financeiros reais ou exclusivos continuam exigindo decisao. Preserva backups e dados locais. Veja `LIVE-SYNC-SETUP.md`.
 
 > **SaldoPlan v5.1.2 — Auto Link seguro:** o login Google agora também vincula automaticamente um aparelho cujos registros locais já estejam representados integralmente e sem divergências na nuvem. Perfis novos continuam automáticos; dados exclusivos ou divergentes exigem escolha antes de recuperar. Nunca apaga dados divergentes automaticamente. Veja `LIVE-SYNC-SETUP.md`.

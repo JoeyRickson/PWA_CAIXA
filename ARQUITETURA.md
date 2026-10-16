@@ -1,3 +1,7 @@
+## v5.1.4 — Apresentação da sincronização
+
+`views/data.html`, `css/v51-live.css` e textos de `js/v51-live-sync.js` foram atualizados sem mudar a lógica de sincronização. Os elementos e IDs de `sp51Live*`, `sp3Sync*` e `sp31*` permanecem para não romper os handlers do Live Sync e do backup criptografado anterior. O painel `sp3SyncPanel` foi colocado sob um `<details>` inicialmente fechado (a lógica continua montada no DOM). A PWA recebe novo cache e strings `5.1.4` para atualização. O status público evita detalhes do Firestore; erros técnicos continuam disponíveis no console.
+
 ## v5.1.3 — Guarda semantica do primeiro login
 
 `js/v51-live-engine.js` passou a validar `isGeneratedFreshProfile()` contra `blankProfileTemplate()`; so aceita estruturas exatas de renderizacao automatica para `payrollMonths`, `thirteenthByYear`, `fgtsByYear` e um unico `netWorthSnapshots` zerado do dia atual. Qualquer outra divergencia requer conciliacao, preservando os dados locais. `js/v51-live-sync.js` consulta essa funcao apenas na ativacao inicial e reafirma a condicao antes de baixar os dados. Nao altera a sincronizacao apos vinculo.

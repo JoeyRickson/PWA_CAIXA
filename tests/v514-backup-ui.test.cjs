@@ -1,0 +1,34 @@
+'use strict';
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const root = path.join(__dirname, '..');
+const read = x => fs.readFileSync(path.join(root,x),'utf8');
+const html = read('views/data.html');
+const js = read('js/v51-live-sync.js');
+const css = read('css/v51-live.css');
+const index = read('index.html');
+const app = read('app.js');
+const sw = read('sw.js');
+const ids = ['sp4BackupModeDevices','sp51LivePanel','sp51LiveStatus','sp51LiveSummary','sp51LiveSetup','sp51LiveStart','sp51LiveUseCloud','sp51LiveMerge','sp51LiveConflicts','sp51LiveConflictList','sp51LiveRetry','sp3SyncPanel','sp3SyncUpload','sp3SyncDownload','sp3SyncPass','sp31SyncLockStatus'];
+for(const id of ids) {
+  const matches = html.match(new RegExp(`id=["']${id}["']`, 'g'))||[];
+  assert.equal(matches.length,1,`Elemento deve existir uma vez: ${id}`);
+}
+assert.match(html,/Seus dados acompanham você/);
+assert.match(html,/Usar os dados da minha conta/);
+assert.match(html,/Salvar os dados deste aparelho/);
+assert.match(html,/Tenho dados nos dois aparelhos/);
+assert.match(html,/Cópia de segurança com senha/);
+assert.match(html,/<details class="sp514-backup-extra">[\s\S]*?id="sp3SyncPanel"/);
+const plain = html.slice(html.indexOf('id="sp4BackupModeDevices"'),html.indexOf('class="sp4-backup-footnote"'));
+assert.doesNotMatch(plain,/Firebase|Firestore|Live Sync|JSON/);
+assert.match(js,/fromCloud\.hidden=!hasCloud/);
+assert.match(js,/start\.hidden=hasCloud/);
+assert.match(js,/extraChoice\.hidden=!hasCloud/);
+assert.match(js,/function activate\(/);
+assert.match(js,/function stage\(/);
+assert.match(css,/\.sp514-backup-extra/);
+for(const [name,src] of [['index.html',index],['app.js',app],['sw.js',sw]]) assert.match(src,/5\.1\.4/, `${name} atualizada`);
+assert.match(sw,/views\/data\.html\?v=5\.1\.4/);
+console.log('SaldoPlan v5.1.4: 30 verificações de interface e compatibilidade PASS');

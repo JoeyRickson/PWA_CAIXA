@@ -1,3 +1,11 @@
+## 5.1.4 — Dados e backup mais simples (16/10/2026)
+
+- Reorganizada a aba **Entre aparelhos**: primeiro o estado da conta e a ação necessária; cópia com senha ficou opcional e recolhida.
+- Mensagens de sincronização em linguagem comum, sem termos de infraestrutura. Os detalhes de segurança continuam acessíveis em **Privacidade e proteção dos dados**.
+- A primeira conexão mostra só a ação aplicável: **Usar dados da minha conta** quando já existe histórico salvo, ou **Salvar dados deste aparelho** quando a conta está vazia. A opção de juntar aparece como alternativa quando aplicável.
+- Mantidos os identificadores e eventos das funções anteriores; não houve alteração do motor de dados, mesclagem, exclusão, permissões ou armazenamento.
+- Atualizado o cache da PWA para entregar o novo visual.
+
 ## v5.1.3 — Correção da primeira conexão do Auto Sync (homologação)
 
 - Perfil novo nao fica falsamente classificado como usado por defaults de folha, 13o, FGTS e snapshot patrimonial do proprio app.

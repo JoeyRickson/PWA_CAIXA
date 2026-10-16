@@ -1,3 +1,11 @@
+## Ajustes de interface da v5.1.4
+
+- Para o usuário: **Dados e backup → Backups → Entre aparelhos** mostra uma tela curta com o estado da conta. A atualização entre aparelhos dispensa o backup manual.
+- Se há dados da conta: o botão principal se chama **Usar os dados da minha conta**. Se a conta ainda não tem dados: **Salvar os dados deste aparelho**. Em ambos os casos os mesmos procedimentos de segurança e confirmação da v5.1.3 continuam ativos.
+- Caso haja diferenças entre dados locais e dados salvos, o usuário precisa decidir. A alternativa **Tenho dados nos dois aparelhos → Tentar juntar meus dados** continua sujeita à detecção de incompatibilidades e nunca sobrescreve silenciosamente um item diferente.
+- A função independente de backup com senha continua disponível sob **Cópia de segurança com senha**, inicialmente recolhida. O texto simplificado não altera a diferença de segurança: dados sincronizados não possuem criptografia ponta a ponta com senha adicional; o backup manual possui essa proteção.
+- Para administradores: detalhes de infraestrutura e regras permanecem neste arquivo e em `FIRESTORE-SETUP.md`. Não exibir Firebase ou Firestore ao usuário final.
+
 ## v5.1.3 — Inicialização silenciosa e proteção de informações
 
 Alem do perfil inteiramente novo e de registros locais ja identicos na nuvem, o app considera novo um perfil com **apenas registros padrao gerados pelas telas** (configuracoes padrao do mes de folha, do 13o, FGTS e um snapshot zerado do dia atual). Todos os campos precisam ser exatamente os defaults. Se um valor for personalizado, antigo, financeiro ou exclusivo, a escolha manual continua obrigatoria. Exporte backups JSON antes dos testes.

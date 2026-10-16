@@ -17,3 +17,48 @@
 .sp51-legacy-backup-note{padding:14px 18px!important}
 .sp51-legacy-backup-note h3{margin-top:0}
 @media(max-width:700px){.sp51-live-actions{grid-template-columns:1fr}.sp51-conflict-row .btn{flex:1}.sp51-live-panel{padding:16px!important}}
+
+/* v5.1.4 — Tela simplificada para quem não precisa conhecer detalhes técnicos */
+.sp514-devices-mode{min-width:0}
+.sp514-intro{margin-bottom:16px}
+.sp514-main-card{display:flex;flex-direction:column;gap:14px;min-width:0}
+.sp514-main-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.sp514-main-heading h3{margin:4px 0 0;font-size:clamp(1.05rem,2vw,1.3rem)}
+.sp514-status-area{display:grid;gap:6px}
+.sp514-status-area .sp51-live-status{padding:14px 16px;line-height:1.5}
+.sp514-status-area .sp51-live-status[data-tone="success"]{border-color:var(--success,#27845a)}
+.sp514-status-area .sp51-live-status[data-tone="warning"]{border-color:var(--warning,#af8226)}
+.sp514-status-area .sp51-live-status[data-tone="error"]{border-color:var(--danger,#b43847)}
+.sp514-status-area #sp51LiveSummary{margin:0 2px}
+.sp514-first-setup{padding:15px;border-radius:14px;border:1px solid var(--line,#d3dbe5);background:var(--surface,#fff);min-width:0}
+.sp514-first-setup h4{margin:0 0 6px}
+.sp514-first-setup .helper{margin:0 0 8px}
+.sp514-live-choices{display:flex;flex-wrap:wrap;margin:14px 0 0}
+.sp514-live-choices .btn{flex:1 1 230px}
+.sp514-extra-choice{margin-top:12px}
+.sp514-extra-choice summary,.sp514-backup-extra>summary{cursor:pointer;list-style:none}
+.sp514-extra-choice summary::-webkit-details-marker,.sp514-backup-extra>summary::-webkit-details-marker{display:none}
+.sp514-extra-choice summary{font-weight:600;display:inline-flex;align-items:center;gap:8px}
+.sp514-extra-choice summary::after{content:'⌄';display:inline-block}
+.sp514-extra-choice[open] summary::after{transform:rotate(180deg)}
+.sp514-extra-choice .helper{margin:12px 0 10px}
+.sp514-extra-choice .btn{width:100%;max-width:360px}
+.sp514-main-card .sp51-live-privacy{margin-top:0}
+.sp514-main-card .sp51-live-privacy p{margin:10px 0}
+.sp514-retry{align-self:flex-start}
+.sp514-backup-extra{margin-top:14px;padding:0 18px 18px;border:1px solid var(--line,#d3dbe5);border-radius:14px;min-width:0;background:var(--surface,#fff)}
+.sp514-backup-extra>summary{padding:18px 0;display:flex;justify-content:space-between;gap:14px;align-items:center;color:var(--ink,#172031)}
+.sp514-backup-extra>summary::after{content:'⌄';font-size:1.3rem}
+.sp514-backup-extra[open]>summary::after{transform:rotate(180deg)}
+.sp514-backup-extra>summary>span{display:flex;flex-direction:column;gap:4px}
+.sp514-backup-extra>summary small{font-size:.85rem;color:var(--muted,#667085);font-weight:400}
+.sp514-backup-extra>.helper{margin:0 0 14px}
+.sp514-backup-extra .sp4-backup-devices-content{margin:0}
+.sp514-backup-extra #sp3SyncPanel{margin:0}
+.sp514-devices-mode [hidden],.sp514-devices-mode button[hidden]{display:none!important}
+@media(max-width:700px){
+ .sp514-first-setup{padding:12px}
+ .sp514-backup-extra{padding:0 14px 14px}
+ .sp514-live-choices{display:grid;grid-template-columns:minmax(0,1fr)}
+ .sp514-live-choices .btn{width:100%}
+}

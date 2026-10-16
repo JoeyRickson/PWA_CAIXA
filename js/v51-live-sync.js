@@ -8,6 +8,7 @@
   const status=$('sp51LiveStatus'),summary=$('sp51LiveSummary'),setup=$('sp51LiveSetup');
   const start=$('sp51LiveStart'),fromCloud=$('sp51LiveUseCloud'),merge=$('sp51LiveMerge');
   const reconnect=$('sp51LiveRetry'),conflictBox=$('sp51LiveConflicts'),conflictList=$('sp51LiveConflictList');
+  const extraChoice=$('sp514ExtraChoice');
   const authProject='saldoplan';
   const key=part=>`saldoplan.live.v51.${part}.${PROFILE_ACTIVE_SCOPE}`;
   const installationKey='saldoplan.live.v51.deviceId';
@@ -68,9 +69,26 @@
   function updateUi(){
     const count=countPending(),blocked=Object.keys(conflicts).length;
     const online=navigator.onLine;
-    summary.textContent=linked?`${count} alteração(ões) pendente(s) · ${blocked} conflito(s) · ${online?'online':'offline'}`:
-      'Ative uma vez neste aparelho para sincronizar automaticamente com sua conta.';
+    if(linked){
+      const notice=[];
+      if(count)notice.push(`${count} alteração(ões) aguardando envio`);
+      if(blocked)notice.push(`${blocked} item(ns) precisam da sua escolha`);
+      if(!online)notice.push('sem conexão com a internet');
+      summary.textContent=notice.join(' · ');
+      summary.hidden=notice.length===0;
+    }else{
+      summary.textContent='';summary.hidden=true;
+    }
     setup.hidden=linked||autoActivating||!authUid||!ready;
+    const hasCloud=remoteMeta?.phase==='ready'||initialDocCount>0;
+    fromCloud.hidden=!hasCloud;
+    start.hidden=hasCloud;
+    if(extraChoice)extraChoice.hidden=!hasCloud;
+    const setupTitle=$('sp514SetupTitle'),setupHelp=$('sp514SetupHelp');
+    if(setupTitle)setupTitle.textContent=hasCloud?'Encontramos informações diferentes':'Guardar seus dados nesta conta';
+    if(setupHelp)setupHelp.textContent=hasCloud
+      ?'Este aparelho e sua conta possuem informações diferentes. Escolha o que manter. Se os dois tiverem dados importantes, faça antes uma cópia em Arquivo e versões.'
+      :'Ainda não há dados salvos nesta conta. Você pode enviar os dados deste aparelho para encontrá-los depois nos outros.';
     reconnect.hidden=!linked;
     conflictBox.hidden=!blocked;
     if(blocked)renderConflicts();
@@ -79,11 +97,12 @@
     const code=e?.code||'';
     const message=String(e?.message||e);
     lastError=message;
+    console.warn('[SaldoPlan Sync]',code||'erro',message);
     if(code==='permission-denied'||message.includes('Missing or insufficient permissions')){
-      statusText('O Firestore bloqueou a sincronização. Publique as regras da coleção saldoplanLive indicadas no LIVE-SYNC-SETUP.md. Seus dados locais estão preservados.','error');
+      statusText('Não conseguimos acessar seus dados salvos. Tente novamente. Se continuar, entre em contato com o suporte. Seus dados deste aparelho foram preservados.','error');
     }else if(!navigator.onLine||code==='unavailable'){
-      statusText('Sem conexão. Alterações guardadas neste aparelho; enviaremos quando a internet voltar.','warning');
-    }else statusText(`Sincronização pausada: ${message.slice(0,240)}. Dados locais preservados.`,'error');
+      statusText('Sem internet. Suas alterações estão guardadas e serão enviadas quando a conexão voltar.','warning');
+    }else statusText('Não conseguimos atualizar agora. Seus dados deste aparelho estão preservados. Tente novamente.','error');
     updateUi();
   }
   function remoteRecord(doc){
@@ -169,13 +188,13 @@
           baseRevisions[k]=assignedRevision;
           persist();
         }catch(e){
-          if(e.isConflict){conflicts[k]={reason:'Este registro mudou em outro aparelho.'};statusText('Há alterações simultâneas. Apenas o registro em conflito foi pausado.','warning');}
+          if(e.isConflict){conflicts[k]={reason:'Este item foi alterado no outro aparelho.'};statusText('Um item foi alterado nos dois aparelhos. Escolha qual versão manter.','warning');}
           else{showError(e);break;}
         }finally{inflightKey=null;}
       }
       if(startedEpoch===epoch){
         if(!countPending()&&!Object.keys(conflicts).length){try{await completeBootstrap();}catch(e){showError(e);}}
-        updateUi();if(!Object.keys(conflicts).length&&!countPending())statusText('Tudo atualizado. Alterações do celular e computador sincronizadas.','success');
+        updateUi();if(!Object.keys(conflicts).length&&!countPending())statusText('Tudo certo! Seus dados estão atualizados.','success');
       }
     }finally{flushing=false;}
   }
@@ -204,7 +223,7 @@
   }
   function receive(snap,expectedEpoch){
     if(expectedEpoch!==epoch||!correctlyScoped(authUid))return;
-    if(snap.metadata.fromCache){statusText('Aguardando confirmação da nuvem; informações locais preservadas.','warning');return;}
+    if(snap.metadata.fromCache){statusText('Conferindo suas informações salvas…','warning');return;}
     const fresh=new Map();remoteMeta=null;
     for(const doc of snap.docs){
       const r=remoteRecord(doc);if(!r)continue;
@@ -213,12 +232,12 @@
     }
     remote=fresh;initialDocCount=fresh.size;ready=true;
     if(!linked&&remoteMeta?.phase==='initializing'){
-      setup.hidden=true;statusText('A primeira cópia ainda está sendo enviada por outro aparelho. Aguarde finalizar para conectar este dispositivo.','warning');return;
+      setup.hidden=true;statusText('Outro aparelho ainda está salvando seus dados. Aguarde um momento.','warning');return;
     }
     if(linked){
       for(const [k,r] of fresh)if(!pending[k])rememberRev(k,r);
       applyChanges();scheduleFlush();
-      if(!countPending()&&!Object.keys(conflicts).length)statusText('Sincronização ativa. As alterações aparecem nos seus outros aparelhos.','success');
+      if(!countPending()&&!Object.keys(conflicts).length)statusText('Tudo certo! Seus dados estão atualizados.','success');
     }else if(autoActivating){
       setup.hidden=true;
     }else if(safeAutoStart()){
@@ -227,12 +246,12 @@
       setup.hidden=true;
       const isCloudInitialized=remoteMeta?.phase==='ready'||initialDocCount>0;
       statusText(isCloudInitialized
-        ?'Conta Google identificada. Carregando seus dados automaticamente…'
-        :'Conta Google identificada. Preparando sincronização automática…');
+        ?'Buscando seus dados salvos…'
+        :'Preparando seus dados…');
       void autoConnect(expectedEpoch);
     }else{
       setup.hidden=false;
-      statusText(snap.empty?'Nuvem vazia. Este aparelho possui dados locais; escolha como enviá-los com segurança.':'Este aparelho já possui dados locais diferentes dos da nuvem. Escolha como conciliar sem perder informações.','warning');
+      statusText(snap.empty?'Ainda não encontramos dados salvos na sua conta. Você pode começar usando os dados deste aparelho.':'Há informações diferentes neste aparelho e na sua conta. Escolha o que deseja manter.','warning');
       updateUi();
     }
     firstSnapshot=true;
@@ -305,7 +324,7 @@
       for(const [k,r] of remote)rememberRev(k,r);
       persist();
       linked=true;localStorage.setItem(key('linked'),authUid);updateUi();scheduleFlush(50);
-      statusText('Sincronização ativada. Alterações futuras serão enviadas automaticamente.','success');
+      statusText('Pronto! Seus aparelhos ficarão atualizados automaticamente.','success');
     }catch(e){showError(e);}
     finally{start.disabled=false;fromCloud.disabled=false;merge.disabled=false;}
   }
@@ -315,8 +334,8 @@
     for(const k of active.slice(0,30)){
       const row=document.createElement('div');row.className='sp51-conflict-row';
       const text=document.createElement('span');text.textContent=k.replace('|',' · ');
-      const cloud=document.createElement('button');cloud.type='button';cloud.className='btn secondary small';cloud.textContent='Usar nuvem';
-      const mine=document.createElement('button');mine.type='button';mine.className='btn ghost small';mine.textContent='Manter meu';
+      const cloud=document.createElement('button');cloud.type='button';cloud.className='btn secondary small';cloud.textContent='Usar dados da conta';
+      const mine=document.createElement('button');mine.type='button';mine.className='btn ghost small';mine.textContent='Manter deste aparelho';
       cloud.addEventListener('click',()=>resolveConflict(k,'cloud'));
       mine.addEventListener('click',()=>resolveConflict(k,'local'));
       row.append(text,cloud,mine);conflictList.append(row);
@@ -324,7 +343,7 @@
   }
   function resolveConflict(k,choice){
     const current=remote.get(k);
-    if(!current){statusText('Aguarde conexão com a nuvem para resolver este conflito.','warning');return;}
+    if(!current){statusText('Aguarde a conexão voltar para escolher qual informação manter.','warning');return;}
     const message=choice==='cloud'?'Usar a versão da nuvem neste registro? A versão local anterior terá cópia de segurança.':'Manter a sua alteração local para este registro e enviá-la à nuvem? O outro valor será substituído. Faça backup antes.';
     if(!confirm(message))return;
     safety(`Antes de resolver conflito ${k}`);
@@ -333,18 +352,18 @@
       E.applyRecord(state,current);writeLocalWithoutSync();
     }else if(pending[k])pending[k].baseRevision=current.revision;
     delete conflicts[k];rememberRev(k,current);persist();updateUi();scheduleFlush(100);
-    statusText('Conflito resolvido. Verificando atualizações.','success');
+    statusText('Escolha salva. Atualizando os aparelhos.','success');
   }
   async function authChanged(uid){
     epoch++;const mark=epoch;autoActivating=false;
     clearTimeout(saveTimer);if(unsub){unsub();unsub=null;}
     authUid=null;scopeRef=null;ready=false;firstSnapshot=false;remote=new Map();remoteMeta=null;pending={};conflicts={};baseRevisions={};linked=false;
-    if(!uid){statusText('Entre com sua conta Google para sincronizar seus aparelhos.');updateUi();return;}
-    if(!correctlyScoped(uid)){statusText('Confirme o perfil financeiro da conta. Depois a sincronização iniciará.','warning');return;}
+    if(!uid){statusText('Entre com Google para acessar seus dados nos outros aparelhos.');updateUi();return;}
+    if(!correctlyScoped(uid)){statusText('Conferindo a conta selecionada…','warning');return;}
     authUid=uid;linked=linkedFor(uid);
     pending=parse(localStorage.getItem(key('queue')),{})||{};
     baseRevisions=parse(localStorage.getItem(key('knownRevs')),{})||{};
-    statusText('Conectando seus aparelhos…');updateUi();
+    statusText('Procurando seus dados salvos…');updateUi();
     try{
       await openFirebase();if(mark!==epoch)return;
       scopeRef=sdk.collection(db,'saldoplanLive',uid,'records');
@@ -357,7 +376,7 @@
   merge.addEventListener('click',()=>{void activate('merge');});
   reconnect.addEventListener('click',()=>{if(authUid)void authChanged(authUid);});
   window.addEventListener('online',()=>{if(authUid){statusText('Conexão restaurada. Conferindo alterações…');scheduleFlush(250);}});
-  window.addEventListener('offline',()=>{statusText('Offline. Seus lançamentos continuam salvos neste aparelho.','warning');updateUi();});
+  window.addEventListener('offline',()=>{statusText('Sem internet. Seus lançamentos continuam salvos neste aparelho.','warning');updateUi();});
   window.addEventListener('storage',e=>{
     if(e.key===PROFILE_ACTIVE_KEY&&authUid&&!correctlyScoped(authUid)){
       void authChanged(null);statusText('Perfil alterado em outra guia. Recarregue antes de editar.','warning');
