@@ -3,6 +3,7 @@
 const {getApps,initializeApp}=require('firebase-admin/app');
 const {getAuth}=require('firebase-admin/auth');
 const {randomBytes}=require('node:crypto');
+const {saveTicket}=require('./_support-store');
 const DESTINATION='joeyrickson1812@gmail.com';
 const TYPES={sugestao:'Sugestão de melhoria',problema:'Problema',duvida:'Dúvida',outro:'Outro assunto'};
 const recent=new Map(); // Limitação básica por instância (não substitui rate limit distribuído)
@@ -177,6 +178,9 @@ module.exports=async function handler(req,res){
       recent.delete(decoded.uid);
       return sendJson(res,502,{message:'Não foi possível encaminhar o e-mail. Verifique a configuração do serviço de envio.'});
     }
+    // Histórico remoto opcional: o e-mail permanece funcional sem Firestore Admin.
+    try{await saveTicket({protocol,uid:decoded.uid,category,subject,message,senderName,senderEmail});}
+    catch(error){console.warn('SaldoPlan: protocolo enviado por e-mail; histórico remoto indisponível');}
     return sendJson(res,200,{ok:true,protocol,message:'Solicitação enviada.'});
   }catch(error){
     console.error('SaldoPlan suporte: erro ao chamar provedor',String(error?.message||error));

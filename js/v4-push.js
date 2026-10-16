@@ -39,7 +39,7 @@
     return {token,module};
   }
   async function send(method,token,account){
-    const response=await fetch('/api/push-subscription',{method,headers:{'Content-Type':'application/json',Authorization:`Bearer ${account.token}`},body:JSON.stringify({token,dates:dates(),timezone:Intl.DateTimeFormat().resolvedOptions().timeZone})});
+    const response=await fetch('/api/push-subscription',{method,headers:{'Content-Type':'application/json',Authorization:`Bearer ${account.token}`},body:JSON.stringify({token,dates:dates(),advanceDays:Number(document.getElementById('sp5PushDays')?.value||0),timezone:Intl.DateTimeFormat().resolvedOptions().timeZone})});
     const data=await response.json().catch(()=>({}));
     if(!response.ok)throw new Error(data.message||`Falha no serviço (${response.status})`);
     return data;

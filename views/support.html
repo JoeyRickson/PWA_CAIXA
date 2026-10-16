@@ -43,4 +43,18 @@
     </aside>
   </div>
   <section class="panel" style="margin-top:14px"><div class="section-head"><div><span class="muted">HISTÓRICO DE ENVIO</span><h3>Seus protocolos neste aparelho</h3></div></div><p class="helper">As solicitações recebidas têm protocolo incluído no e-mail. Este histórico é local; ele confirma o envio, não o andamento na equipe. Status e respostas devem ser consultados por e-mail com o desenvolvedor.</p><div id="sp3TicketList" class="sp3-stack"></div></section>
+  <section id="sp5AdminPanel" class="panel sp5-admin" hidden aria-labelledby="sp5AdminHeading">
+    <div class="section-head"><div><span class="muted">ÁREA RESTRITA</span><h3 id="sp5AdminHeading">Central administrativa de suporte</h3></div><button type="button" class="btn ghost" id="sp5AdminReload">Atualizar lista</button></div>
+    <p class="helper">Somente a conta autorizada no servidor tem acesso a esta área. Solicitações são armazenadas no Firestore após envio do e-mail.</p>
+    <div id="sp5AdminStatus" role="status" class="helper"></div>
+    <div id="sp5AdminTickets" class="sp5-admin-list"></div>
+    <form id="sp5AdminForm" hidden class="sp5-form">
+      <h4 id="sp5AdminSelected">Solicitação</h4>
+      <input type="hidden" id="sp5AdminProtocol">
+      <label>Status<select id="sp5AdminTicketStatus"><option value="recebido">Recebido</option><option value="em_analise">Em análise</option><option value="resolvido">Resolvido</option></select></label>
+      <button type="button" id="sp5AdminSave" class="btn ghost">Salvar status</button>
+      <label>Resposta por e-mail<textarea id="sp5AdminReply" maxlength="2000" rows="4" placeholder="Resposta ao usuário, sem informações sensíveis"></textarea></label>
+      <button type="button" id="sp5AdminSend" class="btn">Enviar resposta</button>
+    </form>
+  </section>
 </section>

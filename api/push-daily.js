@@ -16,10 +16,12 @@ module.exports=async(req,res)=>{
         const part=k=>parts.find(x=>x.type===k)?.value;today=`${part('year')}-${part('month')}-${part('day')}`;}
       catch{skipped++;continue;}
       // Lembrete genérico: nenhuma despesa, saldo, categoria ou nome enviado ao FCM.
-      const due=(row.dates||[]).includes(today);
+      const offset=[0,1,3,7].includes(row.advanceDays)?row.advanceDays:0;
+      const target=new Date(today+'T12:00:00Z');target.setUTCDate(target.getUTCDate()+offset);
+      const due=(row.dates||[]).includes(target.toISOString().slice(0,10));
       if(!due||row.lastSentDay===today){skipped++;continue;}
       try{
-        await messaging.send({token:row.token,data:{title:'SaldoPlan · Lembrete financeiro',body:'Você tem um compromisso previsto para hoje. Confira o calendário no aplicativo.',url:'https://saldoplan.vercel.app/'},webpush:{headers:{TTL:'3600',Urgency:'normal'}}});
+        await messaging.send({token:row.token,data:{title:'SaldoPlan · Lembrete financeiro',body:offset===0?'Você tem um compromisso previsto para hoje. Confira o calendário no aplicativo.':`Você tem um compromisso financeiro previsto em ${offset} dia(s). Confira o calendário no aplicativo.`,url:'https://saldoplan.vercel.app/'},webpush:{headers:{TTL:'3600',Urgency:'normal'}}});
         await doc.ref.update({lastSentDay:today});sent++;
       }catch(e){
         console.warn('FCM delivery failed:',e?.code||'unknown');

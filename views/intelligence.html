@@ -6,6 +6,7 @@
     <button type="button" class="sp3-tab" data-sp3-tab="insights" role="tab" aria-selected="false">Insights</button>
     <button type="button" class="sp3-tab" data-sp3-tab="search" role="tab" aria-selected="false">Pesquisa</button>
     <button type="button" class="sp3-tab" data-sp3-tab="annual" role="tab" aria-selected="false">Relatório anual</button>
+    <button type="button" class="sp3-tab" data-sp3-tab="assistant" role="tab" aria-selected="false">Assistente local</button>
   </div>
   <section class="panel sp3-section" data-sp3-panel="budget">
     <div class="section-head"><div><span class="muted">Metas por categoria</span><h3>Orçamento de <span id="sp3BudgetMonth"></span></h3></div></div>
@@ -28,5 +29,13 @@
     <div id="sp3AnnualSummary" class="sp3-stat-grid"></div><div id="sp3AnnualChart" class="sp3-bars"></div>
     <div class="sp3-table-wrap"><table class="sp3-table"><thead><tr><th>Mês</th><th>Entradas</th><th>Saídas</th><th>Saldo</th></tr></thead><tbody id="sp3AnnualRows"></tbody></table></div>
     <p class="helper small-text">Contabiliza apenas lançamentos realizados, pelo mês da data. Não equivale a extrato bancário reconciliado; pagamentos de faturas cadastrados separadamente podem duplicar gastos.</p>
+  </section>
+  <section class="panel sp3-section hidden" data-sp3-panel="assistant" aria-labelledby="sp5AssistantTitle">
+    <div class="section-head"><div><span class="muted">SEM ENVIO À INTERNET</span><h3 id="sp5AssistantTitle">Assistente financeiro local</h3></div></div>
+    <p class="helper">Pergunte sobre entradas, despesas, categorias, metas e comparação mensal. As respostas são cálculos com seus lançamentos, não recomendações de investimento nem uma IA externa.</p>
+    <div class="sp5-chips"><button type="button" data-sp5-question="Quanto gastei neste mês?">Despesas do mês</button><button type="button" data-sp5-question="Qual categoria gastou mais?">Maiores categorias</button><button type="button" data-sp5-question="Como estou em relação ao mês anterior?">Comparação mensal</button><button type="button" data-sp5-question="Quais metas tenho?">Minhas metas</button></div>
+    <form id="sp5AskForm" class="sp5-form"><label>O que você quer saber?<input id="sp5AskInput" maxlength="180" autocomplete="off" placeholder="Ex.: Quanto gastei com alimentação neste mês?"></label><button class="btn" type="submit">Analisar</button></form>
+    <div id="sp5AskResult" class="sp5-response" role="status" aria-live="polite">Selecione uma pergunta para começar.</div>
+    <p class="helper small-text">São suportadas perguntas sobre dados já registrados. Valores de faturas e transferências podem exigir conferência para evitar dupla contagem.</p>
   </section>
 </section>

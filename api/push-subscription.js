@@ -18,7 +18,8 @@ module.exports=async(req,res)=>{
     }
     const days=validDays(body.dates);
     if(!days)return send(res,400,{message:'Datas inválidas'});
-    const data={token:body.token,enabled:true,dates:days,timezone:tzName(String(body.timezone||'')),updatedAt:new Date().toISOString()};
+    const advanceDays=[0,1,3,7].includes(body.advanceDays)?body.advanceDays:0;
+    const data={token:body.token,enabled:true,dates:days,advanceDays,timezone:tzName(String(body.timezone||'')),updatedAt:new Date().toISOString()};
     await doc.set(data);
     return send(res,200,{ok:true,scheduled:days.length});
   }catch(error){

@@ -6,7 +6,7 @@
 
 **Sua vida financeira, organizada em um só lugar.**
 
-[![Versão](https://img.shields.io/badge/vers%C3%A3o-4.0.0-2563eb?style=flat-square)](https://saldoplan.vercel.app/) [![PWA](https://img.shields.io/badge/PWA-Instal%C3%A1vel-0f766e?style=flat-square)](https://saldoplan.vercel.app/) [![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-f7df1e?style=flat-square&logo=javascript&logoColor=111111)](https://developer.mozilla.org/docs/Web/JavaScript) [![Firebase](https://img.shields.io/badge/Firebase-Auth%20%2B%20Firestore-ffca28?style=flat-square&logo=firebase&logoColor=111111)](https://firebase.google.com/)
+[![Versão](https://img.shields.io/badge/vers%C3%A3o-5.0.0-2563eb?style=flat-square)](https://saldoplan.vercel.app/) [![PWA](https://img.shields.io/badge/PWA-Instal%C3%A1vel-0f766e?style=flat-square)](https://saldoplan.vercel.app/) [![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-f7df1e?style=flat-square&logo=javascript&logoColor=111111)](https://developer.mozilla.org/docs/Web/JavaScript) [![Firebase](https://img.shields.io/badge/Firebase-Auth%20%2B%20Firestore-ffca28?style=flat-square&logo=firebase&logoColor=111111)](https://firebase.google.com/)
 
 [**Abrir SaldoPlan**](https://saldoplan.vercel.app/) · [**Sobre o projeto**](https://joeyrickson-portfolio.vercel.app/) · [**Reportar problema**](https://github.com/JoeyRickson/PWA_CAIXA/issues)
 
@@ -32,9 +32,11 @@ O **SaldoPlan** é um aplicativo de controle financeiro pessoal desenvolvido com
 | **Simuladores** | Folha salarial, horas extras, adicionais, 13º salário e FGTS |
 | **Importação** | CSV, OFX/QFX e PDFs compatíveis, prévia com seleção, regras de categorização e avisos de possíveis duplicados |
 | **Backups** | JSON manual, histórico local, Google Drive e outros provedores conforme configuração, cópia criptografada entre aparelhos |
-| **Perfis v4** | Dados locais em espaços separados por conta Google após associação explícita dos dados antigos |
-| **Notificações** | Avisos com app aberto; estrutura opt-in para lembretes push com app fechado, mediante configuração do backend |
-| **Suporte** | Formulário autenticado e protocolo por e-mail |
+| **Perfis por conta** | Dados locais em espaços separados por conta Google após associação explícita dos dados antigos |
+| **Notificações** | Avisos com app aberto e lembretes push opt-in com escolha de antecedência (dependem de Firebase/Vercel e permissão) |
+| **Suporte** | Formulário autenticado, protocolo por e-mail e central administrativa opcional com controle de acesso no servidor |
+
+| **Novidades v5** | Assistente financeiro local por regras, aportes às metas manuais, exportação do fechamento mensal, preferências push e testes de regressão |
 
 ### Algumas telas
 
@@ -97,6 +99,11 @@ push-config.js          Chave VAPID pública (vazia até configurar)
 ARQUITETURA.md          Detalhes técnicos e contratos de dados
 FIRESTORE-SETUP.md      Regras e limites da cópia criptografada
 PUSH-SETUP.md           Ativação e limites das notificações push
+V5-SETUP.md             Permissões administrativas e checklist de homologação
+js/v5-engine.js         Cálculos determinísticos do assistente local
+js/v5-features.js       Interface de metas, PDF, perguntas e push
+js/v5-admin.js          Interface administrativa (API valida o UID)
+api/support-admin.js    API administrativa protegida
 CHANGELOG.md            Histórico de versões
 ```
 
@@ -109,6 +116,7 @@ CHANGELOG.md            Histórico de versões
 | `SUPPORT_FROM_EMAIL` | Remetente autorizado no Resend |
 | `FIREBASE_SERVICE_ACCOUNT_JSON` | Credencial **secreta** do backend push/Firestore Admin |
 | `CRON_SECRET` | Proteção da rotina agendada para enviar push |
+| `SUPPORT_ADMIN_UID` | UID Firebase autorizado a administrar solicitações no backend |
 | `push-config.js` → `vapidPublicKey` | Chave **pública** Web Push do Firebase |
 
 Os serviços opcionais só funcionam depois de configurados. **Jamais coloque segredos em arquivos `.js` do frontend, GitHub ou commits.** `.env.local`, `node_modules/` e `.vercel/` devem permanecer fora do controle de versão.
@@ -144,3 +152,14 @@ Desenvolvido e mantido por **Joey Rickson**.
 ---
 
 *SaldoPlan é um projeto independente de controle financeiro pessoal.*
+
+## SaldoPlan v5.0.0 — Recursos integrados
+
+O assistente financeiro é **local e baseado em regras**; não utiliza modelo externo nem envia lançamentos para serviços de IA. O painel administrativo só funciona com `SUPPORT_ADMIN_UID` e credencial de serviço Firebase configurados. O backup e as permissões continuam independentes do login. Consulte [`V5-SETUP.md`](V5-SETUP.md).
+
+
+### Compatibilidade da v5 consolidada
+
+Esta versão mantém a correção da v4 que permite lançamentos únicos com datas futuras,
+sem confundir esses lançamentos com recorrências. Backups continuam independentes dos perfis locais.
+Antes de migrar, exporte os dados pelo aplicativo e faça os testes descritos em `V5-SETUP.md`.

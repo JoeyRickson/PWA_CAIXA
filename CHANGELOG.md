@@ -1,11 +1,23 @@
+## v5.0.0 — Evolução integrada (candidata à homologação)
+
+- Push opt-in: antecipação de 0, 1, 3 ou 7 dias. Rotina diária envia somente lembretes genéricos; exige Firebase Cloud Messaging, service account, VAPID e CRON_SECRET.
+- Segurança: central de suporte protegida por UID no servidor, isolamento de perfis mantido e novos testes locais de análise.
+- Metas: registrar progresso em objetivos com acompanhamento manual (não gera automaticamente despesa/receita).
+- Assistente local: perguntas predefinidas e regras para despesas, entradas, categorias, meses e metas. Não é uma IA conectada.
+- Suporte administrativo: lista de protocolos, status e resposta via Resend; requer configuração adicional de Firebase Admin/Firestore e remetente verificado para e-mail externo.
+- Fechamento mensal: exportação local por impressão para PDF a partir do calendário, sem modificar o fechamento salvo.
+- Acessibilidade: foco visível, salto para conteúdo e controles adaptáveis; cache PWA versionado.
+- README.md e documentação de configuração, segurança e testes atualizados.
+- Limitações: não inclui mesclagem automática de snapshots, garantia de entrega push nem login biométrico universal.
+
 # Histórico de versões — SaldoPlan
 
-## v4.0.0 — Correção de datas de lançamentos (hotfix)
+## v4.0.0 — Hotfix de datas preservado na migração para v5
 
-- Corrigida a validação de repetição para lançamentos únicos: gastos e receitas futuros, previstos ou realizados, não ficam limitados à data atual.
-- Regras de período passam a ser verificadas somente em recorrências mensais e contas fixas.
-- Ao alterar a data de uma conta fixa, o início da repetição acompanha a nova data.
-- Incluídos oito testes de regressão e atualização do cache PWA, sem alterar os dados financeiros locais.
+- Lançamentos únicos futuros (previstos ou realizados) podem ser gravados sem acionar validações de recorrência.
+- Datas de início/fim continuam sendo verificadas nos casos recorrentes.
+- Testes `tests/transaction-dates.test.cjs` continuam obrigatórios antes de publicar.
+
 
 ## v4.0.0 — Backup organizado por modo (ajuste de homologação)
 

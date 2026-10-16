@@ -208,7 +208,8 @@
 <section aria-labelledby="sp4PushTitle" class="panel">
 <h3 id="sp4PushTitle">Lembretes com o app fechado <span class="sp4-tag">Configuração adicional</span></h3>
 <p class="helper">Receba um aviso genérico em dias com compromissos previstos, mesmo sem abrir o SaldoPlan. Requer permissão, suporte do navegador e configuração do serviço push na Vercel. Nenhum valor ou descrição de transação é enviado.</p>
-<div class="sp3-tools-grid"><button class="btn secondary" id="sp4PushEnable" type="button">Ativar lembretes push</button><button class="btn ghost" id="sp4PushDisable" type="button">Desativar neste aparelho</button></div>
+<div class="sp3-tools-grid"><label class="sp5-push-option">Avisar com antecedência<select id="sp5PushDays"><option value="0">No dia</option><option value="1">1 dia antes</option><option value="3">3 dias antes</option><option value="7">7 dias antes</option></select></label>
+      <button class="btn secondary" id="sp4PushEnable" type="button">Ativar lembretes push</button><button class="btn ghost" id="sp4PushDisable" type="button">Desativar neste aparelho</button></div>
 <p aria-live="polite" class="helper small-text" id="sp4PushStatus">Serviço aguardando configuração.</p>
 </section>
 <section class="panel danger-zone">

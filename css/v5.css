@@ -1,0 +1,19 @@
+/* SaldoPlan v5: componentes responsivos, paleta herdada e acessibilidade. */
+.sp5-form{display:grid;gap:12px;margin:14px 0;max-width:100%}
+.sp5-form label{display:grid;gap:5px;font-weight:600;min-width:0}
+.sp5-form input,.sp5-form textarea,.sp5-form select,.sp5-push-option select{width:100%;min-width:0;max-width:100%;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:11px;font:inherit}
+.sp5-push-option{display:grid;gap:6px;margin:10px 0;font-weight:600}
+.sp5-chips,.sp5-actions{display:flex;flex-wrap:wrap;gap:8px}
+.sp5-chips button{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:8px 12px;font:inherit;cursor:pointer}
+.sp5-response{margin-top:12px;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}
+.sp5-goal-form{border-top:1px solid var(--line);padding-top:12px;margin-top:16px}
+.sp5-admin{margin-top:18px}.sp5-admin-list{display:grid;gap:10px}
+.sp5-admin-item{padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.sp5-admin-item strong{overflow-wrap:anywhere}.sp5-admin-item p{white-space:pre-wrap;overflow-wrap:anywhere}
+.sp5-admin[hidden],.sp5-admin-form[hidden]{display:none!important}
+:where(.sp5-form input,.sp5-form select,.sp5-form textarea,.sp5-chips button,.sp5-admin button,.sp5-actions button):focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+@media(max-width:650px){.sp5-actions{width:100%}.sp5-actions .btn{flex:1 1 140px}.sp5-admin-item{display:block}}
+@media(prefers-reduced-motion:reduce){.sp5-chips *, .sp5-admin *{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}
+
+.sp5-skip{position:fixed;left:12px;top:-80px;z-index:1000;padding:12px 18px;background:var(--surface);color:var(--ink);border:2px solid var(--ink);border-radius:12px}
+.sp5-skip:focus{top:12px}

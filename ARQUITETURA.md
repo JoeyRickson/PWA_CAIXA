@@ -279,3 +279,14 @@ A página foi dividida em quatro abas acessíveis: Backups, Aparência, Seguran�
 - **Na nuvem** mantém `cloud-panel` e todos os provedores. **Arquivo e versões** reúne `saveLocalData`, exportações, restauração de JSON, desfazer, histórico (`undoHistory`) e verificação (`sp3IntegrityPanel`). **Entre aparelhos** mantém a cópia criptografada (`sp3SyncPanel`) com a senha lembrada por conta.
 - A aba Segurança permanece apenas para diagnósticos, alertas e limpeza; a troca de modos **não altera** `meuCaixa.v1`, dados financeiros, Firestore, senhas, credenciais, mecanismos de backup ou política de conflitos.
 - `css/v4.css`, `styles.css`, `index.html` e `sw.js` versionados para evitar visualização de CSS antigo no PWA. Layout usa `--surface`, `--surface-2`, `--ink`, `--line`, `--muted` e `--accent` dos temas oficiais.
+
+
+## v5.0.0 — Extensões incrementais
+
+- `js/v5-engine.js`: funções puras de consolidação de lançamentos realizados e respostas locais simples; **nenhum endpoint externo**.
+- `js/v5-features.js`: progresso manual de metas com `goal.contributions`, impressão mensal, assistente e preferências push por perfil. Não cria transações financeiras de modo implícito.
+- `api/_support-store.js` e `api/support-admin.js`: armazenamento opcional da solicitação após entrega do e-mail; acesso administrativo exclusivamente por token Firebase verificado e UID `SUPPORT_ADMIN_UID`.
+- `js/v5-admin.js`: exibição condicional da central; a checagem de interface não substitui a autorização do backend.
+- `api/push-daily.js`: lembrete diário genérico no dia ou com a antecedência escolhida; limitações de 250 inscrições por rotina, sem dados de lançamentos.
+- Contratos legados `meuCaixa.v1` e `meuCaixa.profile.*.v4` **mantidos**; não há migração de chaves.
+- Usuário deve preservar backup JSON e homologar fluxos reais. `V5-SETUP.md` apresenta implantação opcional e variáveis secretas.

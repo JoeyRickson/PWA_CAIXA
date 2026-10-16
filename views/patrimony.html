@@ -89,6 +89,14 @@
         <button id="newGoalBtn" type="button" class="btn small">+ Meta</button>
       </div>
       <div id="goalList" class="patrimony-list"></div>
+      <form id="sp5GoalDeposit" class="sp5-form sp5-goal-form">
+        <h4>Registrar progresso de uma meta</h4>
+        <p class="helper small-text">Disponível para metas com acompanhamento manual. Não cria lançamento nem movimenta dinheiro automaticamente.</p>
+        <label>Meta<select id="sp5GoalId" required></select></label>
+        <label>Valor a acrescentar (R$)<input id="sp5GoalAmount" required inputmode="decimal" placeholder="100,00"></label>
+        <button type="submit" class="btn">Registrar progresso</button>
+        <p id="sp5GoalStatus" class="helper" role="status"></p>
+      </form>
     </section>
   </div>
 

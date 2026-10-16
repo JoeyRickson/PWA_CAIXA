@@ -41,3 +41,8 @@
 6. Confirmar que não há transmissão de descrição, valores ou saldo nas notificações.
 
 **Não habilite manualmente o endpoint de cron sem credencial de serviço e sem testes de envio real.**
+
+
+### Extensão v5.0.0 — Antecedência
+
+O usuário pode selecionar **no dia, 1, 3 ou 7 dias antes**. A API restringe esse parâmetro a valores permitidos e continua recebendo somente datas (sem nomes ou valores). A rotina cron executa **uma vez ao dia**, então a antecedência não representa uma notificação em horário individual ajustável. Consulte `V5-SETUP.md` para configuração e teste real.

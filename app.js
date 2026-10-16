@@ -1,5 +1,4 @@
-const SALDOPLAN_VERSION='4.0.0';
-const SALDOPLAN_ASSET_VERSION='4.0.0-fixdatas';
+const SALDOPLAN_VERSION='5.0.0';
 
 const SALDOPLAN_VIEWS=[
   'dashboard',
@@ -50,11 +49,14 @@ const SALDOPLAN_SCRIPTS=[
   'sp3-sync',
   'sp3-tickets',
   'v4-features',
-  'v4-push'
+  'v4-push',
+  'v5-engine',
+  'v5-features',
+  'v5-admin'
 ];
 
 async function saldoPlanFetchPartial(path){
-  const response=await fetch(`${path}?v=${SALDOPLAN_ASSET_VERSION}`,{cache:'no-cache'});
+  const response=await fetch(`${path}?v=${SALDOPLAN_VERSION}`,{cache:'no-cache'});
   if(!response.ok)throw new Error(`Falha ao carregar ${path} (${response.status})`);
   return response.text();
 }
@@ -92,10 +94,10 @@ async function saldoPlanBootstrap(){
   dialogHost.innerHTML=await saldoPlanFetchPartial('views/dialogs.html');
 
   for(const name of SALDOPLAN_SCRIPTS){
-    await saldoPlanLoadScript(`js/${name}.js?v=${SALDOPLAN_ASSET_VERSION}`);
+    await saldoPlanLoadScript(`js/${name}.js?v=${SALDOPLAN_VERSION}`);
   }
 
-  await saldoPlanLoadScript(`auth.js?v=${SALDOPLAN_ASSET_VERSION}`,{module:true});
+  await saldoPlanLoadScript(`auth.js?v=${SALDOPLAN_VERSION}`,{module:true});
   window.saldoPlanMotion?.finishStartup();
 }
 
