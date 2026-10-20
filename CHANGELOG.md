@@ -212,3 +212,12 @@
 - Organização por quatro abas (Backups, Aparência, Segurança, Minha conta), evitando uma página muito longa e cartões comprimidos.
 - Cartões em largura confortável no desktop e uma coluna no celular; 14 temas continuam disponíveis.
 - Navegação acessível por teclado, sem alterar formulários, dados financeiros ou backups.
+
+## v5.2.0 — Conferência de contracheque (20/10/2026)
+
+- Comparação por competência entre simulação, cálculo de referência pelas horas informadas e rubricas oficiais digitadas ou importadas.
+- Formatos independentes de horas `HH:mm` e decimal, com conversão visual.
+- Histórico de conferências salvas por competência e impressão / PDF no navegador.
+- Não altera a simulação mensal principal nem lançamentos existentes.
+- Testes automáticos cobrindo outubro/2026 (`R$ 3.600,30` versus `R$ 3.587,42`) e validações de formato.
+- Integração ao perfil e Live Sync via `state.payrollMonths`.

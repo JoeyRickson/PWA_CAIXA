@@ -1,11 +1,11 @@
-const CACHE='saldoplan-v5.1.4-backup-simples';
+const CACHE='saldoplan-v5.2.0-paycheck-audit';
 
 const ASSETS=[
   "./",
   "./index.html",
   "./styles.css?v=5.1.4",
   "./drive-config.js?v=4.0.0",
-  "./app.js?v=5.1.4",
+  "./app.js?v=5.2.0",
   "./auth.js?v=5.1.4",
   "./manifest.json",
   "./css/base.css?v=4.0.0",
@@ -58,7 +58,7 @@ const ASSETS=[
   "./views/patrimony.html?v=4.0.0",
   "./views/cards.html?v=4.0.0",
   "./views/savings.html?v=4.0.0",
-  "./views/simulator.html?v=4.0.0",
+  "./views/simulator.html?v=5.2.0",
   "./views/thirteenth.html?v=4.0.0",
   "./views/fgts.html?v=4.0.0",
   "./views/fixed.html?v=4.0.0",
@@ -87,6 +87,9 @@ const ASSETS=[
   "./js/v5-features.js?v=5.0.0",
   "./js/v5-admin.js?v=5.0.0",
   "./js/v51-live-engine.js?v=5.1.4",
+  "./css/v52-paycheck.css?v=5.2.0",
+  "./js/v52-paycheck-engine.js?v=5.2.0",
+  "./js/v52-paycheck.js?v=5.2.0",
   "./js/v51-live-sync.js?v=5.1.4",
   "./css/v51-live.css?v=5.1.4",
   "./icons/apple-touch-icon.png"
@@ -130,7 +133,7 @@ self.addEventListener('fetch',event=>{
         }
         return response;
       })
-      .catch(()=>caches.match(event.request))
+      .catch(async()=>await caches.match(event.request)||await caches.match(event.request,{ignoreSearch:true}))
   );
 });
 

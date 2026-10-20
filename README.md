@@ -184,3 +184,14 @@ O **Live Sync** permite que a mesma conta Google mantenha lançamentos, cartões
 **Privacidade:** este modo é vinculado ao UID do Firebase Authentication, usa HTTPS, regras privadas do Firestore e criptografia da infraestrutura Firebase em repouso. **Não é criptografia ponta a ponta:** administradores autorizados do projeto Firebase podem tecnicamente ler registros sincronizados. Para manter uma cópia protegida por senha própria, use o **Backup entre aparelhos** criptografado, que permanece separado, ou exporte o backup local.
 
 **Configuração:** veja [LIVE-SYNC-SETUP.md](LIVE-SYNC-SETUP.md) para instalar as regras sem remover as coleções existentes. O Live Sync é opcional e não impede o uso offline nem substitui o backup de segurança. Pode gerar consumo de leituras, gravações e armazenamento no Firestore.
+
+## Conferência de contracheque (v5.2.0)
+
+Em **Simulação de folha → Conferir contracheque**, escolha a competência, informe as horas extras e selecione o formato:
+
+- **Horas e minutos:** `42:46` significa 42 horas e 46 minutos.
+- **Horas decimais:** `42,46` significa 42,46 horas.
+
+Digite opcionalmente os valores das rubricas oficiais para ver a diferença item a item: HE 50%/100%, adicional noturno, DSR, bruto, INSS, IRRF, adiantamento e líquido. O histórico é salvo na configuração mensal da conta (`state.payrollMonths[AAAA-MM].paycheckAudit`), acompanha os backups existentes e o Live Sync quando ativo.
+
+A conferência **não muda o simulador, as horas lançadas, o FGTS ou o 13º**; é uma comparação separada. Para salvar PDF, use **Imprimir / PDF** e escolha a impressora PDF do navegador. A simulação fiscal de 2026 é aproximada, não constitui auditoria trabalhista. Valores salvos podem sincronizar com a conta no Firestore e não usam criptografia ponta a ponta adicional.

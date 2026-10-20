@@ -77,6 +77,49 @@
           <p id="payrollReferenceNote" class="helper"></p>
         </section>
 
+
+        <section id="sp52Check" class="panel sp52-panel" aria-labelledby="sp52Title">
+          <div class="section-head"><div><span class="muted">Opcional · por mês</span><h3 id="sp52Title">Conferir contracheque</h3></div><button id="sp52Print" type="button" class="btn ghost small">Imprimir / PDF</button></div>
+          <p class="helper">Compare o que você simulou com os valores que vieram na folha. Não altera os cálculos nem lança valores automaticamente.</p>
+          <div class="two-col">
+            <label>Como as horas estão escritas?<select id="sp52Format"><option value="hhmm">Horas e minutos (42:46)</option><option value="decimal">Horas decimais (42,46)</option></select></label>
+            <div class="sp52-inline"><span class="muted">Entenda a diferença</span><p class="helper">42:46 são 42h46min; 42,46 são 42,46 horas. Escolha conforme seu registro original.</p></div>
+          </div>
+          <div class="sp52-hours">
+            <label>Hora extra 50%<input id="sp52Hour50" inputmode="decimal" placeholder="42:46" /></label>
+            <label>Hora extra 100%<input id="sp52Hour100" inputmode="decimal" placeholder="10:40" /></label>
+            <label>Adicional noturno (horas)<input id="sp52HourNight" inputmode="decimal" placeholder="9:10" /></label>
+            <label>Dias de descanso (DSR)<input id="sp52Rest" type="number" min="0" max="31" inputmode="numeric" /></label>
+            <label>Dias usados no divisor<input id="sp52Work" type="number" min="1" max="31" inputmode="numeric" /></label>
+          </div>
+          <details class="sp52-details"><summary>Informar valores do contracheque oficial</summary>
+            <p class="helper">Preencha somente o que consta na folha. Campos vazios não entram na comparação. Se já importou a folha, você pode aproveitar os valores reconhecidos.</p>
+            <div class="sp52-actuals">
+              <label>Salário-base (R$)<input data-sp52-actual="salary" inputmode="decimal" /></label>
+              <label>HE 50% (R$)<input data-sp52-actual="v50" inputmode="decimal" /></label>
+              <label>HE 100% (R$)<input data-sp52-actual="v100" inputmode="decimal" /></label>
+              <label>Adicional noturno (R$)<input data-sp52-actual="night" inputmode="decimal" /></label>
+              <label>DSR (R$)<input data-sp52-actual="dsr" inputmode="decimal" /></label>
+              <label>Total bruto (R$)<input data-sp52-actual="gross" inputmode="decimal" /></label>
+              <label>INSS (R$)<input data-sp52-actual="inss" inputmode="decimal" /></label>
+              <label>IRRF (R$)<input data-sp52-actual="irrf" inputmode="decimal" /></label>
+              <label>Adiantamento (R$)<input data-sp52-actual="advance" inputmode="decimal" /></label>
+              <label>Líquido recebido (R$)<input data-sp52-actual="final" inputmode="decimal" /></label>
+            </div>
+            <button type="button" id="sp52Imported" class="btn ghost">Usar dados da folha já importada</button>
+          </details>
+          <div class="sp52-summary" aria-live="polite">
+            <div><span>Simulador atual</span><strong id="sp52Estimate">—</strong></div>
+            <div><span>Com as horas informadas</span><strong id="sp52Reference">—</strong></div>
+            <div><span>Recebido (holerite)</span><strong id="sp52Actual">—</strong></div>
+            <div><span>Diferença calculada</span><strong id="sp52Difference">—</strong></div>
+          </div>
+          <div class="sp52-table-scroll"><table class="sp52-table"><thead><tr><th>Rubrica</th><th>Calculado</th><th>Folha real</th><th>Diferença</th></tr></thead><tbody id="sp52Comparison"></tbody></table></div>
+          <p id="sp52CheckStatus" class="helper" role="status"></p>
+          <div class="sp52-actions"><button id="sp52Save" type="button" class="btn">Salvar conferência do mês</button><span id="sp52Saved" class="helper"></span></div>
+          <details class="sp52-details"><summary>Histórico de comparações</summary><div class="sp52-table-scroll"><table class="sp52-table"><thead><tr><th>Mês</th><th>Calculado</th><th>Recebido</th><th>Diferença</th></tr></thead><tbody id="sp52History"></tbody></table></div></details>
+          <p class="helper small-text">Os descontos seguem a estimativa de 2026 do SaldoPlan. A diferença exibida não comprova erro de pagamento: confira as horas originais e as rubricas da folha.</p>
+        </section>
         <section class="panel">
           <div class="section-head"><div><span class="muted">Meus extras</span><h3>Registros do mês</h3></div><button class="btn small" data-action="new-extra">+ Adicionar</button></div>
           <div id="extraList" class="list large"></div>

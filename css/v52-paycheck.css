@@ -1,0 +1,20 @@
+/* v5.2.0 — conferência de contracheque */
+.sp52-panel{display:grid;gap:14px}
+.sp52-hours,.sp52-actuals{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.sp52-panel label{display:grid;gap:7px;font-size:.9rem;font-weight:600}
+.sp52-panel input,.sp52-panel select{width:100%;min-width:0}
+.sp52-inline{padding:6px 0}
+.sp52-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.sp52-summary>div{border:1px solid var(--line,#334155);border-radius:12px;padding:12px;display:grid;gap:6px}
+.sp52-summary span{font-size:.78rem;opacity:.8}
+.sp52-summary strong{font-size:1.15rem;overflow-wrap:anywhere}
+.sp52-table-scroll{max-width:100%;overflow:auto}
+.sp52-table{border-collapse:collapse;width:100%;min-width:520px;font-size:.84rem}
+.sp52-table th,.sp52-table td{padding:10px 9px;border-bottom:1px solid var(--line,#334155);text-align:right;white-space:nowrap}
+.sp52-table th:first-child{text-align:left}
+.sp52-table thead th{font-weight:700;opacity:.85}
+.sp52-details{border:1px solid var(--line,#334155);padding:12px;border-radius:12px}
+.sp52-details summary{cursor:pointer;font-weight:650}
+.sp52-details[open] .sp52-actuals{margin:12px 0}
+.sp52-actions{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+@media(max-width:600px){.sp52-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.sp52-table{min-width:500px}.sp52-hours{grid-template-columns:repeat(2,minmax(0,1fr))}}

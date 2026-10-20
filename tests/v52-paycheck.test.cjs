@@ -1,0 +1,31 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');const path=require('node:path');
+const E=require('../js/v52-paycheck-engine.js');
+const trunc2=x=>Math.trunc(x*100)/100;
+const round2=x=>Math.round((x+Number.EPSILON)*100)/100;
+function inss2026(base){const brackets=[[1621,0.075],[2902.84,0.09],[4354.27,0.12],[8475.55,0.14]];let prev=0,total=0;for(const [upper,rate] of brackets){const part=Math.max(0,Math.min(base,upper)-prev);total+=trunc2(part*rate);prev=upper;if(base<=upper)break;}return round2(total);}
+function irrf2026(gross,inss){const deduction=Math.max(inss,607.20),base=Math.max(0,gross-deduction);let before=base<=2428.80?0:base<=2826.65?base*.075-182.16:base<=3751.05?base*.15-394.16:base<=4664.68?base*.225-675.49:base*.275-908.73;before=Math.max(0,round2(before));let reduction=gross<=5000?Math.min(before,312.89):gross<=7350?Math.max(0,round2(978.62-.133145*gross)):0;return round2(Math.max(0,before-Math.min(before,reduction)));}
+const settings={salary:5000,monthlyHours:220,nightPct:20,advance:2000,restDays:4,workDays:27};
+const tax={inss:inss2026,irrf:irrf2026};
+const hh=E.calcFromHours(settings,{h50:'42:46',h100:'10:40',night:'9:10'},'hhmm',tax);
+const dec=E.calcFromHours(settings,{h50:'42,46',h100:'10,40',night:'9,10'},'decimal',tax);
+for(const [field,expected] of Object.entries({v50:1457.95,v100:484.85,night:41.67,dsr:294,gross:7278.47,inss:820.48,irrf:857.69,final:3600.30})) assert.equal(hh[field],expected,'HH:mm '+field);
+for(const [field,expected] of Object.entries({v50:1447.50,v100:472.73,night:41.36,dsr:290.61,gross:7252.20,inss:816.81,irrf:847.97,final:3587.42})) assert.equal(dec[field],expected,'decimal '+field);
+assert.equal(E.parseHours('42:46','hhmm'),42+46/60);
+assert.equal(E.parseHours('42,46','decimal'),42.46);
+assert.throws(()=>E.parseHours('42:99','hhmm'));
+assert.throws(()=>E.parseHours('42,46','hhmm'));
+assert.throws(()=>E.parseHours('42:46','decimal'));
+assert.throws(()=>E.parseHours('-1','decimal'));
+assert.equal(E.deltaTable(hh,{final:3587.42}).find(x=>x.key==='final').delta,12.88);
+assert.equal(E.checkOfficial({salary:5000,v50:1447.50,v100:472.73,night:41.36,dsr:290.61,gross:7252.2}),0);
+assert.equal(E.checkOfficial({gross:7252.2}),null);
+assert.equal(E.checkOfficial({salary:5000,v50:1447.5,v100:472.73,night:41.36,dsr:290.61,gross:7250}),-2.2);
+const view=fs.readFileSync(path.join(__dirname,'../views/simulator.html'),'utf8');
+const app=fs.readFileSync(path.join(__dirname,'../app.js'),'utf8');
+const sw=fs.readFileSync(path.join(__dirname,'../sw.js'),'utf8');
+for(const id of ['sp52Check','sp52Format','sp52Hour50','sp52Comparison','sp52History','sp52Save'])assert.match(view,new RegExp(`id="${id}"`));
+assert.match(app,/'v52-paycheck-engine'/);
+assert.match(app,/'v52-paycheck'/);
+assert.match(sw,/v52-paycheck/);
+console.log('v5.2.0 Contracheque: 24 verificações PASS (HH:mm, decimais, impostos, confronto e integração).');

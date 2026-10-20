@@ -321,3 +321,11 @@ A página foi dividida em quatro abas acessíveis: Backups, Aparência, Seguran�
 ### v5.1.1 — Auto Sync seguro
 
 O detector puro `isPristineProfile` (`js/v51-live-engine.js`) compara o estado local com a versão migrada do perfil vazio construído por `v4-features.js`. A reconciliação é estrita e não ignora lançamentos, configurações alteradas ou históricos. No snapshot inicial de `saldoplanLive/{uid}/records` (somente com `fromCache=false`), `js/v51-live-sync.js` conecta automaticamente apenas o perfil intocado. Os demais perfis continuam no fluxo assistido. O modo automático também valida o escopo UID e a época da sessão antes de persistir dados, evita reinicialização concorrente com o documento `__meta/init` e preserva os mecanismos de backup e conflitos v5.1.0. Sem alteração de regras Firestore.
+
+### Conferência salarial v5.2.0
+
+`js/v52-paycheck-engine.js` é um motor puro, sem dependências de DOM. `js/v52-paycheck.js` integra-se à tela `views/simulator.html`, já renderizada e carregada pelo `app.js`. `css/v52-paycheck.css` mantém a apresentação responsiva.
+
+Os dados de comparação são gravados somente após clicar em **Salvar conferência do mês**, no objeto `state.payrollMonths[AAAA-MM].paycheckAudit`: `data` (horas, formato, DSR), `actual` (rubricas reais opcionais), `reference` (cálculo no momento) e `savedAt`. Usa o mecanismo já existente de `save()`/Live Sync e exportação de backup. O cálculo da conferência chama `inss2026` e `irrf2026` existentes, mas nunca grava alterações em `payrollConfig`, `referenceHours`, `overtimeLogs`, `importedPayroll`, `transactions` ou `fgtsByYear`.
+
+Limites: cálculo tributário emulando as tabelas do simulador de 2026; regras patronais específicas/DSR podem ser distintas. Diferenças de rubricas não comprovam erro no pagamento. Os dados de contracheque podem ser sincronizados no Firestore não E2E criptografado.
