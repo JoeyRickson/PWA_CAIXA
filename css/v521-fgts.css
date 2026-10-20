@@ -1,0 +1,15 @@
+/* SaldoPlan v5.2.1 — FGTS por empresa. Não altera outros formulários. */
+#view-fgts .fgts-employer-picker{display:block;margin:0 0 1rem;font-weight:700}
+#view-fgts .fgts-employer-picker select{display:block;width:100%;margin-top:.45rem;min-height:44px}
+#view-fgts .fgts-company-summary{padding:1rem;margin:0 0 1rem;border:1px solid var(--line,var(--border-color,rgba(125,125,125,.35)));border-radius:14px;background:var(--surface2,var(--panel,transparent))}
+#view-fgts .fgts-company-summary h4{margin:0 0 .85rem}
+#view-fgts .fgts-company-cards .card{min-width:0}
+#view-fgts .fgts-company-result{border:1px solid var(--accent,#64748b)}
+#view-fgts .fgts-company-result strong{color:var(--accent,#22c55e)}
+#view-fgts .fgts-company-all{padding-top:.35rem}
+#view-fgts .fgts-accounts-details{margin-top:.85rem}
+#view-fgts .fgts-accounts-details summary{cursor:pointer;font-weight:600;min-height:32px}
+#view-fgts .fgts-accounts-details .list{padding-top:.65rem}
+#view-fgts .fgts-company-summary .helper{margin:.75rem 0 0}
+@media(max-width:680px){#view-fgts .fgts-company-summary{padding:.8rem}#view-fgts .fgts-company-cards{grid-template-columns:repeat(2,minmax(0,1fr))}#view-fgts .fgts-company-cards .card{padding:.65rem}}
+@media(max-width:420px){#view-fgts .fgts-company-cards{grid-template-columns:1fr}}

@@ -587,40 +587,57 @@ function fgtsYearRecord(year,account=activeFgtsAccount()){
   const endMonth=termination&&Number(termination.slice(0,4))===Number(year)?Number(termination.slice(5,7)):12;
   return annualRecord(records,year,{startMonth,endMonth,deposits:{}});
 }
-function fgtsAccountBalance(account){
-  if(account.isLegacy)return null;
-  let balance=Number(account.currentBalance)||0;
+function fgtsAccountBreakdown(account,asOf=''){
+  if(!account||account.isLegacy)return null;
+  if(!asOf){
+    const now=new Date();
+    asOf=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  }
+  const snapshot=Number(account.currentBalance)||0;
   const snapshotDate=account.balanceDate||'';
-  const addMovement=(amount,date)=>{
-    const value=Number(amount)||0;
-    if(value&&(!snapshotDate||!date||date>snapshotDate))balance+=value;
+  const totals={snapshot,hasSnapshot:account.currentBalance!==null&&account.currentBalance!==undefined,
+    snapshotDate,deposits:0,credits:0,withdrawals:0,futureConfirmed:0};
+  const counts=(date)=>{
+    if(!date||date<=snapshotDate)return false;
+    if(date>asOf)return false;
+    return true;
   };
-  const subtractMovement=(amount,date)=>{
+  const plus=(field,amount,date)=>{
     const value=Number(amount)||0;
-    if(value&&(!snapshotDate||!date||date>snapshotDate))balance-=value;
+    if(value>0&&counts(date))totals[field]=round2(totals[field]+value);
   };
-  for(const [yearKey,record] of Object.entries(account.years||{})){
-    const year=Number(yearKey);
-    if(!Number.isInteger(year)||!record?.deposits)continue;
-    for(const [monthKeyValue,deposit] of Object.entries(record.deposits)){
-      if(monthKeyValue==='thirteenth'||!(/^(0?[1-9]|1[0-2])$/.test(monthKeyValue)))continue;
-      const month=Number(monthKeyValue);
-      const date=deposit.date||`${year}-${String(month).padStart(2,'0')}-${String(new Date(year,month,0).getDate()).padStart(2,'0')}`;
-      if(deposit.paid)addMovement(deposit.amount,date);
-      addMovement(deposit.indemnity,deposit.indemnityDate||date);
-      addMovement(deposit.terminationPenalty,deposit.terminationPenaltyDate||date);
-      addMovement(deposit.jam,deposit.jamDate||date);
-      subtractMovement(deposit.withdrawal,deposit.withdrawalDate||date);
-      subtractMovement(deposit.jamWithdrawal,deposit.jamWithdrawalDate||date);
+  const future=(amount,date)=>{
+    const value=Number(amount)||0;
+    if(value>0&&date>asOf&&date>snapshotDate)totals.futureConfirmed=round2(totals.futureConfirmed+value);
+  };
+  for(const [yearText,yearRecord] of Object.entries(account.years||{})){
+    const year=Number(yearText);
+    if(!Number.isInteger(year)||!yearRecord?.deposits)continue;
+    for(const [monthText,entry] of Object.entries(yearRecord.deposits)){
+      if(monthText==='thirteenth'||!(/^(0?[1-9]|1[0-2])$/.test(monthText)))continue;
+      const month=Number(monthText);
+      const fallback=`${year}-${String(month).padStart(2,'0')}-${String(new Date(year,month,0).getDate()).padStart(2,'0')}`;
+      const date=entry.date||fallback;
+      if(entry.paid){plus('deposits',entry.amount,date);future(entry.amount,date)}
+      plus('credits',entry.jam,entry.jamDate||date);
+      plus('credits',entry.indemnity,entry.indemnityDate||date);
+      plus('credits',entry.terminationPenalty,entry.terminationPenaltyDate||date);
+      plus('withdrawals',entry.withdrawal,entry.withdrawalDate||date);
+      plus('withdrawals',entry.jamWithdrawal,entry.jamWithdrawalDate||date);
     }
-    const thirteenth=record.deposits.thirteenth;
+    const thirteenth=yearRecord.deposits.thirteenth;
     if(thirteenth){
       const date=thirteenth.date||`${year}-12-31`;
-      if(thirteenth.paid)addMovement(thirteenth.amount,date);
-      addMovement(thirteenth.jam,thirteenth.jamDate||date);
+      if(thirteenth.paid){plus('deposits',thirteenth.amount,date);future(thirteenth.amount,date)}
+      plus('credits',thirteenth.jam,thirteenth.jamDate||date);
     }
   }
-  return round2(balance);
+  totals.netOther=round2(totals.credits-totals.withdrawals);
+  totals.balance=round2(snapshot+totals.deposits+totals.netOther);
+  return totals;
+}
+function fgtsAccountBalance(account){
+  return fgtsAccountBreakdown(account)?.balance??null;
 }
 function fgtsAccountProjectedBalance(account){
   if(account.isLegacy)return null;
@@ -638,7 +655,6 @@ function fgtsAccountProjectedBalance(account){
   const todayKey=`${year}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
   for(let month=firstMonth;month<=lastMonth;month++){
     const deposit=record.deposits?.[String(month)]||{};
-    if(deposit.paid)continue;
     const defaultDate=`${year}-${String(month).padStart(2,'0')}-${String(new Date(year,month,0).getDate()).padStart(2,'0')}`;
     const date=deposit.date||defaultDate;
     if(date<=todayKey||account.balanceDate&&date<=account.balanceDate)continue;
@@ -647,7 +663,7 @@ function fgtsAccountProjectedBalance(account){
   }
   const thirteenthDeposit=record.deposits?.thirteenth||{};
   const thirteenthDate=thirteenthDeposit.date||`${year}-12-18`;
-  if(!thirteenthDeposit.paid&&thirteenthDate>todayKey&&(!account.balanceDate||thirteenthDate>account.balanceDate)){
+  if(thirteenthDate>todayKey&&(!account.balanceDate||thirteenthDate>account.balanceDate)){
     const annual=thirteenthYearRecord(year);
     const thirteenth=thirteenthCalculation(year,annual.startMonth,annual.endMonth);
     projected+=Number(thirteenthDeposit.amount??round2(thirteenth.gross*0.08));
@@ -663,6 +679,29 @@ function renderFgtsAccounts(){
   const selector=document.querySelector('#fgtsAccountSelect');
   const accounts=state.fgtsAccounts;
   const activeAccounts=accounts.filter(account=>!account.isLegacy);
+  // O histórico antigo não pode ser a seleção padrão quando existem contas reais.
+  if(activeAccounts.length&&!activeAccounts.some(account=>account.id===state.activeFgtsAccountId)){
+    const preferred=activeAccounts.find(account=>!account.terminationDate)||activeAccounts[0];
+    state.activeFgtsAccountId=preferred.id;
+  }
+  const selected=activeFgtsAccount();
+  const selectedBox=document.querySelector('#fgtsSelectedCompanySummary');
+  const breakdown=fgtsAccountBreakdown(selected);
+  selectedBox.classList.toggle('hidden',!breakdown);
+  if(breakdown){
+    document.querySelector('#fgtsSelectedSnapshot').textContent=fmt.format(breakdown.snapshot);
+    document.querySelector('#fgtsSelectedSnapshotDate').textContent=breakdown.hasSnapshot
+      ?breakdown.snapshotDate?`Extrato de ${formatDate(breakdown.snapshotDate)}`:'Último saldo registrado (sem data)'
+      :'Sem saldo de extrato importado; total formado pelos lançamentos manuais.';
+    document.querySelector('#fgtsSelectedDeposits').textContent=fmt.format(breakdown.deposits);
+    document.querySelector('#fgtsSelectedMovements').textContent=fmt.format(breakdown.netOther);
+    document.querySelector('#fgtsSelectedBalance').textContent=fmt.format(breakdown.balance);
+    const notes=[];
+    if(breakdown.snapshotDate)notes.push('Somente movimentações posteriores à data do extrato entram na soma.');
+    if(breakdown.futureConfirmed)notes.push(`${fmt.format(breakdown.futureConfirmed)} marcado como depositado com data futura: ainda fora do saldo atual.`);
+    notes.push('Valores previstos ficam fora do saldo atual para evitar dupla contagem.');
+    document.querySelector('#fgtsSelectedCompanyNote').textContent=notes.join(' ');
+  }
   const withBalance=activeAccounts.filter(account=>account.currentBalance!==null&&account.currentBalance!==undefined);
   const totalBalance=round2(activeAccounts.reduce((sum,account)=>sum+fgtsAccountBalance(account),0));
   const projectedTotal=round2(activeAccounts.reduce((sum,account)=>sum+fgtsAccountProjectedBalance(account),0));
@@ -687,7 +726,7 @@ function renderFgtsAccounts(){
     return `<div class="item"><span class="item-icon">▣</span><span class="item-main"><strong>${escapeHtml(account.employer||'Empregador não identificado')}</strong><span>${details||'Conta importada'}</span></span><span class="item-side">${balance}</span></div>`;
   }).join(''):'<div class="empty">Ainda não há contas importadas. Importe um extrato completo por empregador para registrar seu saldo real.</div>';
   selectorWrap.classList.toggle('hidden',!accounts.length);
-  selector.innerHTML=accounts.map(account=>`<option value="${escapeHtml(account.id)}">${escapeHtml(account.employer||'Empregador não identificado')}${account.accountNumber?` · ${escapeHtml(account.accountNumber)}`:''}</option>`).join('');
+  selector.innerHTML=[...activeAccounts,...accounts.filter(account=>account.isLegacy)].map(account=>`<option value="${escapeHtml(account.id)}">${escapeHtml(account.employer||'Empregador não identificado')}${account.isLegacy?' (não compõe o saldo total)':''}</option>`).join('');
   selector.value=state.activeFgtsAccountId;
   selector.onchange=()=>{
     state.activeFgtsAccountId=selector.value;

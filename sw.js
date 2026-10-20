@@ -1,4 +1,4 @@
-const CACHE='saldoplan-v5.2.0-paycheck-audit';
+const CACHE='saldoplan-v5.2.1-fgts-employer';
 
 const ASSETS=[
   "./",
@@ -35,7 +35,7 @@ const ASSETS=[
   "./js/market.js?v=4.0.0",
   "./js/portfolio.js?v=4.0.0",
   "./js/dashboard.js?v=4.0.0",
-  "./js/payroll.js?v=4.0.0",
+  "./js/payroll.js?v=5.2.1",
   "./js/patrimony.js?v=4.0.0",
   "./js/calendar.js?v=4.0.0",
   "./js/ui.js?v=4.0.0",
@@ -60,7 +60,7 @@ const ASSETS=[
   "./views/savings.html?v=4.0.0",
   "./views/simulator.html?v=5.2.0",
   "./views/thirteenth.html?v=4.0.0",
-  "./views/fgts.html?v=4.0.0",
+  "./views/fgts.html?v=5.2.1",
   "./views/fixed.html?v=4.0.0",
   "./views/market.html?v=4.0.0",
   "./views/data.html?v=5.1.4",
@@ -88,6 +88,7 @@ const ASSETS=[
   "./js/v5-admin.js?v=5.0.0",
   "./js/v51-live-engine.js?v=5.1.4",
   "./css/v52-paycheck.css?v=5.2.0",
+  "./css/v521-fgts.css?v=5.2.1",
   "./js/v52-paycheck-engine.js?v=5.2.0",
   "./js/v52-paycheck.js?v=5.2.0",
   "./js/v51-live-sync.js?v=5.1.4",

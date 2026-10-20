@@ -2,15 +2,30 @@
         <div class="section-head page-head">
           <div><span class="muted">Depósitos do empregador</span><h2>FGTS</h2></div>
         </div>
-        <p class="helper">O saldo atual soma os extratos com movimentações confirmadas depois deles. O saldo projetado acrescenta os depósitos estimados ainda não confirmados do vínculo ativo e o FGTS previsto do 13º até dezembro. As estimativas não alteram o saldo atual e param de contar quando você marca o depósito como realizado.</p>
+        <p class="helper">Escolha uma empresa para consultar seu último extrato e os depósitos informados depois dele. O saldo atual mostra valores confirmados; depósitos previstos aparecem separadamente.</p>
         <section class="panel fgts-accounts-panel">
-          <div class="section-head"><div><span class="muted">Saldos reais dos extratos</span><h3>Contas FGTS</h3></div></div>
-          <div class="grid kpis compact-kpis">
-            <article class="card"><span>Saldo atual consolidado</span><strong id="fgtsAccountsTotal">R$ 0,00</strong><small id="fgtsAccountsCount">Extratos + movimentações confirmadas</small></article>
-            <article class="card"><span>Saldo projetado até dezembro</span><strong id="fgtsProjectedBalance">R$ 0,00</strong><small>Saldo atual + estimativas pendentes e 13º</small></article>
+          <div class="section-head"><div><span class="muted">Por empregador</span><h3>Meu FGTS</h3></div></div>
+          <label id="fgtsAccountSelectorWrap" class="fgts-employer-picker hidden">Selecionar empresa
+            <select id="fgtsAccountSelect" aria-label="Empresa do FGTS para consultar e registrar depósitos"></select>
+          </label>
+          <div id="fgtsSelectedCompanySummary" class="fgts-company-summary hidden" aria-live="polite">
+            <h4>Saldo desta empresa</h4>
+            <div class="grid kpis compact-kpis fgts-company-cards">
+              <article class="card"><span>Último saldo do extrato</span><strong id="fgtsSelectedSnapshot">R$ 0,00</strong><small id="fgtsSelectedSnapshotDate">Extrato importado</small></article>
+              <article class="card"><span>Depósitos confirmados depois do extrato</span><strong id="fgtsSelectedDeposits">R$ 0,00</strong><small>Informados ou importados</small></article>
+              <article class="card"><span>Outros créditos menos saques</span><strong id="fgtsSelectedMovements">R$ 0,00</strong><small>JAM, verbas e retiradas posteriores</small></article>
+              <article class="card fgts-company-result"><span>Saldo atualizado desta empresa</span><strong id="fgtsSelectedBalance">R$ 0,00</strong><small>Extrato + movimentações confirmadas</small></article>
+            </div>
+            <p id="fgtsSelectedCompanyNote" class="helper small-text"></p>
           </div>
-          <div id="fgtsAccountList" class="list"></div>
-          <label id="fgtsAccountSelectorWrap" class="hidden">Conta para ver o histórico e a projeção anual<select id="fgtsAccountSelect"></select></label>
+          <div class="fgts-company-all">
+            <div class="section-head"><div><span class="muted">Todas as empresas</span><h4>Resumo geral</h4></div></div>
+            <div class="grid kpis compact-kpis">
+              <article class="card"><span>Saldo atual de todas as empresas</span><strong id="fgtsAccountsTotal">R$ 0,00</strong><small id="fgtsAccountsCount">Extratos + movimentações confirmadas</small></article>
+              <article class="card"><span>Previsão até dezembro</span><strong id="fgtsProjectedBalance">R$ 0,00</strong><small>Inclui depósitos futuros estimados e 13º</small></article>
+            </div>
+            <details class="fgts-accounts-details"><summary>Ver extratos de todas as empresas</summary><div id="fgtsAccountList" class="list"></div></details>
+          </div>
         </section>
         <div class="month-row slim">
           <button class="icon-btn" id="prevFgtsYear" aria-label="Ano anterior">‹</button>

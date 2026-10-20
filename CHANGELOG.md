@@ -1,3 +1,11 @@
+## 5.2.1 — FGTS por empregador
+
+- Seleção de empresa destacada no início da tela FGTS, preferindo vínculo ativo real ao histórico legado.
+- Composição do saldo individual: extrato + depósitos confirmados após sua data + créditos - saques.
+- Valores com data futura não compõem o saldo atual; projeção permanece separada.
+- Resumo global de todas as contas, lista detalhada recolhível e mensagens simples.
+- Dados existentes, Live Sync, importação e histórico anual preservados.
+
 ## 5.1.4 — Dados e backup mais simples (16/10/2026)
 
 - Reorganizada a aba **Entre aparelhos**: primeiro o estado da conta e a ação necessária; cópia com senha ficou opcional e recolhida.

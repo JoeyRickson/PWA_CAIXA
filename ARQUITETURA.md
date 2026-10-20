@@ -329,3 +329,7 @@ O detector puro `isPristineProfile` (`js/v51-live-engine.js`) compara o estado l
 Os dados de comparação são gravados somente após clicar em **Salvar conferência do mês**, no objeto `state.payrollMonths[AAAA-MM].paycheckAudit`: `data` (horas, formato, DSR), `actual` (rubricas reais opcionais), `reference` (cálculo no momento) e `savedAt`. Usa o mecanismo já existente de `save()`/Live Sync e exportação de backup. O cálculo da conferência chama `inss2026` e `irrf2026` existentes, mas nunca grava alterações em `payrollConfig`, `referenceHours`, `overtimeLogs`, `importedPayroll`, `transactions` ou `fgtsByYear`.
 
 Limites: cálculo tributário emulando as tabelas do simulador de 2026; regras patronais específicas/DSR podem ser distintas. Diferenças de rubricas não comprovam erro no pagamento. Os dados de contracheque podem ser sincronizados no Firestore não E2E criptografado.
+
+### FGTS — v5.2.1
+
+O estado existente `fgtsAccounts[]` contém cada conta com `currentBalance`, `balanceDate`, `years[].deposits`; `activeFgtsAccountId` indica a empresa escolhida. `fgtsAccountBreakdown()` em `js/payroll.js` calcula saldos com base no último extrato e nas movimentações posteriores até a data atual; operações anteriores ou incluídas no extrato são excluídas da soma. O histórico legado fica fora da consolidação. Nenhuma nova chave de armazenamento ou regra Firebase é necessária.

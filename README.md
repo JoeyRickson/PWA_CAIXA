@@ -195,3 +195,7 @@ Em **Simulação de folha → Conferir contracheque**, escolha a competência, i
 Digite opcionalmente os valores das rubricas oficiais para ver a diferença item a item: HE 50%/100%, adicional noturno, DSR, bruto, INSS, IRRF, adiantamento e líquido. O histórico é salvo na configuração mensal da conta (`state.payrollMonths[AAAA-MM].paycheckAudit`), acompanha os backups existentes e o Live Sync quando ativo.
 
 A conferência **não muda o simulador, as horas lançadas, o FGTS ou o 13º**; é uma comparação separada. Para salvar PDF, use **Imprimir / PDF** e escolha a impressora PDF do navegador. A simulação fiscal de 2026 é aproximada, não constitui auditoria trabalhista. Valores salvos podem sincronizar com a conta no Firestore e não usam criptografia ponta a ponta adicional.
+
+### FGTS por empresa (v5.2.1)
+
+Na aba FGTS, escolha o empregador no topo para visualizar saldo do último extrato, depósitos confirmados posteriores, créditos/saques e saldo atualizado individual. O total consolidado permanece separado. Não consulta extratos Caixa automaticamente: os valores vêm de importações e lançamentos confirmados pelo usuário. Depósitos futuros não entram no saldo atual, mesmo marcados como depositados; valores previstos são mostrados na projeção. Histórico antigo não identificado fica fora do total.
