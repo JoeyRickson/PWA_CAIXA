@@ -91,6 +91,8 @@ const seed={
   importSettings:{learnCategories:true,positiveValueKind:'income',lastAccount:''},
   importRules:[],
   importHistory:[],
+  planningSettings:{openingBalance:0,openingDate:'',alertDays:7},
+  bankChecks:[],
   cloud:{provider:'google',emailHint:'',clientId:'',account:'',providerClientId:'',folderName:'SaldoPlan - Backups',folderId:'',autoBackup:false,retentionDays:30,lastBackupAt:null,lastFileId:null},
   payrollConfig:{baseSalary:5000,monthlyHours:220,advance:2000,nightPct:20,extraGoal:40},
   payrollMonths:{},
@@ -156,6 +158,11 @@ function migrateState(raw){
   migrated.importHistory=Array.isArray(raw.importHistory)
     ?raw.importHistory.filter(item=>item&&typeof item==='object').slice(-50)
     :[];
+  migrated.planningSettings={...base.planningSettings,...(raw.planningSettings||{})};
+  migrated.planningSettings.openingBalance=Number(migrated.planningSettings.openingBalance)||0;
+  migrated.planningSettings.openingDate=/^\d{4}-\d{2}-\d{2}$/.test(migrated.planningSettings.openingDate||'')?migrated.planningSettings.openingDate:'';
+  migrated.planningSettings.alertDays=[3,7,14,30].includes(Number(migrated.planningSettings.alertDays))?Number(migrated.planningSettings.alertDays):7;
+  migrated.bankChecks=Array.isArray(raw.bankChecks)?raw.bankChecks.filter(x=>x&&typeof x==='object'&&/^\d{4}-\d{2}-\d{2}$/.test(String(x.date||''))).slice(-40):[];
   migrated.cloud={...base.cloud,...(raw.cloud||{})};
   if(migrated.cloud.folderName==='Meu Caixa - Backups')migrated.cloud.folderName='SaldoPlan - Backups';
   migrated.payrollConfig={...base.payrollConfig,...(raw.payrollConfig||{})};

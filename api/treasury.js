@@ -1,223 +1,57 @@
-const PACKAGE_API =
-  'https://www.tesourotransparente.gov.br/ckan/api/3/action/package_show?id=taxas-dos-titulos-ofertados-pelo-tesouro-direto';
-
-function timeoutSignal(ms){
-  const controller=new AbortController();
-  const timer=setTimeout(()=>controller.abort(),ms);
-
-  return {
-    signal:controller.signal,
-    clear:()=>clearTimeout(timer)
-  };
+'use strict';
+// Dataset oficial Tesouro Transparente. Não usa API aposentada que devolve 410.
+const PACKAGE='https://www.tesourotransparente.gov.br/ckan/api/3/action/package_show?id=taxas-dos-titulos-ofertados-pelo-tesouro-direto';
+const allowedHost=host=>host==='tesourotransparente.gov.br'||host.endsWith('.tesourotransparente.gov.br');
+async function get(url,timeout=18000){
+  const u=new URL(url);if(u.protocol!=='https:'||!allowedHost(u.hostname))throw Error('Fonte fora do Tesouro Transparente');
+  const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),timeout);
+  try{const r=await fetch(u.toString(),{signal:ctl.signal,headers:{Accept:'text/csv,application/json,text/plain,*/*'}});
+    if(!r.ok)throw Error(`HTTP ${r.status}`);const length=Number(r.headers?.get?.('content-length')||0);
+    if(length>24000000)throw Error('Arquivo acima do limite');const text=await r.text();if(text.length>24000000)throw Error('Arquivo acima do limite');return text;
+  }finally{clearTimeout(timer)}
 }
-
-async function fetchText(url,ms=30000){
-  const t=timeoutSignal(ms);
-
-  try{
-    const response=await fetch(url,{
-      signal:t.signal,
-      headers:{
-        'User-Agent':'SaldoPlan/2.10.2 (+https://saldoplan.vercel.app)',
-        'Accept':'application/json,text/csv,text/plain,*/*'
-      }
-    });
-
-    if(!response.ok){
-      throw new Error(`${response.status} ${response.statusText}`);
-    }
-
-    return await response.text();
-  }finally{
-    t.clear();
-  }
+function rowParse(line,delimiter=';'){
+  const out=[];let cur='',quoted=false;
+  for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(quoted&&line[i+1]==='"'){cur+='"';i++}else quoted=!quoted}else if(c===delimiter&&!quoted){out.push(cur);cur=''}else cur+=c}out.push(cur);return out;
 }
-
-async function fetchJson(url,ms=10000){
-  return JSON.parse(await fetchText(url,ms));
-}
-
-function csvLine(line){
-  const out=[];
-  let value='';
-  let quoted=false;
-
-  for(let i=0;i<line.length;i++){
-    const ch=line[i];
-
-    if(ch==='"'){
-      if(quoted && line[i+1]==='"'){
-        value+='"';
-        i++;
-      }else{
-        quoted=!quoted;
-      }
-    }else if(ch===';' && !quoted){
-      out.push(value);
-      value='';
-    }else{
-      value+=ch;
-    }
-  }
-
-  out.push(value);
-  return out;
-}
-
-function cleanKey(value){
-  return String(value||'')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g,'')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g,' ')
-    .trim();
-}
-
-function brNumber(value){
-  const text=String(value??'').trim();
-  if(!text)return null;
-
-  const normalized=text.includes(',')
-    ?text.replace(/\./g,'').replace(',','.')
-    :text;
-
-  const n=Number(normalized);
-  return Number.isFinite(n)?n:null;
-}
-
-function dateScore(value){
-  const m=String(value||'').match(
-    /(\d{2})\/(\d{2})\/(\d{4})/
-  );
-
-  if(!m)return 0;
-
-  return Number(`${m[3]}${m[2]}${m[1]}`);
-}
-
-async function discoverCsv(){
-  const payload=await fetchJson(PACKAGE_API,10000);
-
-  if(!payload?.success || !Array.isArray(payload?.result?.resources)){
-    throw new Error('Metadados do Tesouro não retornaram recursos');
-  }
-
-  const resource=payload.result.resources.find(r=>
-    String(r.format||'').toUpperCase()==='CSV' &&
-    /taxas|titulos|títulos|tesouro/i.test(
-      `${r.name||''} ${r.description||''}`
-    )
-  ) || payload.result.resources.find(r=>
-    String(r.format||'').toUpperCase()==='CSV'
-  );
-
-  if(!resource?.url){
-    throw new Error('CSV oficial do Tesouro não encontrado');
-  }
-
-  return {
-    url:resource.url,
-    modified:resource.last_modified||
-      resource.created||
-      payload.result.metadata_modified||
-      null
-  };
-}
-
-async function treasuryData(){
-  const resource=await discoverCsv();
-  const text=await fetchText(resource.url,30000);
-  const lines=text.split(/\r?\n/).filter(Boolean);
-
-  if(lines.length<2){
-    throw new Error('CSV oficial vazio');
-  }
-
-  const headers=csvLine(lines[0]).map(cleanKey);
-
-  const idx=(...needles)=>{
-    for(const needle of needles){
-      const found=headers.findIndex(h=>h.includes(needle));
-      if(found>=0)return found;
-    }
-    return -1;
-  };
-
-  const nameIndex=idx('tipo titulo','titulo');
-  const maturityIndex=idx('data vencimento','vencimento');
-  const dateIndex=idx('data base','data');
-  const rateIndex=idx('taxa compra manha','taxa compra');
-  const priceIndex=idx('pu compra manha','pu compra');
-
-  if(nameIndex<0 || dateIndex<0){
-    throw new Error('Formato do CSV do Tesouro não reconhecido');
-  }
-
-  let latestScore=0;
-  let latestDate=null;
-  const parsed=[];
-
+function norm(s){return String(s||'').replace(/^\uFEFF/,'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()}
+function number(s){if(s==null||String(s).trim()==='')return null;const v=String(s).trim();const normalized=v.includes(',')?v.replace(/\./g,'').replace(',','.'):v;const n=Number(normalized);return Number.isFinite(n)?n:null}
+function date(s){const m=/(\d{2})\/(\d{2})\/(\d{4})/.exec(String(s||''));return m?`${m[3]}-${m[2]}-${m[1]}`:''}
+function parseCsv(text){
+  const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(x=>x.trim());if(lines.length<2)throw Error('CSV sem registros');
+  const delimiter=lines[0].includes(';')?';':',';const header=rowParse(lines[0],delimiter).map(norm);
+  const idx=(...aliases)=>header.findIndex(h=>aliases.some(a=>h.includes(a)));
+  const title=idx('tipo titulo','titulo'),base=idx('data base'),maturity=idx('data vencimento'),rate=idx('taxa compra manha','taxa compra'),price=idx('pu compra manha','pu compra');
+  if(title<0||base<0)throw Error('Colunas esperadas não encontradas');
+  let latest='',items=[];
   for(let i=1;i<lines.length;i++){
-    const row=csvLine(lines[i]);
-    const baseDate=row[dateIndex];
-    const score=dateScore(baseDate);
-
-    if(score>latestScore){
-      latestScore=score;
-      latestDate=baseDate;
-    }
-
-    parsed.push({row,score});
+    const row=rowParse(lines[i],delimiter),stamp=date(row[base]);if(!stamp||stamp<latest)continue;
+    if(stamp>latest){latest=stamp;items=[]}
+    const name=String(row[title]||'').trim();if(!name)continue;
+    items.push({name,maturity:maturity>=0?String(row[maturity]||'').trim():'',buyRate:rate>=0?number(row[rate]):null,buyPrice:price>=0?number(row[price]):null});
   }
-
-  const items=parsed
-    .filter(x=>x.score===latestScore)
-    .map(({row})=>({
-      name:String(row[nameIndex]||'').trim(),
-      maturity:maturityIndex>=0
-        ?String(row[maturityIndex]||'').trim()
-        :'',
-      buyRate:rateIndex>=0
-        ?brNumber(row[rateIndex])
-        :null,
-      buyPrice:priceIndex>=0
-        ?brNumber(row[priceIndex])
-        :null
-    }))
-    .filter(x=>x.name)
-    .sort((a,b)=>a.name.localeCompare(b.name,'pt-BR'))
-    .slice(0,20);
-
-  return {
-    generatedAt:new Date().toISOString(),
-    referenceDate:latestDate,
-    resourceModifiedAt:resource.modified,
-    source:'Tesouro Transparente',
-    items
-  };
+  if(!items.length)throw Error('Nenhum título encontrado');
+  // Não truncar alfabeticamente: isso ocultava os títulos Selic, Prefixado e Renda+.
+  const rank=x=>/selic/i.test(x.name)?0:/ipca/i.test(x.name)?1:/prefixado/i.test(x.name)?2:/renda\+/i.test(x.name)?3:/educa\+/i.test(x.name)?4:5;
+  const dedup=new Map();for(const item of items){const key=`${item.name}|${item.maturity}`;if(!dedup.has(key))dedup.set(key,item)}
+  return {referenceDate:latest,items:[...dedup.values()].sort((a,b)=>rank(a)-rank(b)||a.name.localeCompare(b.name,'pt-BR')||a.maturity.localeCompare(b.maturity)).slice(0,120)};
 }
-
-module.exports=async function handler(req,res){
-  res.setHeader(
-    'Cache-Control',
-    's-maxage=21600, stale-while-revalidate=86400'
-  );
-
-  try{
-    const data=await treasuryData();
-    res.status(200).json(data);
-  }catch(error){
-    console.error(
-      'Falha ao consultar Tesouro:',
-      error?.message||error
-    );
-
-    res.status(503).json({
-      generatedAt:new Date().toISOString(),
-      referenceDate:null,
-      source:'Tesouro Transparente',
-      items:[],
-      error:'Fonte oficial temporariamente indisponível'
-    });
+let memory=null;
+async function retrieve(){
+  const packageData=JSON.parse(await get(PACKAGE,8000));const resources=packageData?.result?.resources;
+  if(!packageData?.success||!Array.isArray(resources))throw Error('Metadados de títulos indisponíveis');
+  const resource=resources.find(x=>String(x.format||'').toUpperCase()==='CSV'&&/taxas|t[ií]tulos|pre[cç]os/i.test(`${x.name} ${x.description}`))||resources.find(x=>String(x.format||'').toUpperCase()==='CSV');
+  if(!resource?.url)throw Error('Arquivo de taxas não encontrado');
+  const data=parseCsv(await get(resource.url,21000));return {...data,generatedAt:new Date().toISOString(),source:'Tesouro Transparente',resourceModifiedAt:resource.last_modified||null};
+}
+async function handler(req,res){
+  res.setHeader('Cache-Control','s-maxage=21600, stale-while-revalidate=86400');
+  if(memory&&Date.now()-memory.time<21600000)return res.status(200).json(memory.data);
+  try{const data=await retrieve();memory={time:Date.now(),data};return res.status(200).json(data)}catch(err){
+    console.warn('Tesouro Transparente indisponível:',err?.message||err);
+    if(memory)return res.status(200).json({...memory.data,stale:true});
+    return res.status(503).json({generatedAt:new Date().toISOString(),source:'Tesouro Transparente',referenceDate:null,items:[],error:'Base de títulos temporariamente indisponível'});
   }
-};
+}
+module.exports=handler;
+module.exports._test={rowParse,norm,number,date,parseCsv,allowedHost};

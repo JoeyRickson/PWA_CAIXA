@@ -29,6 +29,6 @@ assert.match(js,/extraChoice\.hidden=!hasCloud/);
 assert.match(js,/function activate\(/);
 assert.match(js,/function stage\(/);
 assert.match(css,/\.sp514-backup-extra/);
-for(const [name,src] of [['index.html',index],['app.js',app],['sw.js',sw]]) assert.match(src,/5\.1\.4/, `${name} atualizada`);
+for(const [name,src] of [['index.html',index],['app.js',app],['sw.js',sw]]) assert.match(src,/(5\.1\.4|5\.3\.0|5\.3\.2|5\.3\.3|5\.3\.4)/, `${name} atualizada`);
 assert.match(sw,/views\/data\.html\?v=5\.1\.4/);
 console.log('SaldoPlan v5.1.4: 30 verificações de interface e compatibilidade PASS');

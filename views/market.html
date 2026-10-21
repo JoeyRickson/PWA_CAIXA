@@ -1,186 +1,44 @@
-<section id="view-market" class="view">
-        <div class="page-head market-page-head">
-          <div>
-            <span class="muted">Dados, notícias e comparação</span>
-            <h2>Mercado & investimentos</h2>
-          </div>
-          <button id="marketRefresh" type="button" class="btn ghost">Atualizar</button>
-        </div>
-
-        <p id="marketFreshness" class="helper market-freshness">Carregando dados de mercado...</p>
-
-        <div class="market-kpis">
-          <section class="panel market-kpi">
-            <span class="muted">Selic</span>
-            <strong id="marketSelic">--</strong>
-            <small id="marketSelicDate">Banco Central</small>
-          </section>
-
-          <section class="panel market-kpi">
-            <span class="muted">Dólar venda</span>
-            <strong id="marketDollar">--</strong>
-            <small id="marketDollarDate">Banco Central</small>
-          </section>
-
-          <section class="panel market-kpi">
-            <span class="muted">IPCA 12 meses</span>
-            <strong id="marketIpca">--</strong>
-            <small id="marketIpcaDate">Últimos dados disponíveis</small>
-          </section>
-
-          <section class="panel market-kpi">
-            <span class="muted">Tesouro Direto</span>
-            <strong id="marketTreasuryCount">--</strong>
-            <small id="marketTreasuryDate">Títulos disponíveis</small>
-          </section>
-        </div>
-
-
-        <section class="panel market-history-panel">
-          <div class="section-head">
-            <div>
-              <span class="muted">Evolução recente</span>
-              <h3>Histórico dos indicadores</h3>
-            </div>
-
-            <span class="status-pill">Atualização automática · 5 min</span>
-          </div>
-
-          <div class="market-chart-tabs" role="tablist" aria-label="Indicador do gráfico">
-            <button type="button" class="market-chart-tab active" data-market-chart="selic">Selic</button>
-            <button type="button" class="market-chart-tab" data-market-chart="dollar">Dólar</button>
-            <button type="button" class="market-chart-tab" data-market-chart="ipca">IPCA</button>
-          </div>
-
-          <div class="market-chart-summary">
-            <div>
-              <span id="marketChartPeriod" class="muted">Últimos dados disponíveis</span>
-              <strong id="marketChartCurrent">--</strong>
-            </div>
-
-            <div class="market-chart-change">
-              <span class="muted">Variação no período</span>
-              <strong id="marketChartChange">--</strong>
-            </div>
-          </div>
-
-          <div id="marketHistoryChart" class="market-history-chart" aria-live="polite">
-            <div class="empty">Carregando histórico...</div>
-          </div>
-
-          <p id="marketChartSource" class="helper">Fonte: Banco Central do Brasil.</p>
-        </section>
-        <section class="panel market-scenario">
-          <div class="section-head">
-            <div>
-              <span class="muted">Leitura do cenário</span>
-              <h3>Radar de renda fixa</h3>
-            </div>
-            <span id="marketScenarioTag" class="status-pill">Aguardando</span>
-          </div>
-          <p id="marketScenarioText" class="helper">
-            O SaldoPlan cruza indicadores públicos para contextualizar o mercado. Não é recomendação de compra ou venda.
-          </p>
-          <div id="marketScenarioFacts" class="market-facts"></div>
-        </section>
-
-        <section class="panel">
-          <div class="section-head">
-            <div>
-              <span class="muted">Taxas oficiais</span>
-              <h3>Tesouro Direto</h3>
-            </div>
-          </div>
-          <div id="marketTreasuryList" class="market-treasury-list">
-            <div class="empty">Carregando títulos...</div>
-          </div>
-        </section>
-
-        <section class="panel">
-          <div class="section-head">
-            <div>
-              <span class="muted">Simulação bruta</span>
-              <h3>Comparar uma oferta de renda fixa</h3>
-            </div>
-          </div>
-
-          <div class="market-compare-grid">
-            <label>Valor inicial
-              <div class="money-input"><span>R$</span><input id="marketCompareAmount" inputmode="decimal" value="5000,00"></div>
-            </label>
-
-            <label>Prazo (meses)
-              <input id="marketCompareMonths" type="number" min="1" max="600" value="12">
-            </label>
-
-            <label>Taxa de referência anual
-              <div class="market-percent-input"><input id="marketReferenceRate" inputmode="decimal" placeholder="Ex.: 14,00"><span>% a.a.</span></div>
-            </label>
-
-            <label>Oferta (% da referência)
-              <div class="market-percent-input"><input id="marketOfferPct" inputmode="decimal" value="110"><span>%</span></div>
-            </label>
-          </div>
-
-          <div class="market-compare-results">
-            <div>
-              <span>Referência 100%</span>
-              <strong id="marketReferenceResult">R$ 0,00</strong>
-            </div>
-            <div>
-              <span>Oferta informada</span>
-              <strong id="marketOfferResult">R$ 0,00</strong>
-            </div>
-            <div>
-              <span>Diferença bruta</span>
-              <strong id="marketDifferenceResult">R$ 0,00</strong>
-            </div>
-          </div>
-
-          <p class="helper">
-            Estimativa bruta por capitalização composta. Impostos, taxas, carência, marcação a mercado e regras específicas do produto não estão incluídos.
-          </p>
-        </section>
-
-        <section class="panel">
-          <div class="section-head">
-            <div>
-              <span class="muted">Proteção e risco</span>
-              <h3>Checklist antes de investir</h3>
-            </div>
-          </div>
-
-          <div class="market-safety-grid">
-            <div><strong>CDB / LCI / LCA</strong><span>Confira emissor, vencimento, liquidez e se o produto é coberto pelo FGC.</span></div>
-            <div><strong>Tesouro Direto</strong><span>Observe vencimento, taxa contratada e possibilidade de oscilação se vender antes do vencimento.</span></div>
-            <div><strong>Fundos e bolsa</strong><span>Não use manchetes isoladas como decisão. Compare risco, custos, prazo e objetivo.</span></div>
-          </div>
-        </section>
-
-        <section class="panel">
-          <div class="section-head">
-            <div>
-              <span class="muted">Atualizações recentes</span>
-              <h3>Notícias do mercado</h3>
-            </div>
-
-            <select id="marketNewsFilter" class="market-news-filter" aria-label="Filtrar notícias">
-              <option value="all">Todas</option>
-              <option value="renda-fixa">Renda fixa</option>
-              <option value="juros">Juros / inflação</option>
-              <option value="tesouro">Tesouro</option>
-              <option value="bancos">Bancos</option>
-              <option value="bolsa">Bolsa</option>
-              <option value="regulacao">CVM / regulação</option>
-            </select>
-          </div>
-
-          <div id="marketNewsList" class="market-news-list">
-            <div class="empty">Carregando notícias...</div>
-          </div>
-        </section>
-
-        <p class="helper market-disclaimer">
-          Fontes externas possuem frequências diferentes de atualização. O SaldoPlan mostra a data de referência de cada dado e não substitui análise profissional.
-        </p>
-      </section>
+<section id="view-market" class="view market-modern">
+  <div class="page-head market-page-head">
+    <div><span class="muted">Acompanhe os indicadores sem complicação</span><h2>Mercado</h2><p class="helper">Taxas públicas, evolução histórica, Tesouro Direto e notícias em um só lugar.</p></div>
+    <button id="marketRefresh" type="button" class="btn" aria-label="Atualizar os dados de mercado">Atualizar dados</button>
+  </div>
+  <div class="market-banner" role="status" aria-live="polite"><span class="market-status-mark" id="marketStatusMark" aria-hidden="true"></span><span id="marketFreshness">Consultando as fontes...</span></div>
+  <div class="market-kpis">
+    <section class="panel market-kpi"><span class="muted">Selic anualizada</span><strong id="marketSelic">—</strong><small id="marketSelicDate">Banco Central</small></section>
+    <section class="panel market-kpi"><span class="muted">Dólar comercial · venda</span><strong id="marketDollar">—</strong><small id="marketDollarDate">Banco Central</small></section>
+    <section class="panel market-kpi"><span class="muted">Inflação · IPCA em 12 meses</span><strong id="marketIpca">—</strong><small id="marketIpcaDate">Banco Central / IBGE</small></section>
+    <section class="panel market-kpi"><span class="muted">Tesouro Direto</span><strong id="marketTreasuryCount">—</strong><small id="marketTreasuryDate">Taxas oficiais disponíveis</small></section>
+  </div>
+  <section class="panel market-history-panel">
+    <div class="section-head"><div><span class="muted">Evolução das taxas</span><h3>Histórico e tendências</h3></div><span id="marketChartDataStatus" class="market-mini-status">Aguardando dados</span></div>
+    <div class="market-toolbar"><div class="market-chart-tabs" aria-label="Indicador do gráfico"><button class="market-chart-tab active" type="button" data-market-chart="selic" aria-pressed="true">Selic</button><button class="market-chart-tab" type="button" data-market-chart="dollar" aria-pressed="false">Dólar</button><button class="market-chart-tab" type="button" data-market-chart="ipca" aria-pressed="false">IPCA mensal</button></div>
+    <div class="market-chart-tabs market-range-tabs" aria-label="Período do gráfico"><button class="market-chart-tab" type="button" data-market-range="7" aria-pressed="false">7 dias</button><button class="market-chart-tab" type="button" data-market-range="30" aria-pressed="false">30 dias</button><button class="market-chart-tab" type="button" data-market-range="90" aria-pressed="false">90 dias</button><button class="market-chart-tab" type="button" data-market-range="365" aria-pressed="false">12 meses</button><button class="market-chart-tab active" type="button" data-market-range="all" aria-pressed="true">Todo o histórico</button></div></div>
+    <div class="market-chart-summary"><div><span class="muted" id="marketChartPeriod">Período disponível</span><strong id="marketChartCurrent">—</strong></div><div class="market-chart-change"><span class="muted">Variação no período</span><strong id="marketChartChange">—</strong></div></div>
+    <div id="marketHistoryChart" class="market-history-chart" aria-live="polite"><div class="empty">Preparando gráfico...</div></div>
+    <p id="marketChartSource" class="helper">Fonte: Banco Central do Brasil.</p>
+  </section>
+  <section class="panel market-scenario"><div class="section-head"><div><span class="muted">Contexto para entender os indicadores</span><h3>Panorama da renda fixa</h3></div><span id="marketScenarioTag" class="market-mini-status">Aguardando</span></div><p id="marketScenarioText" class="helper">A análise depende dos dados públicos mais recentes.</p><div id="marketScenarioFacts" class="market-facts"></div></section>
+  <section class="panel"><div class="section-head"><div><span class="muted">Base pública oficial</span><h3>Tesouro Direto</h3></div><div class="market-news-controls"><span id="marketTreasuryStatus" class="market-mini-status">Consultando</span><select id="marketTreasuryFilter" class="market-news-filter" aria-label="Filtrar títulos do Tesouro"><option value="all">Todos os títulos</option><option value="selic">Tesouro Selic</option><option value="ipca">Tesouro IPCA+</option><option value="prefixado">Prefixado</option><option value="renda">Renda+</option><option value="educa">Educa+</option><option value="outros">Outros</option></select></div></div><div id="marketTreasuryList" class="market-treasury-list"><div class="empty">Buscando taxas disponíveis...</div></div><button id="marketTreasuryMore" type="button" class="market-chart-tab market-show-more" hidden>Mostrar mais</button><p class="helper">Taxas e preços são referências divulgadas pelo Tesouro, não uma oferta de compra em tempo real. <a href="https://www.tesourodireto.com.br/" target="_blank" rel="noopener noreferrer">Conferir no site oficial</a>.</p></section>
+  <section class="panel"><div class="section-head"><div><span class="muted">Ferramenta educativa</span><h3>Comparar uma oferta de renda fixa</h3></div></div><div class="market-compare-grid"><label>Valor inicial<div class="money-input"><span>R$</span><input id="marketCompareAmount" inputmode="decimal" value="5000,00"></div></label><label>Prazo (meses)<input id="marketCompareMonths" type="number" min="1" max="600" value="12"></label><label>Referência anual<div class="market-percent-input"><input id="marketReferenceRate" inputmode="decimal" placeholder="Ex.: 14,00"><span>% a.a.</span></div></label><label>Oferta (% da referência)<div class="market-percent-input"><input id="marketOfferPct" inputmode="decimal" value="110"><span>%</span></div></label></div><div class="market-compare-results"><div><span>Referência 100%</span><strong id="marketReferenceResult">—</strong></div><div><span>Oferta informada</span><strong id="marketOfferResult">—</strong></div><div><span>Diferença estimada</span><strong id="marketDifferenceResult">—</strong></div></div><p class="helper" id="marketCompareMessage">Estimativa bruta simplificada. Não inclui tributos, custos, taxas ou marcação a mercado; a Selic não é necessariamente o CDI.</p></section>
+  <section class="panel"><div class="section-head"><div><span class="muted">Leia antes de investir</span><h3>Cuidados importantes</h3></div></div><div class="market-safety-grid"><div><strong>CDB, LCI e LCA</strong><span>Verifique emissor, vencimento, liquidez e condições da garantia do FGC.</span></div><div><strong>Tesouro Direto</strong><span>Venda antes do vencimento pode gerar resultado diferente da taxa originalmente contratada.</span></div><div><strong>Fundos e bolsa</strong><span>Confira custos, riscos e horizonte. Uma notícia não é recomendação de investimento.</span></div></div></section>
+  <section class="panel market-news-section" aria-labelledby="marketNewsHeading">
+    <div class="section-head market-news-heading"><div><span class="muted">Noticiário econômico • fontes públicas</span><h3 id="marketNewsHeading">Notícias e histórico</h3><p class="helper">Explore manchetes por mês, encontre notícias de uma data específica e abra a publicação original.</p></div><span id="marketNewsStatus" class="market-mini-status" role="status" aria-live="polite">Consultando notícias...</span></div>
+    <div class="market-news-workspace">
+      <aside class="market-news-sidebar" aria-label="Calendário de notícias">
+        <div class="market-news-calendar-top"><strong id="marketNewsMonthLabel">Mês atual</strong><div class="market-news-arrows"><button type="button" id="marketNewsPrev" aria-label="Mês anterior">‹</button><button type="button" id="marketNewsNext" aria-label="Mês seguinte">›</button></div></div>
+        <div id="marketNewsCalendar" class="market-news-calendar" aria-label="Escolher data de publicação"></div>
+        <p id="marketNewsCalendarInfo" class="helper market-news-calendar-info">Os pontos indicam dias com notícias encontradas.</p>
+        <div class="market-news-calendar-actions"><button type="button" id="marketNewsAllDays" class="market-chart-tab" aria-pressed="true">Mês inteiro</button><button type="button" id="marketNewsToday" class="market-chart-tab">Mês atual</button></div>
+        <p class="helper market-news-archive-hint">Disponível para consulta: até 24 meses. A presença de notícias depende das fontes, e dias sem pontos não significam ausência de notícias.</p>
+      </aside>
+      <div class="market-news-content"><div class="market-news-tools"><label class="market-news-search-wrap"><span class="sr-only">Pesquisar nas notícias carregadas</span><input type="search" id="marketNewsSearch" placeholder="Buscar por assunto, título ou fonte" maxlength="100" autocomplete="off"></label><select id="marketNewsFilter" class="market-news-filter" aria-label="Filtrar notícias por tema"><option value="all">Todos os assuntos</option><option value="renda-fixa">Renda fixa</option><option value="juros">Juros e inflação</option><option value="tesouro">Tesouro Direto</option><option value="bancos">Bancos</option><option value="bolsa">Bolsa</option><option value="regulacao">Regulação</option></select></div>
+        <div class="market-news-results-bar"><strong id="marketNewsResults">Buscando notícias</strong><span>Imagens exibidas quando disponíveis no feed</span></div>
+        <div id="marketNewsList" class="market-news-list" aria-live="polite"><div class="empty">Buscando notícias...</div></div>
+        <button id="marketNewsMore" type="button" class="market-chart-tab market-news-more" hidden>Mostrar mais</button>
+        <p id="marketNewsCoverage" class="helper market-news-coverage">Consultas por período não garantem acesso a todas as notícias antigas.</p>
+      </div>
+    </div>
+  </section>
+  <p class="helper market-disclaimer">Indicadores podem ser divulgados em datas e frequências diferentes. Se alguma fonte falhar, os dados antigos serão identificados e não serão apresentados como cotações novas. O SaldoPlan não presta consultoria financeira.</p>
+</section>

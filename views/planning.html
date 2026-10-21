@@ -1,0 +1,55 @@
+<section id="view-planning" class="view" aria-labelledby="sp53Title">
+  <div class="page-head"><div><span class="muted">Seu dinheiro, seus próximos passos</span><h2 id="sp53Title">Planejamento financeiro</h2></div><button class="btn ghost" type="button" data-nav="calendar">Abrir calendário</button></div>
+  <p class="helper">Preveja o que pode acontecer com seu saldo, confira cartões, acompanhe metas e evite surpresas. As estimativas usam seus lançamentos; não consultam seu banco.</p>
+  <section class="panel sp53-section" aria-labelledby="sp53ForecastTitle">
+    <div class="section-head"><div><span class="muted">Próximos 90 dias</span><h3 id="sp53ForecastTitle">Como ficará meu saldo?</h3></div><button id="sp53Print" class="btn ghost small" type="button">Imprimir / salvar PDF</button></div>
+    <p class="helper">Informe quanto tem hoje na conta. O SaldoPlan somará as entradas e descontará as contas <strong>previstas</strong>, sem somar de novo o que já foi pago ou recebido.</p>
+    <form id="sp53ForecastForm" class="sp53-form sp53-form-3">
+      <label>Saldo disponível hoje (R$)<input id="sp53Opening" type="number" min="-999999999" max="999999999" step="0.01" inputmode="decimal" required></label>
+      <label>Data desse saldo<input id="sp53OpenDate" type="date" required></label>
+      <label>Alertar vencimentos em<select id="sp53AlertDays"><option value="3">3 dias</option><option value="7">7 dias</option><option value="14">14 dias</option><option value="30">30 dias</option></select></label>
+      <button type="submit" class="btn">Salvar ponto de partida</button>
+    </form>
+    <p id="sp53OpeningStatus" role="status" class="helper" aria-live="polite"></p>
+    <div class="sp53-summary" aria-live="polite"><div class="mini-stat"><span>Em 30 dias</span><strong id="sp53At30">—</strong></div><div class="mini-stat"><span>Em 60 dias</span><strong id="sp53At60">—</strong></div><div class="mini-stat"><span>Em 90 dias</span><strong id="sp53At90">—</strong></div></div>
+    <div id="sp53ForecastChart" class="sp53-chart" role="img" aria-label="Evolução projetada do saldo"></div>
+    <p id="sp53ForecastHint" class="helper" aria-live="polite"></p>
+  </section>
+  <section class="panel sp53-section" aria-labelledby="sp53CardTitle">
+    <div class="section-head"><div><span class="muted">Antes de comprar</span><h3 id="sp53CardTitle">Simular uma compra parcelada</h3></div><button class="btn ghost small" type="button" data-nav="cards">Abrir cartões</button></div>
+    <p class="helper">Veja em quais faturas as parcelas devem aparecer. <strong>Esta simulação não cria uma compra.</strong></p>
+    <form id="sp53CardForm" class="sp53-form sp53-form-4">
+      <label>Cartão<select id="sp53CardSelect" required></select></label>
+      <label>Valor (R$)<input id="sp53CardAmount" type="number" min="0.01" max="10000000" step="0.01" inputmode="decimal" required></label>
+      <label>Parcelas<input id="sp53CardCount" type="number" min="1" max="48" step="1" value="3" required></label>
+      <label>Data da compra<input id="sp53CardDate" type="date" required></label>
+      <button type="submit" class="btn">Simular parcelas</button>
+    </form>
+    <div id="sp53CardResult" class="sp53-results" aria-live="polite">Cadastre um cartão e simule sua próxima compra.</div>
+  </section>
+  <section class="panel sp53-section" aria-labelledby="sp53BankTitle">
+    <div class="section-head"><div><span class="muted">Confira seus números</span><h3 id="sp53BankTitle">Conferir saldo com o banco</h3></div><button class="btn ghost small" type="button" data-nav="importer">Importar extrato</button></div>
+    <p class="helper">Compare o saldo do extrato com o saldo que você apurou no SaldoPlan. Não é uma conciliação bancária automática: revise lançamentos não registrados e pagamentos de cartão duplicados.</p>
+    <form id="sp53BankForm" class="sp53-form sp53-form-3">
+      <label>Conta / banco<input id="sp53BankName" type="text" maxlength="80" placeholder="Ex.: Conta principal" required></label>
+      <label>Saldo no extrato (R$)<input id="sp53BankActual" type="number" step="0.01" required></label>
+      <label>Saldo apurado no app (R$)<input id="sp53BankApp" type="number" step="0.01" required></label>
+      <button type="submit" class="btn">Comparar e guardar</button>
+    </form>
+    <p id="sp53BankResult" class="helper" role="status" aria-live="polite"></p>
+    <div id="sp53BankHistory" class="sp53-results"></div>
+  </section>
+  <section class="panel sp53-section" aria-labelledby="sp53GoalsTitle">
+    <div class="section-head"><div><span class="muted">Planos e prioridades</span><h3 id="sp53GoalsTitle">Quanto preciso guardar?</h3></div><button class="btn ghost small" type="button" data-nav="patrimony">Ver minhas metas</button></div>
+    <div id="sp53Goals" class="sp53-results"></div>
+  </section>
+  <section class="panel sp53-section" aria-labelledby="sp53AlertsTitle">
+    <div class="section-head"><div><span class="muted">Não perca vencimentos</span><h3 id="sp53AlertsTitle">Próximas contas</h3></div><button class="btn ghost small" type="button" data-nav="calendar">Calendário</button></div>
+    <div id="sp53Alerts" class="sp53-results" aria-live="polite"></div>
+    <p class="helper">Avisos aparecem aqui ao abrir o SaldoPlan. Notificações com o aplicativo fechado exigem configuração e permissão separadas.</p>
+  </section>
+  <section class="panel sp53-section" aria-labelledby="sp53SystemTitle">
+    <div class="section-head"><div><span class="muted">Confiabilidade</span><h3 id="sp53SystemTitle">Seus dados e sincronização</h3></div><button class="btn ghost small" type="button" data-nav="data">Dados e backup</button></div>
+    <p id="sp53ConnectionState" class="helper" role="status"></p><p class="helper">Se estiver sem internet, continue usando o app. Veja eventuais pendências em Dados e backup antes de sair da sua conta.</p>
+  </section>
+</section>

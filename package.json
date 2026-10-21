@@ -1,13 +1,13 @@
 {
   "name": "saldoplan",
   "private": true,
-  "version": "5.2.1",
+  "version": "5.3.4",
   "description": "SaldoPlan PWA — controle financeiro com perfis locais, backup e sincronização opcional",
   "dependencies": {
     "firebase-admin": "14.5.0"
   },
   "scripts": {
-    "test": "node tests/v4-profiles.test.cjs && node tests/v5-engine.test.cjs && node tests/transaction-dates.test.cjs && node tests/v51-live-sync.test.cjs && node tests/v511-auto-sync.test.cjs && node tests/v511-auto-sync.integration.test.cjs && node tests/v512-safe-auto-sync.test.cjs && node tests/v512-safe-auto-sync.integration.test.cjs && node tests/v513-generated-fresh.test.cjs && node tests/v513-generated-fresh.integration.test.cjs && node tests/v514-backup-ui.test.cjs && node tests/v52-paycheck.test.cjs && node tests/v521-fgts-empresas.test.cjs"
+    "test": "node tests/v4-profiles.test.cjs && node tests/v5-engine.test.cjs && node tests/transaction-dates.test.cjs && node tests/v51-live-sync.test.cjs && node tests/v511-auto-sync.test.cjs && node tests/v511-auto-sync.integration.test.cjs && node tests/v512-safe-auto-sync.test.cjs && node tests/v512-safe-auto-sync.integration.test.cjs && node tests/v513-generated-fresh.test.cjs && node tests/v513-generated-fresh.integration.test.cjs && node tests/v514-backup-ui.test.cjs && node tests/v52-paycheck.test.cjs && node tests/v521-fgts-empresas.test.cjs && node tests/v53-planning.test.cjs && node tests/market-v531.test.cjs && node tests/market-v532.test.cjs && node tests/market-v533.test.cjs && node tests/market-v534.test.cjs"
   },
   "overrides": {
     "jwks-rsa": {

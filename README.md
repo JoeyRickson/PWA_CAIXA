@@ -199,3 +199,28 @@ A conferência **não muda o simulador, as horas lançadas, o FGTS ou o 13º**; 
 ### FGTS por empresa (v5.2.1)
 
 Na aba FGTS, escolha o empregador no topo para visualizar saldo do último extrato, depósitos confirmados posteriores, créditos/saques e saldo atualizado individual. O total consolidado permanece separado. Não consulta extratos Caixa automaticamente: os valores vêm de importações e lançamentos confirmados pelo usuário. Depósitos futuros não entram no saldo atual, mesmo marcados como depositados; valores previstos são mostrados na projeção. Histórico antigo não identificado fica fora do total.
+
+## Planejamento integrado (v5.3.0)
+
+O menu **Planejamento** reúne previsões 30/60/90 dias, simulação de parcelas de cartão, conferência manual de extrato, metas com contribuição sugerida e vencimentos próximos. Os dados são gravados no perfil atual e sincronizados conforme as configurações de Live Sync. Veja `PLANEJAMENTO-5.3.0.md`. Não há consulta bancária automática.
+
+## Mercado reformulado — v5.3.1
+
+Indicadores, gráficos, Tesouro e notícias foram reorganizados. Fontes independentes, dados parciais identificados e cache sinalizado. Consulte [MERCADO-5.3.1.md](MERCADO-5.3.1.md).
+
+## Recuperação do Mercado — v5.3.2
+
+Corrigida incompatibilidade do SGS (limite 20 em `/dados/ultimos`), históricos por período, fallback por fonte, filtros e interação dos gráficos, agrupamento de títulos e qualidade das notícias. Atualização incremental a partir da versão **local** v5.3.1. Veja [MERCADO-5.3.2.md](MERCADO-5.3.2.md).
+
+Para testar `/api/*`, use `vercel dev`; `http-server` testa só os arquivos estáticos. Não publique `.env.local` nem `.vercel/`.
+
+
+## Central de notícias do Mercado — v5.3.3
+
+O Mercado inclui um calendário para explorar notícias por mês e dia, busca de assuntos e cartões com resumo, data, fonte e foto (se presente no RSS). O histórico é uma consulta às fontes públicas, **não um arquivo jornalístico completo**. Consulte [MERCADO-5.3.3.md](MERCADO-5.3.3.md) para documentação, fonte de dados, limitações e testes.
+
+Para desenvolvimento local com APIs, utilize `npx.cmd vercel dev --listen 3000` (não `http-server`), mantendo `.env.local` e `.vercel/` fora do Git.
+
+
+## Notícias com fotos — v5.3.4
+A central de notícias prioriza metadados de imagem dos feeds RSS e inclui o feed direto da Agência Brasil (editoria Economia). Em até quatro links diretos de domínios confiáveis por consulta, pode usar a imagem Open Graph do próprio artigo, com limite de tempo e de tamanho. O Google Notícias RSS não disponibiliza fotos das matérias; nesses casos, o cartão usa uma apresentação compacta, sem inventar imagens. Veja `MERCADO-5.3.4.md`.

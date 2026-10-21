@@ -333,3 +333,32 @@ Limites: cálculo tributário emulando as tabelas do simulador de 2026; regras p
 ### FGTS — v5.2.1
 
 O estado existente `fgtsAccounts[]` contém cada conta com `currentBalance`, `balanceDate`, `years[].deposits`; `activeFgtsAccountId` indica a empresa escolhida. `fgtsAccountBreakdown()` em `js/payroll.js` calcula saldos com base no último extrato e nas movimentações posteriores até a data atual; operações anteriores ou incluídas no extrato são excluídas da soma. O histórico legado fica fora da consolidação. Nenhuma nova chave de armazenamento ou regra Firebase é necessária.
+
+## v5.3.0 — Planejamento financeiro
+
+- `js/v53-planning-engine.js`: biblioteca pura de datas, fluxo de caixa planejado, simulação de parcelas, metas, reconciliação manual e avisos. Sem rede.
+- `js/v53-planning.js`: interface local que usa `state`, `save`, `renderAll`, `creditCards` e `financialGoals` do SaldoPlan. Saídas de texto do usuário codificadas para HTML; nenhuma coleta externa.
+- `views/planning.html` e `css/v53-planning.css`: nova aba acessível por navegação desktop/mobile.
+- `state.planningSettings` e `state.bankChecks` adicionados ao `seed` e `migrateState`: participam do Live Sync existente por seção. O segundo campo retém no máximo 40 comparações manuais.
+- `app.js` carrega a nova view e os scripts após os módulos existentes; `js/ui.js` inclui renderização em `renderAll` e navegação. `sw.js` versionado para v5.3.0.
+- Previsão: parte do valor informado pelo usuário, soma entradas e subtrai despesas com `status=planned`, exclui bônus Flash do saldo convencional e nunca volta a somar `realized`. Apenas transações materializadas entram na série; documentos bancários não são consultados.
+- Contracheque, FGTS e abas antigas permanecem intactos.
+
+## v5.3.2 — Mercado / SGS
+
+`api/market.js` faz consultas oficiais por datas para as séries BCB SGS 1178 (Selic diária anualizada), 1 (dólar de venda diário) e 433 (IPCA mensal), com fallback limitado a 20 últimos valores por série. Retorna formato normalizado, status granular e dados marcados como antigos se só houver cache em memória. Não acessa Firestore nem dados do usuário. `api/news.js` consolida feeds externos datados. `api/treasury.js` lê o último dia do CSV do Tesouro, preservando variedade de categorias.
+
+`js/market.js` somente renderiza dados públicos e armazena cache de resposta em chaves legadas `saldoplan.market.v531.*`, compatíveis com o cache da v5.3.1; não altera `meuCaixa.v1`, estados de perfil ou Live Sync. `views/market.html` e `css/market.css` permanecem isolados em `#view-market`. O Service Worker não intercepta `/api/*`. Consulte `MERCADO-5.3.2.md`.
+
+
+## v5.3.3 — Notícias com calendário
+
+`api/news.js` aceita `month=AAAA-MM` (janela de até 24 meses). Agrega RSS públicos e buscas Google Notícias por `after:/before:`, valida datas em `America/Sao_Paulo`, sanitiza URLs, extrai imagens apenas se fornecidas e devolve metadados com cobertura parcial declarada. Não há scraping nem arquivo histórico completo.
+
+`js/market.js` mantém a consulta de indicadores independente das notícias, navega por meses, implementa filtros locais por dia/tema/texto e cache público por mês em `saldoplan.market.v531.news.month.*`. A atualização não toca o banco de dados financeiro, `state`, autenticação nem Live Sync. `views/market.html` e `css/market.css` permanecem isolados em `#view-market`.
+
+`sw.js` atualiza a versão de ativos e ignora requisições `/api/*`. Consulte [MERCADO-5.3.3.md](MERCADO-5.3.3.md).
+
+
+## v5.3.4 — Fotos opcionais em notícias
+`api/news.js`: leitor RSS existente + feed HTTPS da Agência Brasil Economia, extração de `media:*`, `enclosure`, `<img>` de conteúdo e `og:image` somente em links diretos de três domínios autorizados (máximo quatro por resposta; 3 s por solicitação, sem redirects). Não executa links do usuário e não copia nem hospeda imagens externas. `js/market.js` aplica cache por mês com chave v5.3.4, enquanto `css/market.css` mantém placeholders compactos. A falta de foto nunca impede visualizar ou abrir a notícia.

@@ -1,4 +1,4 @@
-const SALDOPLAN_VERSION='5.2.1';
+const SALDOPLAN_VERSION='5.3.4';
 
 const SALDOPLAN_VIEWS=[
   'dashboard',
@@ -18,7 +18,8 @@ const SALDOPLAN_VIEWS=[
   'data',
   'about',
   'support',
-  'intelligence'
+  'intelligence',
+  'planning'
 ];
 
 const SALDOPLAN_SCRIPTS=[
@@ -56,7 +57,9 @@ const SALDOPLAN_SCRIPTS=[
   'v51-live-engine',
   'v51-live-sync',
   'v52-paycheck-engine',
-  'v52-paycheck'
+  'v52-paycheck',
+  'v53-planning-engine',
+  'v53-planning'
 ];
 
 async function saldoPlanFetchPartial(path){

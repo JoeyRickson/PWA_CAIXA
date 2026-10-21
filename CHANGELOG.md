@@ -1,3 +1,42 @@
+## v5.3.4 — Imagens nas notícias (21/10/2026)
+- Acrescentado feed direto da Agência Brasil para ampliar matérias com imagens e links de origem.
+- Extração opcional e limitada da imagem Open Graph para páginas originais de domínios confiáveis.
+- Corrigidos resumos duplamente escapados (`&amp;nbsp;`) e removidos resumos artificiais dos agregadores.
+- Cartões sem imagem agora têm apresentação compacta e clara; nenhum banco de imagens fictício.
+- Cache mensal de notícias atualizado, testes adicionais e Service Worker versionado.
+
+## v5.3.3 — Central de notícias com calendário (21/10/2026)
+
+- Calendário para consultar notícias por dia/mês (janela de consulta de até 24 meses); busca por assunto, data e fonte.
+- Cartões com resumos, origem, data, link externo e imagem real dos feeds quando disponível, com fallback visual.
+- API `/api/news?month=AAAA-MM` com buscas por intervalo, validação, deduplicação, fonte e indicação explícita de histórico incompleto.
+- Cache de metadados públicos por mês, recuperação local e atualização independente de Selic, dólar, IPCA e Tesouro.
+- 17 novos testes de API, parser RSS, datas, imagens, segurança, filtros e calendário; Service Worker atualizado.
+- Mantidos Firebase, Live Sync, backups, Planejamento, cartões, FGTS e dados pessoais.
+
+## v5.3.2 — Mercado (21/10/2026)
+
+- Corrigidas requisições SGS acima do limite de 20 últimos registros; histórico por datas e fallback limitado a 20.
+- Situação por indicador, cache com indicação de dados salvos e tratamento de indisponibilidade.
+- Histórico SVG em escala temporal; abas e filtros funcionam também durante falha da API; períodos apropriados ao IPCA mensal.
+- Tesouro: remove corte alfabético de 32 títulos e inclui filtros com "Mostrar mais"; notícias com datas confiáveis.
+- Testes de regressão adicionais, cache estático versionado e instalador incremental SHA-256 com backup e rollback.
+- Sem alteração de Firebase, Live Sync, lançamentos financeiros, FGTS, cartão, planejamento ou mecanismos de backup.
+
+## 5.3.0 — Planejamento financeiro integrado (20/10/2026)
+
+- Nova aba **Planejamento** no computador e no celular, com atalho no painel inicial.
+- Projeção determinística de fluxo de caixa em 30, 60 e 90 dias, com ponto de partida informado pelo usuário, evolução gráfica e aviso de saldo negativo.
+- Simulação de compra parcelada, por cartão, data de fechamento e vencimento; **não grava compra automaticamente**.
+- Conferência manual entre valor apurado e extrato bancário, com histórico de até 40 verificações, sem conexão direta ao banco.
+- Metas exibem valor faltante e contribuição mensal aproximada para o prazo existente.
+- Contas previstas nos próximos 3, 7, 14 ou 30 dias e orientação sobre sincronização e conexão.
+- Aproveita a importação de extratos OFX/CSV/PDF, histórico de alterações, alertas e backup já existentes.
+- Motor local com testes de datas, centavos, fluxo previsto, metas, conciliação e integrações.
+- Os novos dados seguem o mesmo perfil e a sincronização já existente; nenhum segredo novo e nenhuma API bancária adicionada.
+
+**Limites:** notificações push com o app fechado dependem de configuração separada. Importação e conciliação não significam integração automática com bancos ou validação oficial de saldo; recorrências não geradas ainda não entram na previsão. O saldo inicial deve ser informado para evitar dupla contagem de receitas/despesas realizadas.
+
 ## 5.2.1 — FGTS por empregador
 
 - Seleção de empresa destacada no início da tela FGTS, preferindo vínculo ativo real ao histórico legado.
@@ -229,3 +268,9 @@
 - Não altera a simulação mensal principal nem lançamentos existentes.
 - Testes automáticos cobrindo outubro/2026 (`R$ 3.600,30` versus `R$ 3.587,42`) e validações de formato.
 - Integração ao perfil e Live Sync via `state.payrollMonths`.
+
+## v5.3.1 — Mercado reformulado
+
+- Renovação completa da aba Mercado; gráficos SVG responsivos com períodos e datas.
+- APIs independentes de Banco Central, Tesouro e notícias; erros e valores ausentes tratados.
+- Status de dados salvos, datas oficiais e testes de contratos.

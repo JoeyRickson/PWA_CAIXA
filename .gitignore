@@ -1,5 +1,15 @@
-.vercel
-.env*
+# Vercel
+.vercel/
+
+# Variáveis de ambiente
+.env
+.env.*
+!.env.example
+
+# Dependências
 node_modules/
 
-.env*
+
+
+
+
