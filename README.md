@@ -1,226 +1,101 @@
-> **SaldoPlan v5.1.4 — Interface mais simples:** a seção **Entre aparelhos** foi organizada para mostrar se seus dados estão atualizados, avisar apenas quando precisa de uma decisão e guardar as opções avançadas em áreas recolhidas. A sincronização permanece vinculada ao login Google e mantém as proteções anteriores. Veja `LIVE-SYNC-SETUP.md`.
-
-> **SaldoPlan v5.1.3 — Auto Boot protegido:** corrige a primeira conexao de perfis novos quando as telas criam automaticamente registros padrao de folha, 13o, FGTS ou patrimonio. O aplicativo so conecta sem clique se os valores corresponderem estritamente aos defaults; dados financeiros reais ou exclusivos continuam exigindo decisao. Preserva backups e dados locais. Veja `LIVE-SYNC-SETUP.md`.
-
-> **SaldoPlan v5.1.2 — Auto Link seguro:** o login Google agora também vincula automaticamente um aparelho cujos registros locais já estejam representados integralmente e sem divergências na nuvem. Perfis novos continuam automáticos; dados exclusivos ou divergentes exigem escolha antes de recuperar. Nunca apaga dados divergentes automaticamente. Veja `LIVE-SYNC-SETUP.md`.
-
-> **SaldoPlan v5.1.1 — Auto Sync:** ao entrar com Google em um aparelho novo e sem dados financeiros próprios, a conta recupera automaticamente o histórico sincronizado pelo Firestore. Perfis com informações locais diferentes continuam exigindo escolha explícita; backup Drive/JSON permanece separado. Consulte `LIVE-SYNC-SETUP.md`.
+<!-- README do perfil GitHub: github.com/JoeyRickson -->
+<!-- Altere os textos, cores e links livremente. -->
 
 <div align="center">
 
-<img src="icons/icon-192.png" alt="Ícone SaldoPlan" width="100" height="100">
+<img width="100%" alt="Joey Rickson — Cloud, Infraestrutura e Automação" src="https://capsule-render.vercel.app/api?type=waving&height=215&color=0:0B1220,50:123B74,100:0891B2&text=Joey%20Rickson&fontColor=FFFFFF&fontSize=48&fontAlignY=37&desc=Cloud%20%7C%20Infrastructure%20%7C%20Automation%20%7C%20Development&descSize=16&descAlignY=58&animation=fadeIn" />
 
-# SaldoPlan
+### Tecnologia para resolver problemas reais.
 
-**Sua vida financeira, organizada em um só lugar.**
+**Infraestrutura de TI · Cloud · Redes e Segurança · Automação · Desenvolvimento**
 
-[![Versão](https://img.shields.io/badge/vers%C3%A3o-5.0.0-2563eb?style=flat-square)](https://saldoplan.vercel.app/) [![PWA](https://img.shields.io/badge/PWA-Instal%C3%A1vel-0f766e?style=flat-square)](https://saldoplan.vercel.app/) [![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-f7df1e?style=flat-square&logo=javascript&logoColor=111111)](https://developer.mozilla.org/docs/Web/JavaScript) [![Firebase](https://img.shields.io/badge/Firebase-Auth%20%2B%20Firestore-ffca28?style=flat-square&logo=firebase&logoColor=111111)](https://firebase.google.com/)
+<a href="https://portfolio-joeyrickson11.vercel.app/">
+  <img alt="Meu portfólio" src="https://img.shields.io/badge/Portf%C3%B3lio-0F172A?style=for-the-badge&logo=vercel&logoColor=white" />
+</a>
+<a href="https://www.linkedin.com/in/joeyrickgoliveira/">
+  <img alt="LinkedIn" src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" />
+</a>
+<a href="https://github.com/JoeyRickson?tab=repositories">
+  <img alt="Repositórios" src="https://img.shields.io/badge/Reposit%C3%B3rios-24292F?style=for-the-badge&logo=github&logoColor=white" />
+</a>
 
-[**Abrir SaldoPlan**](https://saldoplan.vercel.app/) · [**Sobre o projeto**](https://joeyrickson-portfolio.vercel.app/) · [**Reportar problema**](https://github.com/JoeyRickson/PWA_CAIXA/issues)
+</div>
 
+## 👨‍💻 Sobre mim
+
+Sou um profissional de Tecnologia da Informação com atuação em **infraestrutura, cloud, redes, segurança, sistemas corporativos e automação**. Gosto de combinar administração de ambientes críticos com desenvolvimento de ferramentas que simplificam processos do dia a dia.
+
+- ☁️ **Cloud e infraestrutura:** Google Cloud Platform, Windows Server, Linux, serviços corporativos e virtualização.
+- 🌐 **Redes e segurança:** FortiGate, FortiSwitch, Aruba, VLANs, SD-WAN, VPNs e troubleshooting.
+- ⚙️ **Automação e desenvolvimento:** PowerShell, JavaScript, Node.js e soluções internas.
+- 🗄️ **Dados e sistemas:** SQL Server, MariaDB, TOTVS Protheus, GLPI, Zabbix e Grafana.
+- 📍 **Localização:** Manaus, Amazonas — Brasil.
+
+## 🛠️ Tecnologias e ferramentas
+
+<div align="center">
+
+**Infraestrutura, redes e cloud**
+
+<img alt="Google Cloud" src="https://img.shields.io/badge/Google_Cloud-4285F4?style=flat-square&logo=googlecloud&logoColor=white" />
+<img alt="Fortinet" src="https://img.shields.io/badge/Fortinet-EE3124?style=flat-square&logo=fortinet&logoColor=white" />
+<img alt="Windows Server" src="https://img.shields.io/badge/Windows_Server-0078D4?style=flat-square&logo=windows&logoColor=white" />
+<img alt="Linux" src="https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black" />
+<img alt="Microsoft 365" src="https://img.shields.io/badge/Microsoft_365-D83B01?style=flat-square&logo=microsoft365&logoColor=white" />
+
+**Desenvolvimento e automação**
+
+<img alt="JavaScript" src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black" />
+<img alt="Node.js" src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white" />
+<img alt="PowerShell" src="https://img.shields.io/badge/PowerShell-5391FE?style=flat-square&logo=powershell&logoColor=white" />
+<img alt="HTML5" src="https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white" />
+<img alt="CSS3" src="https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css&logoColor=white" />
+<img alt="Git" src="https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white" />
+
+**Bancos de dados, sistemas e observabilidade**
+
+<img alt="SQL Server" src="https://img.shields.io/badge/SQL_Server-CC2927?style=flat-square&logo=microsoftsqlserver&logoColor=white" />
+<img alt="MariaDB" src="https://img.shields.io/badge/MariaDB-003545?style=flat-square&logo=mariadb&logoColor=white" />
+<img alt="TOTVS Protheus" src="https://img.shields.io/badge/TOTVS_Protheus-004B87?style=flat-square" />
+<img alt="GLPI" src="https://img.shields.io/badge/GLPI-005F98?style=flat-square" />
+<img alt="Zabbix" src="https://img.shields.io/badge/Zabbix-D40000?style=flat-square&logo=zabbix&logoColor=white" />
+<img alt="Grafana" src="https://img.shields.io/badge/Grafana-F46800?style=flat-square&logo=grafana&logoColor=white" />
+
+</div>
+
+## 🚀 Projetos em destaque
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>💰 SaldoPlan</h3>
+      <p>Aplicativo web progressivo para organizar receitas, despesas, valores guardados e projeções financeiras. Inclui simulação de folha de pagamento e horas extras.</p>
+      <p><strong>Tecnologias:</strong> JavaScript, HTML, CSS, PWA.</p>
+      <p><a href="https://saldoplan.vercel.app/">🌐 Acessar aplicativo</a> · <a href="https://github.com/JoeyRickson/PWA_CAIXA">💻 Código-fonte</a></p>
+    </td>
+    <td width="50%" valign="top">
+      <h3>🌐 Portfólio pessoal</h3>
+      <p>Meu espaço para apresentar experiência em TI, projetos de desenvolvimento, infraestrutura, automação e soluções técnicas.</p>
+      <p><strong>Tecnologias:</strong> HTML, CSS, JavaScript.</p>
+      <p><a href="https://portfolio-joeyrickson11.vercel.app/">🌐 Acessar portfólio</a> · <a href="https://github.com/JoeyRickson/portfolio">💻 Código-fonte</a></p>
+    </td>
+  </tr>
+</table>
+
+> Outros projetos e automações serão adicionados à medida que seus repositórios públicos estiverem documentados.
+
+## 📊 Atividade no GitHub
+
+<div align="center">
+  <img alt="Estatísticas públicas do GitHub de Joey Rickson" height="170" src="https://github-readme-stats.vercel.app/api?username=JoeyRickson&show_icons=true&theme=tokyonight&hide_border=true&hide_title=false&rank_icon=github" />
+  <br />
+  <sub>As estatísticas dependem de um serviço externo e podem ficar temporariamente indisponíveis.</sub>
 </div>
 
 ---
 
-## O que é?
-
-O **SaldoPlan** é um aplicativo de controle financeiro pessoal desenvolvido como **Progressive Web App (PWA)**, com experiência responsiva para celular e desktop e suporte a uso offline. Você pode registrar receitas e despesas, planejar gastos, acompanhar cartões e patrimônio e consultar seus dados sem depender continuamente da internet.
-
-**Tecnologias:** HTML5, CSS3, JavaScript puro, Service Worker, Web Crypto, Firebase Authentication, Firestore opcional, Vercel Serverless Functions e integrações de backup. O frontend **não usa React, Vue ou outro framework**.
-
-## Recursos
-
-| Área | Funcionalidades |
-| --- | --- |
-| **Resumo** | Saldos atuais e projetados, visão mensal, ciclos e calendário financeiro |
-| **Lançamentos** | Receitas, gastos, pagamentos previstos ou realizados, recorrências e lançamentos rápidos no celular |
-| **Cartões** | Limites, fechamento, vencimento, faturas e parcelamentos |
-| **Guardado e patrimônio** | Reservas, metas, dívidas, investimentos e evolução patrimonial |
-| **Planejamento** | Orçamento por categoria, indicadores de gastos, pesquisa e relatório anual |
-| **Simuladores** | Folha salarial, horas extras, adicionais, 13º salário e FGTS |
-| **Importação** | CSV, OFX/QFX e PDFs compatíveis, prévia com seleção, regras de categorização e avisos de possíveis duplicados |
-| **Backups** | JSON manual, histórico local, Google Drive e outros provedores conforme configuração, cópia criptografada entre aparelhos |
-| **Perfis por conta** | Dados locais em espaços separados por conta Google após associação explícita dos dados antigos |
-| **Notificações** | Avisos com app aberto e lembretes push opt-in com escolha de antecedência (dependem de Firebase/Vercel e permissão) |
-| **Suporte** | Formulário autenticado, protocolo por e-mail e central administrativa opcional com controle de acesso no servidor |
-
-| **Novidades v5** | Assistente financeiro local por regras, aportes às metas manuais, exportação do fechamento mensal, preferências push e testes de regressão |
-
-### Algumas telas
-
 <div align="center">
-  <img src="screenshots/resumo.png" alt="Resumo do SaldoPlan" width="47%">
-  <img src="screenshots/lancamento.png" alt="Lançamentos do SaldoPlan" width="47%">
-  <img src="screenshots/guardado.png" alt="Controle de valores guardados" width="47%">
-  <img src="screenshots/parametros.png" alt="Simulação salarial" width="47%">
+  <strong>💡 Transformando necessidades reais em soluções tecnológicas.</strong>
+  <br />
+  <sub>Joey Rickson · Manaus, Brasil</sub>
 </div>
-
-## Privacidade e armazenamento
-
-- Os lançamentos ficam **no armazenamento do navegador**. Uma conta Google **não transforma automaticamente os dados em um banco remoto**.
-- Na v4, **cada conta Google possui um espaço local separado**. Ao associar os dados legados pela primeira vez, o usuário pode copiá-los para a conta ou iniciar um perfil vazio; a base antiga permanece no navegador. **Faça um backup JSON antes de começar.**
-- A separação local é uma medida de organização, **não uma proteção criptográfica contra pessoas com acesso ao mesmo perfil do navegador ou dispositivo**. Para dados sensíveis, proteja o dispositivo e a conta do sistema operacional.
-- A cópia opcional entre aparelhos usa um documento por UID no Firestore, cifrado no navegador com **AES-GCM / PBKDF2-SHA256**, usando senha de proteção própria (mínimo 8 caracteres; senha longa recomendada).
-- A sincronização é de **snapshots completos**: não mescla lançamentos editados simultaneamente em aparelhos diferentes. Os conflitos interrompem o envio automático e exigem escolha explícita.
-- A senha de proteção pode ser lembrada **opcionalmente por aparelho**. Não equivale a biometria ou a um cofre de hardware.
-- Google Drive e outros serviços de nuvem têm autorizações **separadas** do login Firebase. As funções disponíveis variam por provedor.
-
-> **Evite perda de dados:** exporte um backup JSON antes de trocar de aparelho, conta ou versão. Não limpe o armazenamento do navegador nem desinstale o PWA sem preservar os arquivos.
-
-## Instalação e uso
-
-**Versão hospedada:** https://saldoplan.vercel.app/
-
-No Android, abra no Chrome e use **Instalar aplicativo / Adicionar à tela inicial**. No computador, use o comando de instalação oferecido pelo navegador. O funcionamento offline depende de os arquivos terem sido carregados anteriormente.
-
-Para executar localmente:
-
-```bash
-# Na pasta do repositório
-npm install
-npx vercel dev
-```
-
-Ou para inspecionar apenas a interface estática:
-
-```bash
-python -m http.server 3000
-```
-
-Abra `http://localhost:3000`. **Atenção:** funções `/api/*` requerem Vercel Dev ou deploy compatível; o servidor HTTP simples não executa as funções serverless. O login e as integrações externas exigem origens autorizadas e configurações próprias.
-
-## Organização do código
-
-```text
-index.html              Entrada da PWA
-app.js                  Bootstrap de telas e scripts
-js/core.js              Estado financeiro, migração e salvamento
-js/                    Lançamentos, cartões, calendário, importação, etc.
-js/v4-features.js       Perfis por conta, atalhos e diagnóstico
-js/v4-push.js           Ativação opt-in das notificações em segundo plano
-views/                  Páginas parciais HTML
-css/                    Estilos por funcionalidade e temas
-api/                    Funções serverless de suporte e push
-sw.js                   Cache offline e receptor de push
-firebase-config.js      Configuração pública do Firebase
-push-config.js          Chave VAPID pública (vazia até configurar)
-ARQUITETURA.md          Detalhes técnicos e contratos de dados
-FIRESTORE-SETUP.md      Regras e limites da cópia criptografada
-PUSH-SETUP.md           Ativação e limites das notificações push
-V5-SETUP.md             Permissões administrativas e checklist de homologação
-js/v5-engine.js         Cálculos determinísticos do assistente local
-js/v5-features.js       Interface de metas, PDF, perguntas e push
-js/v5-admin.js          Interface administrativa (API valida o UID)
-api/support-admin.js    API administrativa protegida
-CHANGELOG.md            Histórico de versões
-```
-
-### Variáveis e serviços externos
-
-| Variável | Para que serve |
-| --- | --- |
-| `FIREBASE_PROJECT_ID` | Validação de login no backend de suporte |
-| `RESEND_API_KEY` | Envio de solicitações para o desenvolvedor |
-| `SUPPORT_FROM_EMAIL` | Remetente autorizado no Resend |
-| `FIREBASE_SERVICE_ACCOUNT_JSON` | Credencial **secreta** do backend push/Firestore Admin |
-| `CRON_SECRET` | Proteção da rotina agendada para enviar push |
-| `SUPPORT_ADMIN_UID` | UID Firebase autorizado a administrar solicitações no backend |
-| `push-config.js` → `vapidPublicKey` | Chave **pública** Web Push do Firebase |
-
-Os serviços opcionais só funcionam depois de configurados. **Jamais coloque segredos em arquivos `.js` do frontend, GitHub ou commits.** `.env.local`, `node_modules/` e `.vercel/` devem permanecer fora do controle de versão.
-
-### Verificações antes de publicar
-
-```powershell
-node --check .\app.js
-node --check .\auth.js
-Get-ChildItem .\js\*.js | ForEach-Object { node --check $_.FullName }
-Get-ChildItem .\api\*.js | ForEach-Object { node --check $_.FullName }
-npm.cmd audit --omit=dev
-git diff --check
-git status --short
-```
-
-No caso de atualizações incrementais, guarde um backup, teste no computador e no Android e confirme o resultado antes de publicar.
-
-## Roadmap e limitações
-
-- A sincronização entre aparelhos **ainda não faz mesclagem automática** de edições concorrentes.
-- Push com a PWA fechada **exige habilitar Firebase Cloud Messaging e backend**, descritos em [`PUSH-SETUP.md`](PUSH-SETUP.md). Disponibilidade depende do navegador, permissões e conectividade.
-- O leitor PDF só reconhece formatos compatíveis; todos os itens importados devem ser revisados pelo usuário.
-- Perfis separados no **mesmo navegador** não são contas protegidas por senha local ou isolamento de sistema operacional.
-- O app não acessa contas bancárias automaticamente e não é um serviço de aconselhamento financeiro.
-
-## Autor
-
-Desenvolvido e mantido por **Joey Rickson**.
-
-[GitHub](https://github.com/JoeyRickson) · [LinkedIn](https://linkedin.com/in/joeyrickgoliveira) · [Portfólio](https://joeyrickson-portfolio.vercel.app/)
-
----
-
-*SaldoPlan é um projeto independente de controle financeiro pessoal.*
-
-## SaldoPlan v5.0.0 — Recursos integrados
-
-O assistente financeiro é **local e baseado em regras**; não utiliza modelo externo nem envia lançamentos para serviços de IA. O painel administrativo só funciona com `SUPPORT_ADMIN_UID` e credencial de serviço Firebase configurados. O backup e as permissões continuam independentes do login. Consulte [`V5-SETUP.md`](V5-SETUP.md).
-
-
-### Compatibilidade da v5 consolidada
-
-Esta versão mantém a correção da v4 que permite lançamentos únicos com datas futuras,
-sem confundir esses lançamentos com recorrências. Backups continuam independentes dos perfis locais.
-Antes de migrar, exporte os dados pelo aplicativo e faça os testes descritos em `V5-SETUP.md`.
-
-
-## 🔄 Sincronização automática entre dispositivos — v5.1.0
-
-O **Live Sync** permite que a mesma conta Google mantenha lançamentos, cartões, metas e outros registros alinhados entre celular e computador. Ao criar, editar ou excluir um registro, o SaldoPlan guarda a alteração localmente e a transmite ao Firestore; aparelhos conectados recebem os eventos em tempo real. Se não houver internet, uma fila local aguarda a reconexão.
-
-**Primeira ativação:** em **Dados e backup → Backups → Entre aparelhos**, escolha se deseja usar os dados deste aparelho, recuperar os dados já existentes na nuvem ou unir registros sem sobrescrever. É preciso fazer essa escolha uma única vez por aparelho/conta, para evitar misturar históricos diferentes. Exporte antes um backup JSON independente. Depois de vincular, as próximas sessões autenticadas sincronizam automaticamente.
-
-**Conflitos:** alterações simultâneas no mesmo registro não são sobrescritas silenciosamente. O aplicativo pausa esse registro e permite selecionar a versão a manter. Outras alterações podem continuar sincronizando. Os registros excluídos são representados como marcações de exclusão (tombstones).
-
-**Privacidade:** este modo é vinculado ao UID do Firebase Authentication, usa HTTPS, regras privadas do Firestore e criptografia da infraestrutura Firebase em repouso. **Não é criptografia ponta a ponta:** administradores autorizados do projeto Firebase podem tecnicamente ler registros sincronizados. Para manter uma cópia protegida por senha própria, use o **Backup entre aparelhos** criptografado, que permanece separado, ou exporte o backup local.
-
-**Configuração:** veja [LIVE-SYNC-SETUP.md](LIVE-SYNC-SETUP.md) para instalar as regras sem remover as coleções existentes. O Live Sync é opcional e não impede o uso offline nem substitui o backup de segurança. Pode gerar consumo de leituras, gravações e armazenamento no Firestore.
-
-## Conferência de contracheque (v5.2.0)
-
-Em **Simulação de folha → Conferir contracheque**, escolha a competência, informe as horas extras e selecione o formato:
-
-- **Horas e minutos:** `42:46` significa 42 horas e 46 minutos.
-- **Horas decimais:** `42,46` significa 42,46 horas.
-
-Digite opcionalmente os valores das rubricas oficiais para ver a diferença item a item: HE 50%/100%, adicional noturno, DSR, bruto, INSS, IRRF, adiantamento e líquido. O histórico é salvo na configuração mensal da conta (`state.payrollMonths[AAAA-MM].paycheckAudit`), acompanha os backups existentes e o Live Sync quando ativo.
-
-A conferência **não muda o simulador, as horas lançadas, o FGTS ou o 13º**; é uma comparação separada. Para salvar PDF, use **Imprimir / PDF** e escolha a impressora PDF do navegador. A simulação fiscal de 2026 é aproximada, não constitui auditoria trabalhista. Valores salvos podem sincronizar com a conta no Firestore e não usam criptografia ponta a ponta adicional.
-
-### FGTS por empresa (v5.2.1)
-
-Na aba FGTS, escolha o empregador no topo para visualizar saldo do último extrato, depósitos confirmados posteriores, créditos/saques e saldo atualizado individual. O total consolidado permanece separado. Não consulta extratos Caixa automaticamente: os valores vêm de importações e lançamentos confirmados pelo usuário. Depósitos futuros não entram no saldo atual, mesmo marcados como depositados; valores previstos são mostrados na projeção. Histórico antigo não identificado fica fora do total.
-
-## Planejamento integrado (v5.3.0)
-
-O menu **Planejamento** reúne previsões 30/60/90 dias, simulação de parcelas de cartão, conferência manual de extrato, metas com contribuição sugerida e vencimentos próximos. Os dados são gravados no perfil atual e sincronizados conforme as configurações de Live Sync. Veja `PLANEJAMENTO-5.3.0.md`. Não há consulta bancária automática.
-
-## Mercado reformulado — v5.3.1
-
-Indicadores, gráficos, Tesouro e notícias foram reorganizados. Fontes independentes, dados parciais identificados e cache sinalizado. Consulte [MERCADO-5.3.1.md](MERCADO-5.3.1.md).
-
-## Recuperação do Mercado — v5.3.2
-
-Corrigida incompatibilidade do SGS (limite 20 em `/dados/ultimos`), históricos por período, fallback por fonte, filtros e interação dos gráficos, agrupamento de títulos e qualidade das notícias. Atualização incremental a partir da versão **local** v5.3.1. Veja [MERCADO-5.3.2.md](MERCADO-5.3.2.md).
-
-Para testar `/api/*`, use `vercel dev`; `http-server` testa só os arquivos estáticos. Não publique `.env.local` nem `.vercel/`.
-
-
-## Central de notícias do Mercado — v5.3.3
-
-O Mercado inclui um calendário para explorar notícias por mês e dia, busca de assuntos e cartões com resumo, data, fonte e foto (se presente no RSS). O histórico é uma consulta às fontes públicas, **não um arquivo jornalístico completo**. Consulte [MERCADO-5.3.3.md](MERCADO-5.3.3.md) para documentação, fonte de dados, limitações e testes.
-
-Para desenvolvimento local com APIs, utilize `npx.cmd vercel dev --listen 3000` (não `http-server`), mantendo `.env.local` e `.vercel/` fora do Git.
-
-
-## Notícias com fotos — v5.3.4
-A central de notícias prioriza metadados de imagem dos feeds RSS e inclui o feed direto da Agência Brasil (editoria Economia). Em até quatro links diretos de domínios confiáveis por consulta, pode usar a imagem Open Graph do próprio artigo, com limite de tempo e de tamanho. O Google Notícias RSS não disponibiliza fotos das matérias; nesses casos, o cartão usa uma apresentação compacta, sem inventar imagens. Veja `MERCADO-5.3.4.md`.
